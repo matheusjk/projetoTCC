@@ -1,0 +1,159 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+{#... {{ validaLogin(name) }} ...#}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron p-3">
+                <h2> Pessoas <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#mymodal"><span class="oi oi-plus"></span> Adicionar Pessoas </button></h2>
+            </div>
+
+            <table class="table table-hover table-dark" id="example">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Data Nascimento</th>
+                    <th>Sexo</th>
+                    <th>CPF</th>
+                    <th>Telefone</th>
+                    <th>Usuario Nome</th>
+                    <th>Ação</th>
+                </tr>
+
+                {% for linhas in pessoa %}
+                    <tr>
+                        <td>{{ linhas.id }}</td>
+                        <td>{{ linhas.nome }}</td>
+                        <td>{{ linhas.dataNasc }}</td>
+                        <td>{{ linhas.sexo }}</td>
+                        <td>{{ linhas.cpf }}</td>
+                        <td>{{ linhas.tel }}</td>
+                        <td>{{ linhas.usuario_id.nome }}</td>
+
+                         <td>
+                            <a href="/alterarPessoa/{{ linhas.id }}" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#modaledit{{ linhas.id }}"><span class="oi oi-pencil"></span> Editar</a>
+                            <a href="/excluirPessoa/{{ linhas.id }}" class="btn btn-outline-danger tbn-xs" onclick="return confirm('Deseja realmente deletar o usuario??')"><span class="oi oi-trash"></span> Excluir</a>
+                        </td>
+                    </tr>
+
+                    <div id="modaledit{{linhas.id}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Alterar Pessoa </h4>
+                                </div>
+
+                                <div class="modal-body">
+                                    <form action="" method="POST">
+                                         {{ form.csrf_token }}
+                                        <div class="form-group">
+                                              {{ form.nome.label }}
+                                              {{ form.id(type="hidden", value=linhas.id) }}
+                                              {{ form.nome(class="form-control", placeholder="teste", value=linhas.nome) }}
+                                              {{ valida(form.nome) }}
+                                        </div>
+
+                                        <div class="form-group">
+                                             {{ form.dataNasc.label }} {{ form.dataNasc(class="form-control", value=linhas.dataNasc) }}
+                                             {{ valida(form.dataNasc) }}
+                                        </div>
+
+                                        <div class="form-group">
+                                             {{ form.sexo.label }} {{ form.sexo(class="form-control",  value=linhas.sexo) }}
+                                             {{ valida(form.sexo) }}
+                                        </div>
+
+                                         <div class="form-group">
+                                             {{ form.cpf.label }} {{ form.cpf(class="form-control", value=linhas.cpf) }}
+                                             {{ valida(form.cpf) }}
+                                        </div>
+
+                                         <div class="form-group">
+                                             {{ form.tel.label }} {{ form.tel(class="form-control", value=linhas.tel) }}
+                                             {{ valida(form.tel) }}
+                                        </div>
+
+                                        <div class="form-group pt-2">
+                                            {{ form.submit(class="btn btn-primary")}}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div id="mymodal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"> Adicionar Pessoa </h4>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <form action="{{url_for(
+
+
+
+                        'pessoa.registrarPessoa')}}" method="POST">
+                             {{ form.csrf_token }}
+                            {% if form.errors %}
+                                <script>
+                                    $('#mymodal').modal('show');
+                                </script>
+                            {% endif %}
+
+                             <div class="form-group">
+
+                                 {{ form.nome.label }} {{ form.nome(class="form-control", placeholder="teste" ) }}
+                                 {{ valida(form.nome) }}
+                             </div>
+
+                             <div class="form-group">
+                                {{ form.dataNasc.label }} {{ form.dataNasc(class="form-control") }}
+                                {{ valida(form.dataNasc) }}
+                             </div>
+                             <div class="form-group">
+                                 {{ form.sexo.label }} {{ form.sexo(class="form-control", placeholder="123@teste") }}
+                                 {{ valida(form.sexo) }}
+                             </div>
+
+                              <div class="form-group">
+                                 {{ form.cpf.label }} {{ form.cpf(class="form-control", placeholder="123@teste", pattern="([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})", title="Por favor verifique o CPF digitado") }}
+                                 {{ valida(form.cpf) }}
+                             </div>
+
+                             <div class="form-group">
+                                 {{ form.tel.label }} {{ form.tel(class="form-control", placeholder="123@teste", pattern="^\([1-9]{2}\) (?:[2-8]|9[1-9])[0-9]{3}\-[0-9]{4}$" ) }}
+                                 {{ valida(form.tel) }}
+                             </div>
+
+                              <div class="form-group">
+                                 {{ form.usuarioNome.label }}
+                                 {{ form.usuarioNome(class="form-control")}}
+                              </div>
+
+                             <div class="form-group">
+                                {{ form.submit(class="btn btn-outline-primary") }}
+                             </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

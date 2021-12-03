@@ -1,0 +1,85 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+  {{ validaLogin(current_user) }}
+
+  <div class="container">
+      <div class="row">
+          <div class="col-md-12 pt-3">
+              <div class="jumbotron p-3">
+                  <h2> Geolocalizacao </h2>
+              </div>
+
+              {{ mostraAlerta() }}
+              <table id="myTable" class="table table-hover table-dark table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data Criacao</th>
+                            <th>IP</th>
+                            <th>Status</th>
+                            <th>Estado</th>
+                            <th>Cidade</th>
+                            <th>CEP</th>
+                            <th>Lat</th>
+                            <th>Long</th>
+                            <th>Nome</th>
+                            <th>Visualizar</th>
+                        </tr>
+                    </thead>
+                
+                  <tbody>
+                      <tr>
+                        
+                            <!-- <td>
+                                <a href="/alterarLocal/" id="btnMapa" class="btn btn-outline-info btn-xs" data-toggle="modal" data-target="#modaledit"><i class="bi bi-eye"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                    Visualizar
+                                </a>
+                            </td> -->
+                        </tr>
+
+                        
+                    <div id="modal-edit" class="modal fade" role="dialog">
+                         <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id='editarGeoCabecalho'> </h4>
+                                </div>
+
+                                <div class="modal-body" style="width:100%;height:400px;">
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </tbody>
+              </table>
+          </div>
+       
+
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block footer %}
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+        </div>
+    </footer>
+
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCysBdsXGjQt2wvb-orBPNyXKoBiaqSE0o&callback=googleMapa"></script>
+{% endblock %}

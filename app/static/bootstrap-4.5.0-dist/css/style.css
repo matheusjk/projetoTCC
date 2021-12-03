@@ -1,0 +1,149 @@
+#caixaLogin{
+    /* padding: 10px; */
+    box-shadow: 3px 3px 3px 3px #757575;
+    background-color: #D3D3D3;
+}
+
+#fundoCorpoLogin{
+    /* background-color:   #708090; */
+    background-color: #5F9EA0;
+}
+
+.zoom {
+    padding: 50px;
+    transition: transform .2s; /* animaçao */
+    width: 80px;
+    height: 40px;
+    margin: 0 auto;
+}
+
+
+.zoom:hover{
+    width: 300px;
+    height: 160px;
+    transform: scale(2.5); /* 150% zoom - nota se o zoom esta muito largo ele ficara fora da tela de visualizaçao */
+}
+
+.zoom2{
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100px;
+    height: 50px;
+}
+
+.zoom2{
+    visibility: visible;
+    opacity: 1;
+}
+
+/* body{ */
+    /* background:   #4ca1af; */   /* #0f2027; */  /* #2193b0; */  /* #00416a; */  /* #334d50 */
+    /*background: -webkit-linear-gradient(to right,  #4ca1af, #c4e0e5); */  /* #0f2027, #203a43, #2c5364); */ /*  #2193b0, #6dd5ed); */  /* #00416a, #e4e5e6); */   /* #334d50, #cbcaa5); */
+    /*background: linear-gradient(to right,  #4ca1af, #c4e0e5); */   /* #0f2027, #203a43, #2c5364); */  /* #2193b0, #6dd5ed); */  /* #00416a, #e4e5e6); */   /* #334d50, #cbcaa5); */
+/* }  */
+
+.jumbotron{
+    /* border: 1px solid;
+    border-radius: 5px;
+    border-style: outset;
+    padding: 10px; */
+    box-shadow: 5px 10px 5px #8c8c8c;   /* #888888; */
+}
+
+#myTable{
+    /* font-size: 0.90rem !important; */
+    width: 100%;
+    border: 1px solid #6A6464BF;
+    border-radius: 5px;
+    border-style: outset;
+    /* padding: 10px; */
+    /* box-shadow: 4px 6px 4px #6A6464BF; */   /* 5px 10px 5px #b9b2b2; */
+}
+
+
+/* table.table {
+    width: auto;
+} */
+
+/* #email{
+    text-align: center;
+}
+
+#senha{
+    text-align: center;
+} */
+
+.modal::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.modal::-webkit-scrollbar-track {
+    background: #333;
+}
+
+.modal::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    border: 3px solid #2e9dd8;
+}
+
+body::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+body::-webkit-scrollbar-track {
+    background: #333;
+}
+
+body::-webkit-scrollbar-thumb {
+    /* background-color: blue; */
+    /* background-color: rgb(107, 107, 107); */
+    border-radius: 20px;
+    border: 5px solid #2e9dd8;  /* border: 3px solid #2e9dd8;  */
+}
+
+
+/* 
+.scroll {
+    width: 100%;
+    height: 100%;
+    border: 1px solid grey;
+    overflow: scrool;
+    display: inline-block;
+    scrollbar-color: #2e9dd8;
+    scrollbar-color: #2e9dd8;
+    width: 5px;
+    height: 5px;
+}
+
+.scroller::-webkit-scrollbar-track {
+    background: #333;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+    background-color: blue;
+    background-color: rgb(107, 107, 107);
+    border-radius: 20px;
+    border: 5px solid #2e9dd8;  border: 3px solid #2e9dd8; 
+} */
+
+
+/* #navbarNav .alert {
+    position: absolute;
+    top: 50px;
+} */
+/* .modifica-input */
+
+/* #email, #senha, #dataNasc, #nome, #sexo, #tel, #cpf, #confirmarSenha, #tipoUsuario, #secretKeyThingSpeak{
+    outline: 1;
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    border-bottom: 2px solid;
+} */
+
+
+

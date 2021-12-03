@@ -1,0 +1,136 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+{{ validaLogin(current_user) }}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 pt-3">
+            <div class="jumbotron p-3">
+                <h2> Local <button type="button" class="btn btn-outline-success float-right" data-toggle="modal" data-target="#mymodal"><i class="bi bi-plus"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Adicionar Local </button></h2>
+            </div>
+
+            <table id="myTable" class="table table-hover table-dark table-bordered" style="width: 100%;">
+                <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Cep</th>
+                      <th>Endereco</th>
+                      <th>Cidade</th>
+                      <th>Bairro</th>
+                      <th>Estado</th>
+                      <th>Obs</th>
+                      <th>Nome</th>
+                      <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                
+                </tbody>
+
+            </table>
+        </div>
+
+
+        <div id="modaledit" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editarLocalCabecalho"> </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="formLocalEdit">
+                            <!-- <input id="csrfToken" value='{{ form.csrf_token }}' type="hidden">  -->
+                            <input id="id" name="id" type="hidden">
+
+                            <div class="form-group">
+                                <label for="cep"> CEP </label>
+                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()">               
+                            </div>
+
+                            <div class="form-group">
+                                <label for="endereco"> ENDERECO </label>
+                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie"> 
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cidade"> CIDADE </label>
+                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bairro"> BAIRRO </label>
+                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro">
+                            </div>
+
+                           <div class="form-group">
+                                <label for="estado"> ESTADO </label>
+                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ">
+                           </div>
+
+                           <div class="form-group">
+                                <label for="obs"> OBS </label>
+                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste...">
+                           </div>
+
+                            <div class="form-group">
+                               <label for="usuario_id"> Nome Usuario </label>
+                               <select class="form-control" id="usuario_id" name="usuario_id">
+
+                               </select>
+                            </div>
+
+
+                            <div class="form-group pt-2">
+                                <button class="btn btn-outline-primary" id="edit_action" type="button">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+  
+
+        <div id="mymodal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"> Adicionar Local </h4>
+                    </div>
+
+                    <div class="modal-body">
+
+                      
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+        </div>
+    </footer>
+{% endblock %}

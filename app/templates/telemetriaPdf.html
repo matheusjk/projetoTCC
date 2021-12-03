@@ -1,0 +1,82 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% macro mostrarTelemetria() %}
+
+<div class="col-md-12 pt-3">
+    <div class="jumbotron p-3">
+        <!-- <img src="app/static/bootstrap-4.5.0-dist/images/ar2.jpg" class="img-thumbnail"> -->
+        <!-- <h2> Telemetria -->
+        <h2 class="display-4"> Telemetria  <a id='dataHora' class="btn btn-outline-info float-right" href="{{ url_for('telemetria.pdf') }}">PDF</a><i class="bi bi-plus"></i>
+        <h5 class="display-6"> Usuario: {{ current_user.nome }} | Data e Hora: {{ hora }} </h5>
+            <!-- </h2> -->
+    </div>  
+       
+    <table class="table table-hover table-dark">
+        
+        {% if not telemetria %} 
+            <thead>
+                <tr>
+                    <th class="text-center">Desculpe nenhum dado de telemetria. </th>
+                </tr>    
+            </thead>
+        {% else %}
+            <thead>
+                <tr id="cabecalho">
+                    <th>ID</th>
+                    <th>NOME</th>
+                    <th>SENSOR GAS</th>
+                    <th>SENSOR TEMPERATURA</th>
+                    <th>SENSOR UMIDADE</th>
+                    <th>DATA CRIACAO</th>
+                    <!-- <th>SENSOR W</th>
+                    <th>Endereco</th>
+                    <th>Cidade</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for linhas in telemetria %}
+                    <tr>
+                        <td>{{ linhas.id }}</td>
+                        <td>{{ linhas.json['NOME'] }}</td>
+                        <td> {{ linhas.json['SENSORG'] }} PPM</td>
+                        <td> {{ linhas.json['SENSORT'] }} *C </td>
+                        <td> {{ linhas.json['SENSORU'] }} %</td>
+                        <td>{{ linhas.dataCriacao }}</td>
+                        <!-- <td>{{ linhas.json['SENSORG'] }}</td> -->
+                    </tr>
+                {% endfor %}
+            </tbody>    
+        {% endif %}        
+    </table>
+
+</div>
+
+
+    </div>
+</div>
+
+{% endmacro %}
+
+
+{% block content %}
+
+{{ validaLogin(current_user) }}
+
+<div class="container">
+    <div class="row">
+      
+        {{ mostrarTelemetria() }}
+       
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+        </div>
+    </footer>
+{% endblock %}

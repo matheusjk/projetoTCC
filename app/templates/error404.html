@@ -1,0 +1,29 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+{{ validaLogin(current_user) }}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 pt-3">
+        <div class="jumbotron p-3">
+            <h2 class="display-4"> ERROR PAGINA NAO ENCONTRADA </h2>
+        </div>
+        <img src="{{ url_for('static', filename='bootstrap-4.5.0-dist/images/homer404.jpg' )}}" class="img-fluid" alt="Homer em frente ao computador error 404">
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+
+<footer class="footer mt-auto py-3">
+    <div class="container">
+        <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+    </div>
+</footer>
+
+{% endblock %}

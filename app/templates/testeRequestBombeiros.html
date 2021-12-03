@@ -1,0 +1,34 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{%block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+                 <table class="table table-hover table-dark">
+                      <thead>
+                        <tr>
+                          <th scope="col">Codigo</th>
+                          <th scope="col">Nome Batalhão</th>
+                          <th scope="col">Endereco</th>
+                          <th scope="col">Telefone</th>
+                        </tr>
+                      </thead>
+                    {% for linha in jsonText.get("features") %}
+                      <tbody>
+                        <tr>
+                          <th scope="row">{{ linha.get("attributes").get("Codigo") }}</th>
+                          <td>{{ linha.get("attributes").get("Nome") }}</td>
+                          <td>{{ linha.get("attributes").get("Endereco") }}</td>
+                          <td>{{ linha.get("attributes").get("Telefone") }}</td>
+                        </tr>
+                    {% endfor %}
+                      </tbody>
+                 </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

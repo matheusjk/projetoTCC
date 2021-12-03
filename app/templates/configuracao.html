@@ -1,0 +1,233 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+{{ validaLogin(current_user) }}
+
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-12 pt-3">
+            <div class="jumbotron p-3">
+              <h2> Configuracao <button type="button" class="btn btn-outline-success float-right" data-toggle="modal" data-target="#mymodal"><i class="bi bi-plus"></i>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                  </svg>
+                Adicionar Configuracao </button> </h2>
+            </div>
+
+              
+                      {{ mostraAlerta() }}
+                    <table id="myTable" class="display table table-hover table-dark table-bordered" style="width: 100%; ">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Time Tele.</th>
+                            <th>Time Geo</th>
+                            <th>Time Soneca</th>
+                            <th>Time ThingSpeak</th>
+                            <th>URL-IPAPI</th>
+                            <th>URL-ThinSpeak</th>
+                            <th>SECRETKEY</th>
+                            <th>ResetarConfigsWifi</th>
+                            <th>AlertaEmail</th>
+                            <th>GasAviso</th>
+                            <th>DataCriação</th>
+                            <th>DataAlteracao</th>
+                            <th> Usuario</th>
+                            <th> Ação </th>
+                          </tr>
+                        </thead>  
+                        <tbody>  
+                         
+
+                                  
+                       
+                        </tbody>
+                    </table>
+            
+            <div class="modal fade" id="modal-edit" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    
+                      <h4 class="modal-title" id="editarConfigCabecalho"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formConfigEdit">
+                            <div class="form-group">
+                              <input name='id' id="id" type="hidden">
+                              <label for="tempoTel">Tempo Telemetria</label>
+                              <input name="tempoTel" id="tempoTel" type="number" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoGeo">Tempo Geolocalizacao </label>
+                              <input name="tempoGeo" id="tempoGeo" type="number" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoSoneca">Tempo Soneca</label>
+                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoThingSpeak">Tempo ThingSpeak</label>
+                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="urlIpApi">URL IPAPI</label>
+                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="5">                            
+                            </div>
+                          
+                            <div class="form-group">
+                              <label for="urlThingSpeak">URL ThingSpeak</label>
+                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="secretKeyThingSpeak">ThingSpeak KEY</label>
+                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="resetarConfigsWifi">RESETAR WIFI</label>
+                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi">
+
+                              </select>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="alertaEmail">ALERTA EMAIL</label>
+                              <select class="form-control" id="alertaEmail" name="alertaEmail">
+                                
+                              </select>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="valorGasAviso">Valor Gas Alerta</label>
+                              <input name="valorGasAviso" id="valorGasAviso" type="number" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="usuario_id">Usuario</label>
+                              <select class="form-control" id="usuario_id" name="usuario_id">
+                                
+                              </select>
+                            </div>
+                          
+
+                            <div class="modal-footer">
+                              <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                              <button class="btn btn-outline-primary" id="edit_action" type="button">Enviar</button>
+                            </div>
+                    </form>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          <!-- </div> -->
+            <!-- <input type="hidden" id="item_id" value="0" />            -->
+
+            <div id="mymodal" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                      <h4 class="modal-title">Adicionar Configuracao</h4>
+                  </div>
+            
+                  <div class="modal-body">
+                    <form id="formConfig">
+                        {{ form.csrf_token }}
+                        {# {{ form.errors }} #}
+                        <div class="form-group">
+                            {{ form.tempoTelemetria.label }} {{ form.tempoTelemetria(class="form-control", placeholder="25", min=1) }}
+                            {{ valida(form.tempoTelemetria) }}
+                        </div>
+            
+                        <div class="form-group">
+                            {{ form.tempoGeolocalizacao.label }} {{ form.tempoGeolocalizacao(class="form-control", placeholder="30", min=1)}}
+                            {{ valida(form.tempoGeolocalizacao) }}
+                        </div>
+            
+                        <div class="form-group">
+                            {{ form.tempoSoneca.label }} {{ form.tempoSoneca(class="form-control", placeholder="30", min=1)}}
+                            {{ valida(form.tempoSoneca) }}
+                        </div>
+            
+                        <div class="form-group">
+                          {{ form.tempoThingSpeak.label }} {{ form.tempoThingSpeak(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.tempoThingSpeak) }}
+                        </div>
+            
+                        <div class="form-group">
+                          {{ form.urlIpApi.label }} {{ form.urlIpApi(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.urlIpApi) }}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.urlThingSpeak.label }} {{ form.urlThingSpeak(class="form-control", placeholder="30", min=1)}}
+                            {{ valida(form.urlThingSpeak) }}
+                        </div>
+                        
+                        <div class="form-group">
+                          {{ form.secretKeyThingSpeak.label }} {{ form.secretKeyThingSpeak(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.secretKeyThingSpeak) }}
+                        </div>
+                        
+                        <div class="form-group">
+                          {{ form.resetarConfigsWifi.label }} {{ form.resetarConfigsWifi(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.resetarConfigsWifi) }}
+                        </div>
+                        
+                        <div class="form-group">
+                          {{ form.alertaEmail.label }} {{ form.alertaEmail(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.alertaEmail) }}
+                        </div>
+                        
+                        <div class="form-group">
+                          {{ form.valorGasAviso.label }} {{ form.valorGasAviso(class="form-control", placeholder="30", min=1)}}
+                          {{ valida(form.valorGasAviso) }}
+                        </div>
+            
+                        <div class="form-group">
+                            {{ form.usuario_id.label }} {{ form.usuario_id(class="form-control", placeholder="30", min=1)}}
+                            {{ valida(form.usuario_id) }}
+                        </div>
+            
+                        <div class="form-group">
+                          {{ form.submit(class="btn btn-outline-primary") }}
+                        </div>
+                      </form>
+                  </div>
+                  <div class="modal-footer">
+                      <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                  </div>
+                </div>
+              </div>
+            </div>   
+          </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+
+<script>
+
+  // var elementos = document.getElementById("teste")
+  // for(i = 0; i < elementos.length; i++){
+  //   elementos[i].value = elementos[i]
+  // }
+</script>
+
+  <footer class="footer mt-auto py3">
+    <div class="container">
+      <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+    </div>
+  </footer>
+{% endblock %}

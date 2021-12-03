@@ -1,0 +1,257 @@
+{% from 'base.html' import valida %}
+{% extends 'base.html' %}
+
+{% block content %}
+
+  {{ validaLogin(current_user) }}
+
+  <div class="container">
+      <div class="row">
+          <div class="col-md-12 pt-3">
+              <div class="jumbotron p-3">
+                  <h2> Geolocalizacao </h2>
+              </div>
+
+              {{ mostraAlerta() }}
+              <table id="myTable" class="table table-hover table-dark">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data Criacao</th>
+                            <th>IP</th>
+                            <th>Status</th>
+                            <th>Estado</th>
+                            <th>Cidade</th>
+                            <th>CEP</th>
+                            <th>Lat</th>
+                            <th>Long</th>
+                            <th>Visualizar</th>
+                        </tr>
+                    </thead>
+                  {# {{ geo }} #}
+                  <tbody>
+                  {% for linhas in geo %}
+                      <tr>
+                          <td>{{ linhas.id }}</td>
+                          <td>{{ linhas.dataCriacao }}</td>
+                          <td>{{ linhas.json["query"] }}</td>
+                          <td>{{ linhas.json["status"] }}</td>
+                          <td>{{ linhas.json["region"] }}</td>
+                          <td>{{ linhas.json["city"] }}</td>
+                          <td>{{ linhas.json["country"] }}</td>
+                          <td data-lat="{{ linhas.json['lat'] }}">{{ linhas.json["lat"] }}</td>
+                          <td data-long="{{ linhas.json['lon'] }}">{{ linhas.json["lon"] }}</td>
+                     
+                            <td>
+                                <a href="/alterarLocal/{{ linhas.id }}" data-lat="{{ linhas.json['lat'] }}"   data-long="{{ linhas.json['lon'] }}"  id="btnMapa{{ linhas.id }}" class="btn btn-outline-info btn-xs" data-toggle="modal" data-target="#modaledit{{ linhas.id }}"><i class="bi bi-eye"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                    Visualizar
+                                </a>
+                            </td>
+                        </tr>
+
+                        
+                    <div id="modaledit{{linhas.id}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h4 class="modal-title"> Mapa </h4>
+                                </div>
+
+                                <div class="modal-body" id="googleMap{{linhas.id}}" style="width:100%;height:400px;">
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+
+          <!-- <nav aria-label="Paginacao" class="ml-auto">
+              <ul class="pagination">
+                  {% if geo.has_prev %}
+                      <li class="page-item"><a class="btn btn-outline-dark" href="{{ url_for('geo.listar', pagina=geo.prev_num)}}"> Anterior </a></li>
+                  {% else %}
+                      <li class="page-item disabled"><a class="page-link btn" href="#"> Anterior </a></li>
+                  {% endif %}
+
+                  {% if geo.has_next %}
+                      <li class="page-item"><a class="btn btn-outline-dark" href="{{ url_for('geo.listar', pagina=geo.next_num)}}"> Proximo </a></li>
+                  {% else %}
+                      <li class="page-item disabled"><a class="page-link btn" href="#"> Proximo </a></li>
+                  {% endif %}
+              </ul>
+              <p class="text-right mt-3">
+                  Mostrando pagina {{ geo.page }} de {{ geo.pages }}
+              </p>
+          </nav> -->
+
+      </div>
+    </div>
+
+    <script>
+    // $(document).on("click", "btn-outline-info", function(){
+    //   var lat = $(this).parent().parent().find("#lat").text();
+    //   // alert(lat);
+    //   console.log(lat);
+    // })
+
+    // $('#btnMapa').click(function(){
+    //     // meuMapa(new google.maps.LatLng($(this).data('lat'), $(this).data('lon')));
+    //     meuMapa();
+    //     console.log($(this).data('lat'), $(this).data('lon'));
+    // });
+
+    // var btnVerMapa = document.getElementsByClassName("btn-outline-info");
+    // var idMapa = document.getElementsByClassName("modal-body");
+
+    // var x=0;
+    // for(x=0; x<=btnVerMapa.length;x++){
+    //     btnVerMapa[x].addEventListener("click", meuMapa(btnVerMapa[x], idMapa[x]));
+    // }
+    // console.log(idMapa[0].id)
+    
+    // var 
+ 
+    function meuMapa(){
+    //   var tr = document.querySelectorAll('tr')
+    //   for(var i = 0; i < tr.length; i++){
+    //     tr[i].getElementsByTagName('td')
+    //   }
+
+        var idElemento = document.querySelectorAll(".btn-outline-info")
+        let idModal;
+        console.log(idElemento)
+        for(var i = 0; i < idElemento.length; i++){
+            idElemento[i].addEventListener('click', function(e){
+                // alert("Elemento clicado foi o " + e.target.id)
+                // alert(e.target.id)
+                console.log(e.target)
+               
+                idModal = e.target.id;
+                // console.log(e.target.getAttribute('data-lat'))
+                // console.log(e.target.getAttribute('data-long'))
+                var lat = parseFloat(e.target.getAttribute('data-lat'))
+                var long = parseFloat(e.target.getAttribute('data-long'))
+                console.log(lat)
+                // console.log(idModal.split('btnMapa')[1])
+                var latLong = new google.maps.LatLng(lat, long)
+                // var latLong = new google.maps.LatLng(-22.75917, -43.45111)  // Nova Iguaçu
+                var mapaProp = {
+                    center: latLong,
+                    // center: {lat: lat, lng: long},
+                    //   center: new google.maps.LatLng(minhaPosicao, idMapa),
+                    zoom: 14,
+                    mapTypeId: 'terrain', //hybrid    roadmap
+                    scaleControl: true,
+                    draggableCursor: 'default',
+                    fullscreenControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                    },
+                };
+
+                var map = new google.maps.Map(
+                    document.getElementById("googleMap"+idModal.split('btnMapa')[1])    
+                , mapaProp);
+                
+                var marker = new google.maps.Marker({
+                        position: latLong,
+                        map: map,
+                        title: 'teste JS Pointer',
+                });
+                
+            });
+            
+        }
+        console.log(idModal)
+
+
+        
+
+       
+     
+        
+    }
+
+    // var lista = document.getElementsByClass("modal-body");
+    // for(i = 0; i < lista; i++){
+    //   var map = new google.maps.Map(lista[i], mapaProp);
+    // var map = new google.maps.Map(document.getElementById("googleMap"), mapaProp);
+
+    // var modalMapa = document.getElementsByClassName('show')
+    
+    // var mapaProp = {
+    //       center: new google.maps.LatLng('-22.8098494', '-43.4193916'),
+    //      // center: new google.maps.LatLng(minhaPosicao., long),
+    //       zoom: 25,
+    //       mapTYpeId: 'hybrid',
+    //       scaleControl: true,
+    //       fullscreenControlOptions: {
+    //       position: google.maps.ControlPosition.RIGHT_BOTTOM
+    //     }
+    // }
+
+    // for(var i = 0; i < modalMapa.length; i++){
+    //     modalMapa[i].addEventListener("click", function(){
+    //         var map = new google.maps.Map(document.getElementById("googleMap"), mapaProp);
+    //     })
+    // } 
+    
+    
+   
+//     }
+//   }
+
+//   var btnVerMapa = document.getElementsByClassName("btn-outline-info");
+//   var x=0;
+//   for(x=0; x<=btnVerMapa.length;x++){
+//     btnVerMapa[x].addEventListener("click", tdBotao);
+//   }
+
+//   function tdBotao(e){
+//         var btnValor = e.id;
+
+//         switch(btnValor){
+//             case "btnMapa1":
+//             resultado = btnValor;
+//             console.log(resultado);
+//             break;
+
+//             case "btnMapa2":
+//             resultado = btnValor;
+//             console.log(resultado);
+//             break;
+
+//             case "btnMapa3":
+//             resultado = btnValor;
+//             console.log(resultado);
+//             break;
+//         }
+
+//   }
+
+   </script>
+
+
+{% endblock %}
+
+
+{% block footer %}
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
+        </div>
+    </footer>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCysBdsXGjQt2wvb-orBPNyXKoBiaqSE0o&callback=meuMapa"></script>
+{% endblock %}
