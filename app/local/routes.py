@@ -167,7 +167,7 @@ def editarPesquisarLocalJson(id):
     #     return jsonify({'data': lista})
 
 
-@local.route('/editarLocalJson', methods=['POST'])
+@local.route('/editarLocalJson', methods=['PUT'])
 @login_required
 def editarLocalJson():
     localObj = Local.query.get(request.get_json()["id"])

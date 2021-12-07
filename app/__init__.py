@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, flash, url_for, redirect, Blueprint, session, jsonify, Response, make_response, current_app
+from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,8 +42,9 @@ app.config.from_object("config.DevelopmentConfig")  #from_object("config")
 # app.permanent_session_lifetime = datetime.timedelta(seconds=15)
 # session.modified = True
 
-# csrf = CSRFProtect()
-# csrf.init_app(app)
+
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()

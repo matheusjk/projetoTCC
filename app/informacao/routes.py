@@ -1,6 +1,8 @@
-from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func
+from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, jsonify
 from app.informacao.forms import FormInformacao
 from app.models.tables import Informacao, Sensores, Local, Modulos, db
+import json
+
 
 informacao = Blueprint("informacao", __name__, template_folder="templates", url_prefix="/informacao")
 
@@ -83,6 +85,118 @@ def editar():
 @informacao.route('/excluirInformacao/<int:id>', methods=["GET"])
 @login_required
 def excluirInformacao(id):
+    infoObj = Informacao.query.get(id)
+    db.session.delete(infoObj)
+    db.session.commit()
+    flash("Informacao deleteada com sucesso!!!", category="success")
+    return redirect(url_for('informacao.listar'))
+
+
+
+
+
+@informacao.route("/listarInfoJson/", methods=["GET"])
+@login_required
+def listarInfoJson():
+    if current_user.tipoUsuario == 0:
+        sensoresObj = [sensor for sensor in Sensores.query.all()]
+        modulosObj = [modulos for modulos in Modulos.query.all()]
+        localObj = [local for local in Local.query.all()]
+        # informacaoObj = [i for i in Informacao.query.order_by(Informacao.id.asc()).all()] 
+
+        # lista = [{
+        #     'id': [i.id for i in informacaoObj],
+        #     'id_sensores': [s.id_sensores for s in informacaoObj],
+        #     'id_modulos': [m.id_modulos for m in informacaoObj],
+        #     'id_local': [l.id_local for l in informacaoObj],
+        # }]
+
+        informacaoObj = Informacao.query.order_by(Informacao.id.asc()).all()
+        lista = []
+        for linha in informacaoObj:
+            lista.append({
+                'id': linha.id,
+                'nome_sensores': linha.sensores.tipoSensor,
+                'id_sensores': linha.sensores.id,
+                'nome_modulos': linha.modulos.json['MAC'],
+                'id_modulos': linha.id_modulos,
+                'nome_local': linha.local.endereco,
+                'nome_local_usuarios': linha.local.usuarios.nome,
+                'id_local': linha.local.id,
+                'dataCriacao': linha.dataCriacao
+            })
+        
+        listaA = [{
+            'sensores': [(s.id, s.tipoSensor) for s in sensoresObj] ,
+            'modulos': [(m.id, m.json['MAC']) for m in modulosObj] ,
+            'local': [(l.id, l.endereco) for l in localObj]
+        }]
+
+        return jsonify({'data': lista, 'dados': listaA})
+    else:
+        sensoresObj = Sensores.query.all()
+        modulosObj = Modulos.query.filter(func.json_extract(Modulos.json, "$.IDUSUARIO") == current_user.id).all()
+        localObj = Local.query.filter_by(usuario_id=current_user.id).all()
+        informacaoObj = Informacao.query.filter(x[0] == current_user.id).all()  #.paginate(pagina, por_pagina, error_out=False) # filter_by(id_local=current_user.id)
+        
+        lista = []
+        for linha in informacaoObj:
+            lista.append({
+                'id': linha.id,
+                'id_sensores': linha.id_sensores,
+                'id_modulos': linha.id_modulos,
+                'id_local': linha.id_local,
+                'sensores': sensoresObj,
+                'modulos': modulosObj,
+                'local': localObj
+            })
+
+        return jsonify({'data': lista})
+
+
+
+@informacao.route('/editarPesquisarInformacaoJson/<int:id>', methods=['GET'])
+@login_required
+def editarPesquisarInformacaoJson(id):
+    if current_user.tipoUsuario == 0:
+        # sensoresObj = [sensor for sensor in Sensores.query.all()]
+        modulosObj = Modulos.query.filter(func.json_extract(Modulos.json, "$.IDUSUARIO") == current_user.id).all()
+        localObj = Local.query.filter_by(usuario_id=current_user.id).first()
+        linha = Informacao.query.filter_by(id=id).first()
+
+        lista = {
+            'id': linha.id,
+            'id_sensores': linha.id_sensores,
+            'id_modulos': linha.id_modulos,
+            'id_local': linha.id_local,
+            # 'sensores': sensoresObj,
+            'modulos': modulosObj,
+            'local': localObj
+        }
+
+        return jsonify({'data': lista})
+
+
+@informacao.route('/editarInformacaoJson', methods=['POST'])
+@login_required
+def editarInformacaoJson():
+    formInfo = FormInformacao()
+    print(formInfo.id.data, formInfo.sensores_id.data, formInfo.modulo_id.data, formInfo.local_id.data)
+    # if formInformacao.validate_on_submit():
+    informacaoObj = Informacao.query.get(formInfo.id.data)
+    print(informacaoObj.id_sensores)
+    informacaoObj.id_sensores = formInfo.sensores_id.data
+    informacaoObj.id_modulo = formInfo.modulo_id.data
+    informacaoObj.id_local = formInfo.local_id.data
+
+    db.session.commit()
+    flash("Informacao alterada com sucesso!!!", category='success')
+    return redirect(url_for("informacao.listar"))
+
+
+@informacao.route('/excluirInformacaoJson/<int:id>', methods=["GET"])
+@login_required
+def excluirInformacaoJson(id):
     infoObj = Informacao.query.get(id)
     db.session.delete(infoObj)
     db.session.commit()

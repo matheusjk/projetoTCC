@@ -48,6 +48,7 @@
                     <div class="modal-body">
                         <form id="formLocalEdit">
                             <!-- <input id="csrfToken" value='{{ form.csrf_token }}' type="hidden">  -->
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
                             <input id="id" name="id" type="hidden">
 
                             <div class="form-group">

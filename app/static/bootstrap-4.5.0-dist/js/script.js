@@ -19,7 +19,9 @@ function corInput () {
     
 }
 
-corInput ()
+document.addEventListener('DOMContentLoaded', function(event){  // assim que o DOM carregar chamar funcao dos inputs
+    corInput () 
+}) 
 
 
 window.setTimeout(function() {
@@ -33,7 +35,17 @@ window.setTimeout(function() {
 
 
 
-
+function pegaToken(csrf_token){
+    // var csrf_token = $("#formConfigEdit #csrf_token").val()
+    
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            }    
+        }
+    })
+}
 
 // var btnEnviar = document.getElementById("submit")
 // btnEnviar.addEventListener("click", function(){
@@ -97,7 +109,7 @@ window.setTimeout(function() {
 
 
 
-if(document.URL.split("/")[4] == "login"){ // || document.querySelectorAll('.bi-eye').length != 0
+if(document.URL.split("/")[4] == "login" || document.URL.split("/")[4].includes('login')){ // || document.querySelectorAll('.bi-eye').length != 0
     // console.log(navigator.userAgentData.mobile)
     // window.alert(navigator.userAgentData.mobile)
 
@@ -371,6 +383,7 @@ function atualizarTelemetria(){
     })
 }
 
+
 function chamaTelemetria(){
    
     var tabela = $('#myTable').DataTable({
@@ -414,7 +427,57 @@ function chamaTabelaEstatica(){
 }
 
 
-function insereConfigJson(url, tipoEnvio){
+function configuraSelectConfig(tag){
+    var valores = [$(tag+" #resetarConfigsWifi option").length, $(tag+" #alertaEmail option").length]
+    if(valores[0] <= 1){
+
+        $(tag+" #resetarConfigsWifi").append($('<option>', {
+            value: 1,
+            text: 'SIM'
+        }))
+
+        $(tag+" #resetarConfigsWifi").append($('<option>', {
+            value: 0,
+            text: 'NAO'
+        }))
+
+        $(tag+" #alertaEmail").append($('<option>', {
+            value: 1,
+            text: 'SIM' 
+        }))
+
+        $(tag+" #alertaEmail").append($('<option>', {
+            value: 0,
+            text: 'NAO'
+        }))
+    }
+}
+
+function insereConfigJson(){
+
+    $(".btn-outline-success").click(function(){
+        configuraSelectConfig("#formAdicionarConfig ");
+        
+        $.ajax({
+            url: '/config/listaUsuarios',
+            type: "GET",
+            success: function(response) {
+                console.log(response.data)
+                $.each(response.data.usuariosIdNome, function(i, d){ // i - value | d - texto/informaçao 
+                    // $('<option>').val(i).text(d[1]).appendTo(options);
+                    if(response.data.usuariosIdNome.length == $("#formAdicionarConfig #usuario_id option").length){
+                        // console.log(cont)
+                    }else{
+                        $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : i+1 }).text(d[1]))  // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                    }
+                })
+            }
+        })
+        
+    })
+    
+
+
     var btnEnviar = document.querySelectorAll("#submit")
     
     var url = "/config/registrarConfiguracoes"
@@ -422,26 +485,33 @@ function insereConfigJson(url, tipoEnvio){
     // $.post(url, data);
 //    $(document).ready(function() {
     //    $(document).ready(function() {
-
-        if($('#formConfig #tempoTelemetria').val() == ''){
-            $('#formConfig').addClass('needs-validation')
-            $('#formConfig #tempoTelemetria').addClass('is-invalid')
-            $('<div/>', {
-                'class': 'invalid-feedback'
-            }).appendTo('#formConfig .form-group')
-            $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
-        }else {
-            $('.invalid-feedback').fadeOut(1600, function() {
-                $('.invalid-feedback').html('')
+        $("#mymodal").on('shown.bs.modal', function(event){
+            // alert('modal fechou')
+            if($('#formAdicionarConfig #tempoTelemetria').val() == ''){
+                $('#formAdicionarConfig').addClass('needs-validation')
+                $('#formAdicionarConfig #tempoTelemetria').addClass('is-invalid')
+                $('<div/>', {
+                    'class': 'invalid-feedback'
+                }).appendTo('#formAdicionarConfig .form-group')
+                $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
+            }else {
+                
+                $('.invalid-feedback').fadeOut(1600, function() {
+                   $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
+                   $('#formAdicionarConfig #tempoTelemetria').removeClass('invalid-feedback')
+                        
+                })
+                // if($('#tempoTelemetria .invalid-feedback').length == 0){
+                //     $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+                // }
                 // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-            })
-            // if($('#tempoTelemetria .invalid-feedback').length == 0){
-            //     $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-            // }
-            // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-            // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-            // $('.invalid-feedback').html()
-        }
+                // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+                // $('.invalid-feedback').html()
+            }
+        
+        })
+
+       
 
         // $('.invalid-feedback').fadeOut(1600, function() {
         //     $('#formConfig #tempoTelemetria').removeClass('is-invalid')
@@ -476,7 +546,15 @@ function insereConfigJson(url, tipoEnvio){
             $('.invalid-feedback').fadeOut(1600, function() {
                 // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
                 $('.invalid-feedback').html()
+                // $('.is-invalid').html()
+                // $('#formAdicionarConfig #tempoTelemetria').removeClass('invalid-feedback')
+                $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
+                $('#formAdicionarConfig #tempoTelemetria').addClass('is-valid')
             })
+            // $('.is-invalid').fadeOut(1600, function() {
+                // $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
+                
+            // })
             // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
             // if($('#tempoTelemetria .invalid-feedback').length == 0){
                 
@@ -486,7 +564,7 @@ function insereConfigJson(url, tipoEnvio){
             // $('.invalid-feedback').html()
         })
 
-           $("#submit").click(function(e){
+           $("#submit_action").click(function(e){
                 e.preventDefault();
 
                 // document.addEventListener('keydown', function(e){
@@ -495,182 +573,109 @@ function insereConfigJson(url, tipoEnvio){
                 //     console.log("Tecla pressionada eh " + codigo + " traduçao " + String.fromCharCode(codigo))
                 // })
 
-                if($('#formConfig #tempoTelemetria').val() == ''){
-                    $('#formConfig #tempoTelemetria').addClass('needs-validation')
-                    $('#formConfig #tempoTelemetria').addClass('is-invalid')
+                if($('#formAdicionarConfig #tempoTelemetria').val() == ''){
+                    $('#formAdicionarConfig #tempoTelemetria').addClass('needs-validation')
+                    $('#formAdicionarConfig #tempoTelemetria').addClass('is-invalid')
                     $('<div/>', {
                         'class': 'invalid-feedback'
-                    }).appendTo('#formConfig .form-group')
+                    }).appendTo('#formAdicionarConfig .form-group')
                     $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
                 }else {
-                    $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+                    $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
                     $('.invalid-feedback').html()
                 }
 
                 var data = {
-                    tempoTel: Number.parseFloat($('#formConfig #tempoTelemetria').val()),
-                    tempoGeo: Number.parseFloat($('#formConfig #tempoGeolocalizacao').val()),
-                    tempoSoneca: Number.parseFloat($('#formConfig #tempoSoneca').val()),
-                    tempoThingSpeak: Number.parseFloat($('#formConfig #tempoThingSpeak').val()),
-                    urlIpApi: $('#formConfig #urlIpApi').val(),
-                    urlThingSpeak: $('#formConfig #urlThingSpeak').val(),
-                    secretKey: $('#formConfig #secretKeyThingSpeak').val(),
-                    resetarConfigsWifi: Number.parseInt($('#formConfig #resetarConfigsWifi').val()),
-                    alertaEmail: Number.parseInt($('#formConfig #alertaEmail').val()),
-                    valorGasAviso: Number.parseFloat($('#formConfig #valorGasAviso').val()),
-                    usuarioId: Number.parseInt(($('#formConfig #usuario_id').val()))
+                    tempoTel: Number.parseFloat($('#formAdicionarConfig #tempoTelemetria').val()),
+                    tempoGeo: Number.parseFloat($('#formAdicionarConfig #tempoGeolocalizacao').val()),
+                    tempoSoneca: Number.parseFloat($('#formAdicionarConfig #tempoSoneca').val()),
+                    tempoThingSpeak: Number.parseFloat($('#formAdicionarConfig #tempoThingSpeak').val()),
+                    urlIpApi: $('#formAdicionarConfig #urlIpApi').val(),
+                    urlThingSpeak: $('#formAdicionarConfig #urlThingSpeak').val(),
+                    secretKey: $('#formAdicionarConfig #secretKeyThingSpeak').val(),
+                    resetarConfigsWifi: Number.parseInt($('#formAdicionarConfig #resetarConfigsWifi').val()),
+                    alertaEmail: Number.parseInt($('#formAdicionarConfig #alertaEmail').val()),
+                    valorGasAviso: Number.parseFloat($('#formAdicionarConfig #valorGasAviso').val()),
+                    usuarioId: Number.parseInt(($('#formAdicionarConfig #usuario_id').val()))
                 }
                 console.log(data)
                 console.log(JSON.stringify(data))
     
-                // $.ajax({
-                //    url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-                //    type: "POST",
-                //    data: JSON.stringify(data),
-                //    dataType: 'json',
-                //    encode: true,
-                //    contentType: "application/json, charset=UTF-8",
-                //    processData: false
-                // //    success: function(response){
-                // //         if(!response.success){
-                // //             if(response.errors){
-                // //                 console.log("DEU RUIM "+response)
-                // //                 $.notify('Error ao enviar o formulario', 'error')
-                // //             }
-                // //         }else {
-                // //             console.log("FEITO "+response)
-                // //             $.notify('Sucesso ao enviar o formulario', 'success')
-                // //             // $("Sucesso no registro da configuraçao", "success")
-                // //         }
-                // //    },
-                // //    error: function(error){
-                // //        console.log("DEU RUIM AQUI "+ error)
-                // //    }
-                // // })
-                // }).done(function(data){
-                //     // $("#formConfig").empty()
-                //     $('#formConfig #tempoTelemetria').val(""),
-                //     $('#formConfig #tempoGeolocalizacao').val(""),
-                //     $('#formConfig #tempoSoneca').val(""),
-                //     $('#formConfig #tempoThingSpeak').val(""),
-                //     $('#formConfig #urlIpApi').val(""),
-                //     $('#formConfig #urlThingSpeak').val("") = "",
-                //     $('#formConfig #secretKeyThingSpeak').val(""),
-                //     $('#formConfig #resetarConfigsWifi').val(""),
-                //     $('#formConfig #alertaEmail').val(""),
-                //     $('#formConfig #valorGasAviso').val(""),
-                //     $('#formConfig #usuario_id').val(""),
-                //     $("#mymodal").modal("hide")
-                //     console.log(data)
-                //     alert(data)
-                //     $.notify('Sucesso ao enviar o formulario', 'success')
-                // }).fail(function(data, err, opt){
-                //     console.log('Erro ao enviar o formulario'+ data + err + opt)
-                //     $.notify('Erro ao enviar o formulario'+ data + err + opt, 'error')
-                // })
+                $.ajax({
+                   url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+                   type: "POST",
+                   data: JSON.stringify(data),
+                   dataType: 'json',
+                   encode: true,
+                   contentType: "application/json, charset=UTF-8",
+                   processData: false
+               
+                }).done(function(data){
+                    // $("#formConfig").empty()
+                    $('#formAdicionarConfig #tempoTelemetria').val(""),
+                    $('#formAdicionarConfig #tempoGeolocalizacao').val(""),
+                    $('#formAdicionarConfig #tempoSoneca').val(""),
+                    $('#formAdicionarConfig #tempoThingSpeak').val(""),
+                    $('#formAdicionarConfig #urlIpApi').val(""),
+                    $('#formAdicionarConfig #urlThingSpeak').val("") = "",
+                    $('#formAdicionarConfig #secretKeyThingSpeak').val(""),
+                    $('#formAdicionarConfig #resetarConfigsWifi').val(""),
+                    $('#formAdicionarConfig #alertaEmail').val(""),
+                    $('#formAdicionarConfig #valorGasAviso').val(""),
+                    $('#formAdicionarConfig #usuario_id').val(""),
+                    $("#mymodal").modal("hide")
+                    console.log(data)
+                    alert($("#formAdicionarConfig #csrf_token").val())
+                    $.notify('Sucesso ao inserir nova configuraçao', 'success')
+                }).fail(function(data, err, opt){
+                    console.log('Erro ao inserir nova configuraçaoo'+ data + err + opt)
+                    $.notify('Erro ao inserir nova configuraçao'+ data + err + opt, 'error')
+                })
         })
-        // })
-        // $("#formConfig").on("submit", function(event){
-        //     event.preventDefault();   // impedir que o formulario seja enviado normalmente
-        // // btnEnviar[0].addEventListener('click', function(){   
-           
-        //     var data = {
-        //         tempoTel: document.querySelectorAll("#tempoTelemetria")[0].value,
-        //         tempoGeo: document.querySelectorAll('#tempoGeolocalizacao')[0].value,
-        //         tempoSoneca:  document.querySelectorAll('#tempoSoneca')[0].value,
-        //         tempoThingSpeak: document.querySelectorAll('#tempoThingSpeak')[0].value,
-        //         urlIpApi: document.querySelectorAll('#urlIpApi')[0].value,
-        //         urlThingSpeak: document.querySelectorAll('#urlThingSpeak')[0].value,
-        //         secretKey: $('input[name=secretKeyThingSpeak]').val(),
-        //         resetarConfigsWifi:  $('#resetarConfigsWifi').val(),
-        //         alertaEmail: $('#alertaEmail').val(),
-        //         valorGasAviso:  $('#valorGasAviso').val(),
-        //         usuarioId: $('#usuario_id').val()
-        //     };
-        //     // $.post('https://192.168.0.13:59000/config/registrarConfiguracoes', data, function(msg){
-        //     //     alert('Funcionou'+ msg)
-        //     // })
-        //     // var f = $("#formConfig").serialize();
-        //     $.ajax({
-        //         url: "https://192.168.0.13:59000/config/registrarConfiguracoes",
-        //         type: "POST",
-        //         data: JSON.stringify(data),
-        //         dataType: 'json',
-        //         encode: true,
-        //         contentType: false,// "application/json, charset=UTF-8",
-        //         processData: false,
-        //         success: function(response){
-        //             if(!response.success){
-        //                 if(response.errors.name){
-        //                     console.log("DEU RUIM "+response)
-        //                     $.notify('Error ao enviar o formulario', 'error')
-        //                 }
-        //             }else {
-        //                 console.log("FEITO "+response)
-        //                 $.notify('Sucesso ao enviar o formulario', 'success')
-        //                 // $("Sucesso no registro da configuraçao", "success")
-        //             }
-        //         },
-        //         error: function(response){
-        //             alert(response)
-        //         }
-        //     })
-        //     // }).done(function(data){
-        //     //     console.log(data)
-        //     //     alert(data)
-        //     //     $.notify('Sucesso ao enviar o formulario', 'success')
-        //     // }).fail(function(data){
-        //     //     $.notify('Erro ao enviar o formulario'+data, 'error')
-        //     // })
 
-        //     // $.ajax({
-        //     //     url: url,
-        //     //     type: "POST",
-        //     //     data: JSON.stringify(data),
-        //     //     dataType: 'json',
-        //     //     encode: true,
-        //     //     contentType: "application/json, charset=UTF-8",
-        //     //     // success: function(response){
-        //     //     //     console.log(response)
-        //     //     //     $("Sucesso no registro da configuraçao", "success")
-        //     //     // },
-        //     //     // error: function(response){
-        //     //     //     alert(response)
-        //     //     // }
-        //     // }).done(function(data){
-        //     //     console.log(data)
-        //     // });
+        pegaToken($("#formAdicionarConfig #csrf_token").val())
+       
 
-        //     // event.preventDefault();
-        // })
-    // })
 }
 
+
+
+function deletarConfigJson(tabelaConfig){
+    $("#myTable").on("click", ".btn-outline-danger", function (e) {
+        console.log(e.target.id, typeof(e.target.id))
+        // var id = $(this).data('id');
+        
+        var escolha = window.confirm('Deseja realmente deletar essa configuraçao?')
+        if(escolha){
+            console.log('FUI DELETADO CARA!!!')
+            $.ajax({
+                url: "/config/excluirConfig/" + Number.parseInt(e.target.id), 
+                type: "DELETE", 
+                success: function (response) {
+                    // alert(response.data.tempo_execucao_telemetria)
+                    
+                    $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
+                    tabelaConfig.ajax.reload()
+                },
+                error: function(error){
+                    console.log(error.responseText)
+                }
+            })
+        }else{
+            alert('Configuraçao nao foi deletada!!!')
+        }
+    })
+    pegaToken($("#formAdicionarConfig #csrf_token").val())
+}
+
+
+
 function editaConfigJson(tabelaConfig){
-    console.log("aqui edita")
+    // console.log("aqui edita")
+
+    configuraSelectConfig("#formConfigEdit ")
     
    
-
-    $("#resetarConfigsWifi").append($('<option>', {
-        value: 1,
-        text: 'SIM'
-    }))
-
-    $("#resetarConfigsWifi").append($('<option>', {
-        value: 0,
-        text: 'NAO'
-    }))
-
-    $("#alertaEmail").append($('<option>', {
-        value: 1,
-        text: 'SIM' 
-    }))
-
-    $("#alertaEmail").append($('<option>', {
-        value: 0,
-        text: 'NAO'
-    }))
-
     $("#myTable").on("click", ".btn-outline-warning", function (e) {
         console.log(e.target.id, typeof(e.target.id))
         // var id = $(this).data('id');
@@ -690,20 +695,7 @@ function editaConfigJson(tabelaConfig){
                 $("#urlIpApi").val(response.data.url_ip_api)
                 $("#urlThingSpeak").val(response.data.url_thingspeak)
                 $("#secretKeyThingSpeak").val(response.data.secret_key_thingspeak)
-                // var select = $("#resetarConfigWifi")
-                // $.each(response.data.resetarConfigsWifi, function(i, d){
-                
-                // var eReset = $.map($("#resetarConfigsWifi"), function(e) {
-                //     return (e.length)
-                // })    
-                // if(response.data.resetar_configs_wifi.length == eReset ){
-                //     console.log(eReset)
-                // }else{
-                //     // $("#resetarConfigsWifi").append($("<option value="+ 1 +"></option>").attr(response.data.resetar_configs_wifi, '1').text("SIM"))
-                //     // $("#resetarConfigsWifi").append($("<option value="+ 0 +"></option>").attr(response.data.resetar_configs_wifi, '0').text("NAO"))
-                   
-                // }
-                
+              
               
                 $("#resetarConfigsWifi option").filter(function() {
                     return $(this).val() == response.data.resetar_configs_wifi
@@ -734,12 +726,6 @@ function editaConfigJson(tabelaConfig){
                 $("#usuario_id option").filter(function(){
                     return $(this).text() == response.data.usuario_id
                 }).prop("selected", true)
-                    // console.log(response.data.usuariosIdNome[i][1], typeof(response.data.usuariosIdNome[i][1]))
-                    // if(response.data.usuariosIdNome[i][1] ===  $("#usuario_id").val(response.data.usuario_id)){
-                    //     $("#usuario_id option[text="+response.data.usuario_id+"]").attr("selected", "selected") // .val(response.data.usuario_id)
-                    //     break
-                    // }    
-                // }
                
             },
             error: function(error){
@@ -795,10 +781,11 @@ function editaConfigJson(tabelaConfig){
         }
         console.log(data)
         console.log(JSON.stringify(data))
+        alert($("#formConfigEdit #csrf_token").val())
 
         $.ajax({
            url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-           type: "POST",
+           type: "PUT",
            data: JSON.stringify(data),
            dataType: 'json',
            encode: true,
@@ -822,10 +809,12 @@ function editaConfigJson(tabelaConfig){
             $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
             tabelaConfig.ajax.reload()
         }).fail(function(data, err, opt){
-            console.log('Erro ao atualizar o registro de configuraçoes'+ data + err + opt)
+            console.log('Erro ao atualizar o registro de configuraçoes'+ data.responseText) // + err + opt)
             $.notify('Erro ao atualizar o registro de configuraçoes'+ data + err + opt, 'error')
         })
     })
+
+    pegaToken($("#formConfigEdit #csrf_token").val()) 
     
 }
 
@@ -926,20 +915,20 @@ function editaLocalJson(tabelaLocal){
 
         $.ajax({
            url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-           type: "POST",
+           type: "PUT",
            data: JSON.stringify(data),
            dataType: 'json',
            encode: true,
            contentType: "application/json, charset=UTF-8",
            processData: false
         }).done(function(data){
-            $('#formConfigEdit #cep').val(""),
-            $('#formConfigEdit #endereco').val(""),
-            $('#formConfigEdit #cidade').val(""),
-            $('#formConfigEdit #bairro').val(""),
-            $('#formConfigEdit #estado').val(""),
-            $('#formConfigEdit #obs').val(""),
-            $('#formConfigEdit #nomeUsuario').val(""),
+            $('#formLocalEdit #cep').val(""),
+            $('#formLocalEdit #endereco').val(""),
+            $('#formLocalgEdit #cidade').val(""),
+            $('#formLocalEdit #bairro').val(""),
+            $('#formLocalEdit #estado').val(""),
+            $('#formLocalEdit #obs').val(""),
+            $('#formLocalEdit #nomeUsuario').val(""),
             
             // $('#formConfigEdit #nomeUsuario').val(""),
             $("#modaledit").modal("hide")
@@ -954,6 +943,136 @@ function editaLocalJson(tabelaLocal){
         })
     })
     
+    pegaToken($("#formLocalEdit #csrf_token").val())
+}
+
+
+function editaInfoJson(tabelaInfo){
+    console.log("to aqui")
+    var tabela = document.querySelector("#myTable")
+    var btnEdita = document.querySelectorAll(".btn-outline-warning")
+
+    $('#myTable').on("click", ".btn-outline-warning", function(e) {
+    
+        $.ajax({
+            url: "/informacao/listarInfoJson/", // + Number.parseInt(e.target.id),
+            type: "GET",
+            success: function(response) {
+                // console.log(response.dados)
+                $("#editarInfoCabecalho").html("Editar Informaçao")
+                $("#modaledit").modal("show")
+                $("#formInfoEdit #id").val(e.target.id)
+                alert($("#formInfoEdit #csrf_token").val())
+                // console.log(response.dados.sensores)
+                var valores = [ $("#sensores_id option").length, $("#local_id option").length , $("#modulo_id option").length ]
+             
+                console.log("VAL " + valores[0])
+                $.each(response.dados, function(i, d){ // como o dados esta vindo como um vetor/lista temos que percorre-lo e depois pegar atraves do parametro d os campos do json que queremos i - indice | d - campos do json nesse caso
+                    console.log("API "+ d.sensores.length)
+                    if(d.sensores.length == valores[0]){
+                        // console.log(cont)
+                        $.each(d.sensores, function(i, d){
+                            $("#sensores_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                        })
+                    
+                    }
+
+                    // console.log("API "+ d.sensores.length)
+                    if(d.local.length == valores[1]){
+                        $.each(d.local, function(i, d){
+                            $("#local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                        })
+                    
+                    }
+
+                    if(d.modulos.length == valores[2]){
+                        // console.log(cont)
+                        $.each(d.modulos, function(i, d){
+                            $("#modulo_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                        })
+                    
+                    }
+                })
+                
+
+                for(lin of response.data) {
+                    if(lin.id == Number.parseInt(e.target.id)){                
+
+                        $("#sensores_id option").filter(function() {
+                            return $(this).text() == lin.nome_sensores
+                        }).prop("selected", true)
+
+                        $("#local_id option").filter(function() {
+                            return $(this).text() == lin.nome_local
+                        }).prop("selected", true)
+
+                        $("#modulo_id option").filter(function() {
+                            return $(this).text() == lin.nome_modulos
+                        }).prop("selected", true)
+
+                    }
+                }
+            },
+            error: function(error){
+                console.log(error.responseText)
+            }
+
+
+        })
+    })
+
+    var csrf_token = $("#formInfoEdit #csrf_token").val()
+    pegaToken(csrf_token) 
+    // $.ajaxSetup({
+    //     beforeSend: function(xhr, settings) {
+    //         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+    //             xhr.setRequestHeader("X-CSRFToken", csrf_token)
+    //         }    
+    //     }
+    // })
+
+
+
+    // tabela.addEventListener('click', function(e){
+ 
+    // console.log(Object.values(tabelaInfo))
+ 
+
+    // for(let i = 0; i < btnEdita.length; i++){
+    //     // console.log(e.target)
+    //         // var tr = tabela.querySelectorAll('tr')
+    //         // var cont = 0
+    //         // for(lin of tr){
+    //         //     console.log(lin.querySelectorAll('td'))
+    //         //     for(let linText of lin.querySelectorAll('td')){
+    //         //         console.log(linText.outerText)
+    //         //     }
+    //         // }
+    //         btnEdita[i].addEventListener('click', function(e){
+    //             alert('OLA HUMANO')
+    //         })
+    // }
+    
+    // btnEdita[0].addEventListener('click', function(evento) {
+    //     console.log(evento.target.id, typeof(evento.target.id))
+    //     alert('OI')
+    // })
+    
+
+    // document.addEventListener('DOMContentLoaded', function(){
+    //     if(btnEdita){
+    //         btnEdita.addEventListener('click', function(evento) {
+    //             console.log(evento.target.id, typeof(evento.target.id))
+    //             alert('OI')
+    
+    
+    //         })
+    //     }else{
+    //         alert('DEU RUIM CARA')
+    //     }
+    // })
+
+   
 }
 
 
@@ -1327,7 +1446,8 @@ function testeAlteraData(){
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
-                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>';                      
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>' +
+                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Excluir </button>';                      
                            
                         }
                     }
@@ -1401,7 +1521,57 @@ function testeAlteraData(){
 
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Informacao"){
-            chamaTabelaEstatica();
+                var novaDataInfo = null;
+
+                var tabelaInfo = $("#myTable").DataTable({
+                    ajax: {
+                        url: "/informacao/listarInfoJson",
+                        type: "GET",
+                        xhrFields: {
+                            withCredentials: true
+                        }
+                    },
+                    columns: [
+                        {"data": "id"},
+                        {"data": "nome_local_usuarios"},
+                        {"data": "nome_sensores"},
+                        {"data": "nome_modulos"},
+                        {"data": "nome_local"},
+                        {"data": "dataCriacao", render: function(data){
+                            novaDataInfo = new Date(data)
+
+                            return novaDataInfo.getUTCDate().toString().padStart(2, '0') + "/" + (novaDataInfo.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaDataInfo.getUTCFullYear().toString() + " " + novaDataInfo.getUTCHours().toString().padStart(2, '0') + ":" + novaDataInfo.getUTCMinutes().toString().padStart(2, '0') + ":" + novaDataInfo.getUTCSeconds().toString().padStart(2, '0')
+                        }},
+                        {
+                            "data": null,
+                            render: function(data, type, full_row, meta){
+                                return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>' +
+                                ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Exclluir </button>' ;
+                            }
+                        }
+                    ],
+                    // 'columnsDefs': [{
+                    //     'targets': 0,
+                    //     'createdCell': function(td, cellData, rowData, row, col){
+                    //         // $(td).addId()
+                    //         $(td).attr('id')
+                    //     }
+                    // }],
+                    "order": [0, 'desc'],
+                    "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+                    },
+                    retrieve: true,
+                    paging: true,
+                    responsive: true
+                })
+
+            
+                editaInfoJson(tabelaInfo)
+
+               
+
+
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Configuracao"){
             
             var dataNovaConfig = null;
@@ -1478,7 +1648,8 @@ function testeAlteraData(){
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
-                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i>  Editar </button>';
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i>  Editar </button>' + 
+                            '<button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'" ><i class="bi bi-trash"></i>  Excluir </button>';
                         }
 
 
@@ -1511,6 +1682,7 @@ function testeAlteraData(){
             
             insereConfigJson();
             editaConfigJson(tabelaConfig);
+            deletarConfigJson(tabelaConfig);
 
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Geolocalizacao"){

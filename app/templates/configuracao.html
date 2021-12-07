@@ -56,6 +56,8 @@
                     </div>
                     <div class="modal-body">
                         <form id="formConfigEdit">
+                          <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
+
                             <div class="form-group">
                               <input name='id' id="id" type="hidden">
                               <label for="tempoTel">Tempo Telemetria</label>
@@ -118,14 +120,16 @@
                               </select>
                             </div>
                           
+                        <div class="form-group pt-2">
+                          <button class="btn btn-outline-primary" id="edit_action" type="button">Enviar</button>
+                        </div>
 
-                            <div class="modal-footer">
-                              <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
-                              <button class="btn btn-outline-primary" id="edit_action" type="button">Enviar</button>
-                            </div>
                     </form>
-                    </div>
                   </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                  </div>
+                </div>                           
               </div>
             </div>
           <!-- </div> -->
@@ -139,67 +143,75 @@
                   </div>
             
                   <div class="modal-body">
-                    <form id="formConfig">
-                        {{ form.csrf_token }}
-                        {# {{ form.errors }} #}
-                        <div class="form-group">
-                            {{ form.tempoTelemetria.label }} {{ form.tempoTelemetria(class="form-control", placeholder="25", min=1) }}
-                            {{ valida(form.tempoTelemetria) }}
-                        </div>
-            
-                        <div class="form-group">
-                            {{ form.tempoGeolocalizacao.label }} {{ form.tempoGeolocalizacao(class="form-control", placeholder="30", min=1)}}
-                            {{ valida(form.tempoGeolocalizacao) }}
-                        </div>
-            
-                        <div class="form-group">
-                            {{ form.tempoSoneca.label }} {{ form.tempoSoneca(class="form-control", placeholder="30", min=1)}}
-                            {{ valida(form.tempoSoneca) }}
-                        </div>
-            
-                        <div class="form-group">
-                          {{ form.tempoThingSpeak.label }} {{ form.tempoThingSpeak(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.tempoThingSpeak) }}
-                        </div>
-            
-                        <div class="form-group">
-                          {{ form.urlIpApi.label }} {{ form.urlIpApi(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.urlIpApi) }}
+                    <form id="formAdicionarConfig">
+                          <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
+
+                            <div class="form-group">
+                              <input name='id' id="id" type="hidden">
+                              <label for="tempoTelemetria">Tempo Telemetria</label>
+                              <input name="tempoTelemetria" id="tempoTelemetria" type="number" value="" class="form-control" min="1" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoGeo">Tempo Geolocalizacao </label>
+                              <input name="tempoGeo" id="tempoGeolocalizacao" type="number" value="" class="form-control" min="1" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoSoneca">Tempo Soneca</label>
+                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" min="1" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tempoThingSpeak">Tempo ThingSpeak</label>
+                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" min="1" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="urlIpApi">URL IPAPI</label>
+                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="5">                            
+                            </div>
+                          
+                            <div class="form-group">
+                              <label for="urlThingSpeak">URL ThingSpeak</label>
+                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="secretKeyThingSpeak">ThingSpeak KEY</label>
+                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="resetarConfigsWifi">RESETAR WIFI</label>
+                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi">
+
+                              </select>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="alertaEmail">ALERTA EMAIL</label>
+                              <select class="form-control" id="alertaEmail" name="alertaEmail">
+                                
+                              </select>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="valorGasAviso">Valor Gas Alerta</label>
+                              <input name="valorGasAviso" id="valorGasAviso" type="number" value="" min="1" class="form-control" placeholder="5">
+                            </div>
+
+                            <div class="form-group">
+                              <label for="usuario_id">Usuario</label>
+                              <select class="form-control" id="usuario_id" name="usuario_id">
+                                
+                              </select>
+                            </div>
+                          
+                        <div class="form-group pt-2">
+                          <button class="btn btn-outline-primary" id="submit_action" type="button">Enviar</button>
                         </div>
                         
-                        <div class="form-group">
-                            {{ form.urlThingSpeak.label }} {{ form.urlThingSpeak(class="form-control", placeholder="30", min=1)}}
-                            {{ valida(form.urlThingSpeak) }}
-                        </div>
-                        
-                        <div class="form-group">
-                          {{ form.secretKeyThingSpeak.label }} {{ form.secretKeyThingSpeak(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.secretKeyThingSpeak) }}
-                        </div>
-                        
-                        <div class="form-group">
-                          {{ form.resetarConfigsWifi.label }} {{ form.resetarConfigsWifi(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.resetarConfigsWifi) }}
-                        </div>
-                        
-                        <div class="form-group">
-                          {{ form.alertaEmail.label }} {{ form.alertaEmail(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.alertaEmail) }}
-                        </div>
-                        
-                        <div class="form-group">
-                          {{ form.valorGasAviso.label }} {{ form.valorGasAviso(class="form-control", placeholder="30", min=1)}}
-                          {{ valida(form.valorGasAviso) }}
-                        </div>
-            
-                        <div class="form-group">
-                            {{ form.usuario_id.label }} {{ form.usuario_id(class="form-control", placeholder="30", min=1)}}
-                            {{ valida(form.usuario_id) }}
-                        </div>
-            
-                        <div class="form-group">
-                          {{ form.submit(class="btn btn-outline-primary") }}
-                        </div>
                       </form>
                   </div>
                   <div class="modal-footer">

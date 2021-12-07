@@ -17,32 +17,14 @@ def listar(pagina):
     por_pagina = 5
     formConfig = FormConfiguracao()
     if current_user.tipoUsuario == 0:  # current_user.nome == "Admin" or
-        configObj = ConfiguracaoJson.query.all()  #.paginate(pagina, por_pagina, error_out=False)  # filter_by(usuario_id=current_user.id) order_by(Configuracao.id.asc()).paginate(pagina, por_pagina, error_out=False)
-        usuarioObj = Usuarios.query.all()
-        formConfig.usuario_id.choices = [(linhas.id, linhas.nome) for linhas in usuarioObj]
-        # resetarConfigsWifi = [linhas.resetar_configs_wifi for linhas in configObj]
-        # alertaEmail =  [linhas.alerta_email for linhas in configObj]
-        # print(resetarConfigsWifi, alertaEmail)
-        # if resetarConfigsWifi == [1]:
-        #     formConfig.resetarConfigsWifi.data = 1
-        # elif resetarConfigsWifi == [0]:
-        #     formConfig.resetarConfigsWifi.data = 0
        
-        # if alertaEmail == [1]:
-        #     formConfig.alertaEmail.data = 1
-        # elif alertaEmail == [0]:
-        #     formConfig.alertaEmail.data = 0
-        # formConfig.resetarConfigsWifi.process()
-        # formConfig.resetarConfigsWifi.
-        return render_template('configuracao.html', config=configObj, form=formConfig)
+        return render_template('configuracao.html')
     else:
-        usuarioObjComum = Usuarios.query.filter_by(nome=current_user.nome).first()
-        configObj = ConfiguracaoJson.query.filter_by(usuarioId=current_user.id).all()  # .paginate(pagina, por_pagina, error_out=False)  #filter_by(usuario_id=current_user.id).paginate(pagina, por_pagina, error_out=False)
-        formConfig.usuario_id.choices = [(usuarioObjComum.id, usuarioObjComum.nome)]
-        return render_template('configuracao.html', config=configObj, form=formConfig)
+      
+        return render_template('configuracao.html', config=configObj)
 
 
-@config.route("/registrarConfiguracoes", methods=["GET", "POST"])
+@config.route("/registrarConfiguracoes", methods=["POST"])
 @login_required
 def registrarConfiguracoes():
     form = FormConfiguracao()
@@ -72,7 +54,7 @@ def registrarConfiguracoes():
     #     # form.tempoGeolocalizacao = None
     #     # form.tempoSoneca = None
     #     return redirect(url_for('.listar'))
-    return 'OK', 200
+    return jsonify({'data': 'OK'})
 
 
 @config.route('/editarConfiguracoes', methods=['POST'])
@@ -115,14 +97,14 @@ def formulario(id):
     # return redirect(url_for('.listar'))
 
 
-@config.route('/excluirConfig/<int:id>', methods=['GET'])
+@config.route('/excluirConfig/<int:id>', methods=['DELETE'])
 @login_required
 def excluir(id):
     config = ConfiguracaoJson.query.get(id)
     db.session.delete(config)
     db.session.commit()
-    flash("Configuracao deletada com sucesso!!!", category="success")
-    return redirect(url_for('config.listar'))
+    
+    return jsonify({'data': 'Deletado com sucesso'})
 
 
 
@@ -178,6 +160,24 @@ def listarConfigJson():
 
 
 
+@config.route("/listaUsuarios", methods=["GET"])
+@login_required
+def listarUsuariosConfiguracoes():
+    if current_user.tipoUsuario == 0:
+        linha = ConfiguracaoJson.query.filter_by(id=id).first()
+        id_nome = Usuarios.query.all()
+
+        print(linha)
+        l = [ (linhas.id, linhas.nome) for linhas in id_nome ]
+    
+        lista = {
+            "usuariosIdNome":  l
+        }
+            
+        return jsonify({'data': lista})
+
+
+
 @config.route('/editarPesquisarConfigJson/<int:id>', methods=['POST', 'GET'])
 @login_required
 def editarPesquisarConfigJson(id):
@@ -185,27 +185,30 @@ def editarPesquisarConfigJson(id):
         linha = ConfiguracaoJson.query.filter_by(id=id).first()
         id_nome = Usuarios.query.all()
 
-        print(linha)
-        l = [ (linhas.id, linhas.nome) for linhas in id_nome ]
-        print(l)
-        lista = {
-                "id": linha.id,
-                "tempo_execucao_telemetria": linha.json["tempoTel"],
-                "tempo_execucao_geolocalizacao": linha.json["tempoGeo"],
-                "tempo_execucao_soneca": linha.json["tempoSoneca"],
-                "tempo_execucao_thingspeak": linha.json["tempoThingSpeak"],
-                "secret_key_thingspeak": linha.json["secretKey"],
-                "url_ip_api": linha.json["urlIpApi"],
-                "url_thingspeak": linha.json["urlThingSpeak"],
-                "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
-                "alerta_email": linha.json["alertaEmail"],
-                "valor_gas_aviso": linha.json["valorGasAviso"],
-                "dataCriacao": linha.dataCriacao,
-                "dataAtualizacao": linha.dataAtualizacao,
-                "usuario_id": linha.usuarios.nome,   # linha.json["usuarioId"]
-                "usuariosIdNome":  l
-        }
-        return jsonify({'data': lista})
+        if linha is not None:
+            print(linha)
+            l = [ (linhas.id, linhas.nome) for linhas in id_nome ]
+            print(l)
+            lista = {
+                    "id": linha.id,
+                    "tempo_execucao_telemetria": linha.json["tempoTel"],
+                    "tempo_execucao_geolocalizacao": linha.json["tempoGeo"],
+                    "tempo_execucao_soneca": linha.json["tempoSoneca"],
+                    "tempo_execucao_thingspeak": linha.json["tempoThingSpeak"],
+                    "secret_key_thingspeak": linha.json["secretKey"],
+                    "url_ip_api": linha.json["urlIpApi"],
+                    "url_thingspeak": linha.json["urlThingSpeak"],
+                    "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
+                    "alerta_email": linha.json["alertaEmail"],
+                    "valor_gas_aviso": linha.json["valorGasAviso"],
+                    "dataCriacao": linha.dataCriacao,
+                    "dataAtualizacao": linha.dataAtualizacao,
+                    "usuario_id": linha.usuarios.nome,   # linha.json["usuarioId"]
+                    "usuariosIdNome":  l
+            }
+            return jsonify({'data': lista})
+        else:
+            return jsonify({'data': 'Nenhum registro com esse id'})
     else:
         linha = ConfiguracaoJson.query.filter_by(id=id).first()
         id_nome = Usuario.query.filter_by(id=current_user.id)
@@ -232,7 +235,7 @@ def editarPesquisarConfigJson(id):
         return jsonify({'data': lista})
 
 
-@config.route('/editarConfiguracoesJson', methods=['POST'])
+@config.route('/editarConfiguracoesJson', methods=['PUT'])
 @login_required
 def editarConfigJson():
     # formConfig = FormConfiguracao()

@@ -16,95 +16,77 @@
                     Adicionar Informacao </button></h2>
             </div>
 
-            {{ mostraAlerta() }}
-            <table id="myTable" class="table table-hover table-dark">
+            {# {{ mostraAlerta() }} #}
+            <table id="myTable" class="table table-hover table-dark table-bordered">
                 <thead>
                   <tr>
                       <th>ID</th>
+                      <th>Nome Usuario</th>
                       <th>Sensores</th>
                       <th>Modulos</th>
                       <th>Local</th>
+                      <th>Data Criaçao</th>
                       <th>Ação</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for linhas in informacao %}
-                      <tr>
-                          <td>{{ linhas.id }}</td>
-                          <td>{{ linhas.sensores.tipoSensor }}</td>
-                          <td>{{ linhas.modulos.json['MAC'] }}</td>
-                          <td>{{ linhas.local.endereco }}</td>
-
-                           <td>
-                              <a href="/alterarInformacao/{{ linhas.id }}" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#modaledit{{ linhas.id }}"><i class="bi bi-pencil-square"></i>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                      <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                  </svg>
-                                  Editar
-                              </a>
-                              <a href="/informacao/excluirInformacao/{{ linhas.id }}" class="btn btn-outline-danger btn-xs" onclick="return confirm('Deseja realmente deletar a informacao??')"><i class="bi bi-trash"> </i>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                  </svg>
-                                  Excluir
-                              </a>
-                          </td>
-                      </tr>
-
-                      <div id="modaledit{{linhas.id}}" class="modal fade" role="dialog">
-                          <div class="modal-dialog">
-                              <div class="modal-content">
-                                  <div class="modal-header">
-                                      <h4 class="modal-title">Alterar Informacao </h4>
-                                  </div>
-
-                                  <div class="modal-body">
-                                      <form action="{{url_for('informacao.editar')}}" method="POST">
-                                           {{ form.csrf_token }}
-
-                                            <div class="form-group">
-                                              {{ form.id(type='hidden', value=linhas.id) }}
-                                              {{ form.sensores_id.label }}
-                                              {# {% for lin in sensores %} #}
-                                                  {{ form.sensores_id(class="form-control", value=linhas.sensores_id) }}
-                                              {# {% endfor %} #}
-                                              {{ valida(form.sensores_id) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                              {{ form.local_id.label }}
-                                              {# {% for lin in sensores %} #}
-                                                  {{ form.local_id(class="form-control", value=linhas.local_id) }}
-                                              {# {% endfor %} #}
-                                              {{ valida(form.local_id) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                              {{ form.modulo_id.label }}
-                                              {# {% for lin in sensores %} #}
-                                                  {{ form.modulo_id(class="form-control", value=linhas.modulo_id) }}
-                                              {# {% endfor %} #}
-                                              {{ valida(form.modulo_id) }}
-                                            </div>
-
-                                          <div class="form-group pt-2">
-                                              {{ form.submit(class="btn btn-outline-primary")}}
-                                          </div>
-                                          
-                                      </form>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  {% endfor %}
+                                     
+                 
                 </tbody>
             </table>
         </div>
+
+
+        <div id="modaledit" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editarInfoCabecalho"> </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="formInfoEdit">
+                             
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
+
+                            <input id="id" name="id" type="hidden">
+                            <div class="form-group">
+                                <label for="sensores_id"> SENSORES </label>
+                                <select class="form-control" name="sensores_id" id="sensores_id">
+                                    
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="local_id"> LOCAL </label>
+                                <select class="form-control" name="local_id" id="local_id">
+                                    
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="modulo_id"> MODULOS </label>
+                                <select class="form-control" name="modulo_id" id="modulo_id">
+                                    
+                                </select>
+                            </div>
+                             
+
+                            <div class="form-group pt-2">
+                                <button class="btn btn-outline-primary" id="edit_action" type="button"> Enviar </button>
+                            </div>
+                            
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <div id="mymodal" class="modal fade" role="dialog">
             <div class="modal-dialog">
