@@ -17,7 +17,7 @@ def listar():
         formTelemetria = TelemetriaForm()
         # telemetriaObj = Telemetria.query.order_by(Telemetria.id.asc()).paginate(pagina, por_pagina, error_out=False)
         telemetriaObj = Telemetria.query.all()  #.paginate(pagina, por_pagina, error_out=False)
-        return render_template('telemetria.html', form=formTelemetria, telemetria=telemetriaObj)
+        return render_template('telemetriaJSON.html', form=formTelemetria, telemetria=telemetriaObj)
     else:
         por_pagina = 5
         formTelemetriaComum = TelemetriaForm()
@@ -30,7 +30,7 @@ def listar():
         #     if lin.json["IDUSUARIO"] == current_user.id:
         #         id_usuario = lin.json['IDUSUARIO']
         # print(telemetriaObjComum)
-        return render_template('telemetria.html', form=formTelemetriaComum, telemetria=telemetriaObjComum)
+        return render_template('telemetriaJSON.html', form=formTelemetriaComum, telemetria=telemetriaObjComum)
 
 
 @telemetria.route('/listarJson', methods=['GET'])

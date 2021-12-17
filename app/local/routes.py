@@ -17,19 +17,19 @@ def listar():
         # localObj = Local.query.order_by(Local.id.asc()).all()  #.paginate(pagina, por_pagina, error_out=False)
         # # for lin in usuarios:
         # #     print(lin.local.cidade)
-        formLocal = FormLocal()
+        # formLocal = FormLocal()
         # formLocal.usuario_id.choices = [(linhas.id, linhas.nome) for linhas in usuarios]
         # return render_template('local.html', local=localObj, form=formLocal, usuarioLogado=current_user)
-        return render_template('local.html', form=formLocal)
+        return render_template('local.html')
     else:
-        usuarios = Usuarios.query.filter_by(nome=current_user.nome).first() # all()
-        print(usuarios.nome)
-        localObj = Local.query.filter_by(usuario_id=usuarios.id).all()   #.paginate(pagina, por_pagina, error_out=False) # order_by(Local.id.asc()) .paginate(pagina, por_pagina, error_out=False)
+        # usuarios = Usuarios.query.filter_by(nome=current_user.nome).first() # all()
+        # print(usuarios.nome)
+        # localObj = Local.query.filter_by(usuario_id=usuarios.id).all()   #.paginate(pagina, por_pagina, error_out=False) # order_by(Local.id.asc()) .paginate(pagina, por_pagina, error_out=False)
         # for lin in usuarios:
         #     print(lin.local.cidade)
-        formLocal = FormLocal()
-        formLocal.usuario_id.choices = [(usuarios.id, usuarios.nome)]
-        return render_template('local.html', local=localObj, form=formLocal, usuarioLogado=current_user)
+        # formLocal = FormLocal()
+        # formLocal.usuario_id.choices = [(usuarios.id, usuarios.nome)]
+        return render_template('local.html')
 
 
 @local.route('/registrarLocal', methods=['GET', 'POST'])
@@ -52,6 +52,7 @@ def registrarLocal():
     formLocal.estado = None
     formLocal.obs = None
     return redirect(url_for('local.listar'))
+
 
 @local.route('/editarLocal', methods=['POST'])
 @login_required
@@ -118,7 +119,7 @@ def listarUsuariosLocal():
             'nomeUsuario': usuarioId.nome
         })
 
-    return jsonify({'usuarios': listaUsuarios}) 
+    return jsonify({'data': listaUsuarios}) 
 
 
 
@@ -165,6 +166,19 @@ def editarPesquisarLocalJson(id):
     #     }
 
     #     return jsonify({'data': lista})
+
+
+@local.route('/inserirLocalJson', methods=['GET', 'POST'])
+@login_required
+def inserirLocalJson():
+    if request.method == 'POST':
+        
+        localObj = Local(request.get_json()["cep"], request.get_json()["endereco"], request.get_json()["cidade"], request.get_json()["bairro"], request.get_json()["estado"], request.get_json()["obs"], request.get_json()["nomeUsuario"])
+        
+        db.session.add(localObj)
+        db.session.commit()
+        
+        return jsonify({"data": "registro adicionado com sucesso!!!"})
 
 
 @local.route('/editarLocalJson', methods=['PUT'])

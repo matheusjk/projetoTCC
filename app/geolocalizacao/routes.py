@@ -39,7 +39,7 @@ def registrarGeo(dados):
     return "GEO INCLUIDA COM SUCESSO", 200
 
 
-@geo.route('/listarPagGeoJson', methods=['GET', 'POST'])
+@geo.route('/listarPagGeoJson', methods=['GET'])
 @login_required
 def listaGeoJson():
     return render_template('geolocalizacaoJSON.html')

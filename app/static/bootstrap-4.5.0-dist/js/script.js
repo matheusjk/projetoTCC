@@ -453,7 +453,7 @@ function configuraSelectConfig(tag){
     }
 }
 
-function insereConfigJson(){
+function insereConfigJson(tabelaConfig){
 
     $(".btn-outline-success").click(function(){
         configuraSelectConfig("#formAdicionarConfig ");
@@ -617,7 +617,7 @@ function insereConfigJson(){
                     $('#formAdicionarConfig #tempoSoneca').val(""),
                     $('#formAdicionarConfig #tempoThingSpeak').val(""),
                     $('#formAdicionarConfig #urlIpApi').val(""),
-                    $('#formAdicionarConfig #urlThingSpeak').val("") = "",
+                    $('#formAdicionarConfig #urlThingSpeak').val(""),
                     $('#formAdicionarConfig #secretKeyThingSpeak').val(""),
                     $('#formAdicionarConfig #resetarConfigsWifi').val(""),
                     $('#formAdicionarConfig #alertaEmail').val(""),
@@ -627,6 +627,7 @@ function insereConfigJson(){
                     console.log(data)
                     alert($("#formAdicionarConfig #csrf_token").val())
                     $.notify('Sucesso ao inserir nova configuraçao', 'success')
+                    tabelaConfig.ajax.reload()
                 }).fail(function(data, err, opt){
                     console.log('Erro ao inserir nova configuraçaoo'+ data + err + opt)
                     $.notify('Erro ao inserir nova configuraçao'+ data + err + opt, 'error')
@@ -654,7 +655,7 @@ function deletarConfigJson(tabelaConfig){
                 success: function (response) {
                     // alert(response.data.tempo_execucao_telemetria)
                     
-                    $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
+                    $.notify('Sucesso ao deletar registro de configuraçoes', 'success')
                     tabelaConfig.ajax.reload()
                 },
                 error: function(error){
@@ -820,7 +821,85 @@ function editaConfigJson(tabelaConfig){
 
 
 
+function insereLocalJson(tabelaLocal){
+    
+    $(".btn-outline-success").click(function(){
+        
+        $.ajax({
+            url: "/local/usuariosLocalJson", 
+            type: "GET"
+        }).done(function(response) {
+            $("#inserirCabecalhoLocal").html("Adicionar Local")
+            console.log(response.data)
+            var cont = $("#formLocalAdicionar #usuario_id option").length
 
+            console.log("CONTADOR DE NOME " + cont)
+            $.each(response.data, function(i, d){ // i - value | d - texto/informaçao 
+                if(response.data.length == cont){
+                    console.log(cont)
+                }else{
+                    $('#formLocalAdicionar #usuario_id').append($('<option>', { "value" : d.idUsuario }).text(d.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                }
+                console.log("USUARIOS ID"+ i + " d: " + d)
+            })
+
+        }).fail(function(data, err, opt){
+            console.log('Erro ao inserir local' + data.responseText + err + opt)
+            $.notify('Erro ao inserir local' + data , 'error')
+        })
+    })
+
+    $("#submit_action").click(function(evento){
+        evento.preventDefault()
+
+        var data = {
+            id: Number.parseInt($("#formLocalAdicionar #id").val()),
+            cep: ($('#formLocalAdicionar #cep').val()),
+            endereco: ($('#formLocalAdicionar #endereco').val()),
+            bairro: ($('#formLocalAdicionar #bairro').val()),
+            cidade: ($('#formLocalAdicionar #cidade').val()),
+            estado: ($('#formLocalAdicionar #estado').val()),
+            obs: $('#formLocalAdicionar #obs').val(),
+            nomeUsuario: Number.parseInt($('#formLocalAdicionar #usuario_id').val())
+            // usuarioId: Number.parseInt(($('#usuario_id').val()))
+        }
+        console.log(data)
+        console.log(JSON.stringify(data))
+
+        var url = "/local/inserirLocalJson"
+
+        $.ajax({
+           url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+           type: "POST",
+           data: JSON.stringify(data),
+           dataType: 'json',
+           encode: true,
+           contentType: "application/json, charset=UTF-8",
+           processData: false
+        }).done(function(data){
+            $('#formLocalAdicionar #cep').val(""),
+            $('#formLocalAdicionar #endereco').val(""),
+            $('#formLocalAdicionar #cidade').val(""),
+            $('#formLocalAdicionar #bairro').val(""),
+            $('#formLocalAdicionar #estado').val(""),
+            $('#formLocalAdicionar #obs').val(""),
+            $('#formLocalAdicionar #nomeUsuario').val(""),
+            
+            // $('#formConfigEdit #nomeUsuario').val(""),
+            $("#modaledit").modal("hide")
+            console.log(data)
+            alert(data)
+            $.notify('Sucesso ao inserir o registro de local', 'success')
+            tabelaLocal.ajax.reload()
+
+        }).fail(function(data, err, opt){
+            console.log('Erro ao inserir o registro de local'+ data.responseText + err + opt)
+            $.notify('Erro ao inserir o registro de local'+ data + err + opt, 'error')
+        })
+    })
+    
+    pegaToken($("#formLocalAdicionar #csrf_token").val())
+}
 
 
 function editaLocalJson(tabelaLocal){
@@ -947,6 +1026,94 @@ function editaLocalJson(tabelaLocal){
 }
 
 
+
+function insereInfoJson(tabelaInfo){
+
+    $(".btn-outline-success").click(function(){
+
+        $.ajax({
+            url: "/informacao/listarInfoJson",
+            type: "GET"
+        }).done(function(response) {
+
+            var valores = [ $("#formInfoAdicionar #sensores_id option").length, $("#formInfoAdicionar #local_id option").length , $("#formInfoAdicionar #modulo_id option").length ]
+            
+            $.each(response.dados, function(i, d){ // como o dados esta vindo como um vetor/lista temos que percorre-lo e depois pegar atraves do parametro d os campos do json que queremos i - indice | d - campos do json nesse caso
+                console.log("API "+ d.sensores.length)               
+               
+                if(d.sensores.length == valores[0]){
+                    console.log(d.sensores)                    
+                }else {
+                    $.each(d.sensores, function(i, d){
+                        $("#formInfoAdicionar #sensores_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                    })
+                }
+
+                console.log("API "+ d.sensores.length)
+                if(d.local.length == valores[1]){
+                    console.log(d.local)
+                }else{
+                    $.each(d.local, function(i, d){
+                        $("#formInfoAdicionar #local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                    })
+                }
+
+                if(d.modulos.length == valores[2]){
+                    console.log(d.modulos)                    
+                }else{
+                    $.each(d.modulos, function(i, d){
+                        $("#formInfoAdicionar #modulo_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                    })
+                }
+                    
+            })
+
+        }).fail(function(data, err, opt){
+            console.log('Erro ao inserir informaçao' + data.responseText + err + opt)
+            $.notify('Erro ao inserir informaçao' + data , 'error')
+        })
+    })
+
+    $("#submit_action").click(function(evento){
+        evento.preventDefault()
+
+        var data = {
+            id: Number.parseInt($("#formInfoEdit #id").val()),
+            id_sensores: Number.parseInt($("#formInfoEdit #sensores_id").val()),
+            id_local: Number.parseInt($("#formInfoEdit #local_id").val()),
+            id_modulos: Number.parseInt($("#formInfoEdit #modulo_id").val())
+        }
+
+        console.log(data)
+        console.log(JSON.stringify(data))
+        var url = "/informacao/insereInfoJson"
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false
+        }).done(function(response){
+            $("#mymodal").modal("hide") 
+            console.log(response)
+            $.notify('Sucesso ao inserir informaçao', 'success')
+            tabelaInfo.ajax.reload()
+        }).fail(function(data, err, opt){
+            console.log('Erro ao inserir informaçao' + data.responseText + err + opt)
+            $.notify('Erro ao inserir informaçao' + data.responseText + err + opt, 'error')
+        })
+    })
+    
+    var csrf_token = $("#formInfoAdicionar #csrf_token").val()
+    pegaToken(csrf_token) 
+
+}
+
+
+
 function editaInfoJson(tabelaInfo){
     console.log("to aqui")
     var tabela = document.querySelector("#myTable")
@@ -955,58 +1122,64 @@ function editaInfoJson(tabelaInfo){
     $('#myTable').on("click", ".btn-outline-warning", function(e) {
     
         $.ajax({
-            url: "/informacao/listarInfoJson/", // + Number.parseInt(e.target.id),
+            url: "/informacao/listarInfoJson", //+ Number.parseInt(e.target.id),
             type: "GET",
             success: function(response) {
                 // console.log(response.dados)
                 $("#editarInfoCabecalho").html("Editar Informaçao")
                 $("#modaledit").modal("show")
                 $("#formInfoEdit #id").val(e.target.id)
-                alert($("#formInfoEdit #csrf_token").val())
+                // alert($("#formInfoEdit #csrf_token").val())
                 // console.log(response.dados.sensores)
-                var valores = [ $("#sensores_id option").length, $("#local_id option").length , $("#modulo_id option").length ]
+                var valores = [ $("#formInfoEdit #sensores_id option").length, $("#formInfoEdit #local_id option").length , $("#formInfoEdit #modulo_id option").length ]
              
+                // var testeTamanho = $.map($("#sensores_id"), function(e){
+                //     return e.length
+                // })
+
                 console.log("VAL " + valores[0])
                 $.each(response.dados, function(i, d){ // como o dados esta vindo como um vetor/lista temos que percorre-lo e depois pegar atraves do parametro d os campos do json que queremos i - indice | d - campos do json nesse caso
                     console.log("API "+ d.sensores.length)
                     if(d.sensores.length == valores[0]){
-                        // console.log(cont)
+                        console.log(d.sensores)                    
+                    }else {
                         $.each(d.sensores, function(i, d){
-                            $("#sensores_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                            $("#formInfoEdit #sensores_id").append($('<option>', { "value" : d[0] }).text(d[1]))
                         })
-                    
                     }
 
                     // console.log("API "+ d.sensores.length)
                     if(d.local.length == valores[1]){
+                       console.log(d.local)
+                    }else{
                         $.each(d.local, function(i, d){
-                            $("#local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                            $("#formInfoEdit #local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
                         })
-                    
                     }
 
                     if(d.modulos.length == valores[2]){
-                        // console.log(cont)
+                        console.log(d.modulos)                    
+                    }else{
                         $.each(d.modulos, function(i, d){
-                            $("#modulo_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                            $("#formInfoEdit #modulo_id").append($('<option>', { "value" : d[0] }).text(d[1]))
                         })
-                    
                     }
+                    
                 })
                 
 
                 for(lin of response.data) {
                     if(lin.id == Number.parseInt(e.target.id)){                
 
-                        $("#sensores_id option").filter(function() {
+                        $("#formInfoEdit #sensores_id option").filter(function() {
                             return $(this).text() == lin.nome_sensores
                         }).prop("selected", true)
 
-                        $("#local_id option").filter(function() {
+                        $("#formInfoEdit #local_id option").filter(function() {
                             return $(this).text() == lin.nome_local
                         }).prop("selected", true)
 
-                        $("#modulo_id option").filter(function() {
+                        $("#formInfoEdit #modulo_id option").filter(function() {
                             return $(this).text() == lin.nome_modulos
                         }).prop("selected", true)
 
@@ -1021,6 +1194,41 @@ function editaInfoJson(tabelaInfo){
         })
     })
 
+    var url = "/informacao/editarInformacaoJson"
+
+    $("#edit_action").click(function(evento) {
+
+        evento.preventDefault();
+
+        var data = {
+            id: Number.parseInt($("#formInfoEdit #id").val()),
+            id_sensores: Number.parseInt($("#formInfoEdit #sensores_id").val()),
+            id_local: Number.parseInt($("#formInfoEdit #local_id").val()),
+            id_modulos: Number.parseInt($("#formInfoEdit #modulo_id").val())
+        }
+
+        console.log(data)
+        console.log(JSON.stringify(data))
+
+        $.ajax({
+            url: url,
+            type: "PUT",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false
+        }).done(function(response){
+            $("#modaledit").modal("hide") 
+            console.log(response)
+            $.notify('Sucesso ao atualizar informaçao', 'success')
+            tabelaInfo.ajax.reload()
+        }).fail(function(data, err, opt){
+            console.log('Erro ao atualizar informaçao' + data.responseText + err + opt)
+            // $.notify('Erro ao atualizar informaçao' + data.responseText + err + opt, 'error')
+        })
+    })
+    
     var csrf_token = $("#formInfoEdit #csrf_token").val()
     pegaToken(csrf_token) 
     // $.ajaxSetup({
@@ -1075,6 +1283,32 @@ function editaInfoJson(tabelaInfo){
    
 }
 
+function deletaInfoJson(tabelaInfo){
+    $("#myTable").on('click', '.btn-outline-danger', function(evento){
+
+        var escolha = window.confirm("Deseja realmente deletar essa informaçao?")
+        if(escolha){
+            $.ajax({
+                url: '/informacao/excluirInformacaoJson/' + Number.parseInt(evento.target.id),
+                type: 'DELETE',
+                success: function(response){
+                    $.notify('Sucesso ao deletar informaçao', 'success')
+                    tabelaInfo.ajax.reload()
+                },
+                error: function(error){
+                    $.notify('Error ao deletar informaçao ' + error, 'error')
+                }
+            })
+        }else{
+            alert('Informaçao nao foi deletada!!!')
+        }
+
+    })
+
+    var csrf_token = $("#formInfoEdit #csrf_token").val()
+    pegaToken(csrf_token) 
+
+}
 
 
 function meuMapa(){
@@ -1131,54 +1365,51 @@ function meuMapa(){
 }
 
 
-function googleMapa(e) {
-    let idModal;
-    console.log(e.target)
-          
-    idModal = e.target.id;
-    var lat = parseFloat(e.target.getAttribute('data-lat'))
-    var long = parseFloat(e.target.getAttribute('data-long'))
-    console.log(lat)
-    var latLong = new google.maps.LatLng(lat, long)
-    var mapaProp = {
-        center: latLong,
-        zoom: 14,
-        mapTypeId: 'terrain', //hybrid    roadmap
-        scaleControl: true,
-        draggableCursor: 'default',
-        fullscreenControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_BOTTOM
-        },
-    };
-
-    $('.modal-body').attr('id', 'googleMap'+idModal)
-    // alert($('.modal-body').attr('id'))
-
-    var map = new google.maps.Map(
-        document.getElementById($('.modal-body').attr('id'))    
-    , mapaProp);
-           
-    var marker = new google.maps.Marker({
-            position: latLong,
-            map: map,
-            title: 'teste JS Pointer',
-    });
-    
-    console.log(idModal)
-
-}
-
-
-function chamaModalGeo() {
+function googleMapa() {
     $("#myTable").on('click', ".btn-outline-info", function(e) {
         $("#modal-edit").modal('show')
         $("#editarGeoCabecalho").html("Mapa")
         
-        googleMapa(e)
+        
+        let idModal;
+        console.log(e.target)
+            
+        idModal = e.target.id;
+        var lat = parseFloat(e.target.getAttribute('data-lat'))
+        var long = parseFloat(e.target.getAttribute('data-long'))
+        console.log(lat)
+        var latLong = new google.maps.LatLng(lat, long)
+        var mapaProp = {
+            center: latLong,
+            zoom: 14,
+            mapTypeId: 'terrain', //hybrid    roadmap
+            scaleControl: true,
+            draggableCursor: 'default',
+            fullscreenControlOptions: {
+                position: google.maps.ControlPosition.RIGHT_BOTTOM
+            },
+        };
+
+        $('.modal-body').attr('id', 'googleMap'+idModal)
+        // alert($('.modal-body').attr('id'))
+
+        var map = new google.maps.Map(
+            document.getElementById($('.modal-body').attr('id'))    
+        , mapaProp);
+            
+        var marker = new google.maps.Marker({
+                position: latLong,
+                map: map,
+                title: 'teste JS Pointer',
+        });
+        
+        console.log(idModal)
 
        
     })
+
 }
+
 
 
 function testeAlteraData(){
@@ -1473,7 +1704,9 @@ function testeAlteraData(){
                 tabelaLocal.ajax.reload()
             }, 3000);
 
+            insereLocalJson(tabelaLocal)
             editaLocalJson(tabelaLocal)
+
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Sensores"){
             chamaTabelaEstatica();
@@ -1546,7 +1779,7 @@ function testeAlteraData(){
                             "data": null,
                             render: function(data, type, full_row, meta){
                                 return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>' +
-                                ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Exclluir </button>' ;
+                                ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Excluir </button>' ;
                             }
                         }
                     ],
@@ -1566,9 +1799,9 @@ function testeAlteraData(){
                     responsive: true
                 })
 
-            
+                insereInfoJson(tabelaInfo)
                 editaInfoJson(tabelaInfo)
-
+                deletaInfoJson(tabelaInfo)
                
 
 
@@ -1648,7 +1881,7 @@ function testeAlteraData(){
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
-                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i>  Editar </button>' + 
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#modal-edit" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i>  Editar </button>' + 
                             '<button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'" ><i class="bi bi-trash"></i>  Excluir </button>';
                         }
 
@@ -1680,14 +1913,15 @@ function testeAlteraData(){
             }, 30000);
             // chamaTabelaEstatica();
             
-            insereConfigJson();
+            insereConfigJson(tabelaConfig);
             editaConfigJson(tabelaConfig);
             deletarConfigJson(tabelaConfig);
 
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Geolocalizacao"){
             // chamaTabelaEstatica();
-            chamaModalGeo();
+            googleMapa()
+
             var dataNovaGeo = null;
 
             var tabelaGeo = $("#myTable").DataTable({

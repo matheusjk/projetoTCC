@@ -47,7 +47,7 @@
 
                     <div class="modal-body">
                         <form id="formLocalEdit">
-                            <!-- <input id="csrfToken" value='{{ form.csrf_token }}' type="hidden">  -->
+                            <!-- <input id="csrfToken" value='{# {{ form.csrf_token }} #}' type="hidden">  -->
                             <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
                             <input id="id" name="id" type="hidden">
 
@@ -106,11 +106,57 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title"> Adicionar Local </h4>
+                        <h4 id="inserirCabecalhoLocal" class="modal-title"> </h4>
                     </div>
 
                     <div class="modal-body">
+                        <form id="formLocalAdicionar">
+                            <!-- <input id="csrfToken" value='{# {{ form.csrf_token }} #}' type="hidden">  -->
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
+                            <input id="id" name="id" type="hidden">
 
+                            <div class="form-group">
+                                <label for="cep"> CEP </label>
+                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()">               
+                            </div>
+
+                            <div class="form-group">
+                                <label for="endereco"> ENDERECO </label>
+                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie"> 
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cidade"> CIDADE </label>
+                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bairro"> BAIRRO </label>
+                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro">
+                            </div>
+
+                           <div class="form-group">
+                                <label for="estado"> ESTADO </label>
+                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ">
+                           </div>
+
+                           <div class="form-group">
+                                <label for="obs"> OBS </label>
+                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste...">
+                           </div>
+
+                            <div class="form-group">
+                               <label for="usuario_id"> Nome Usuario </label>
+                               <select class="form-control" id="usuario_id" name="usuario_id">
+
+                               </select>
+                            </div>
+
+
+                            <div class="form-group pt-2">
+                                <button class="btn btn-outline-primary" id="submit_action" type="button">Enviar</button>
+                            </div>
+                        </form>
                       
                     </div>
 

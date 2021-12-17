@@ -8,20 +8,17 @@ import json
 config = Blueprint('config',  __name__, template_folder="templates", url_prefix='/config')
 
 
-linhas_por_pagina = 5
-
-@config.route('listarConfiguracoes',  methods=['GET'], defaults={'pagina': 1})
-@config.route('/listarConfiguracoes/<int:pagina>', methods=['GET'])
+@config.route('/listarConfiguracoes', methods=['GET'])
 @login_required
-def listar(pagina):
+def listar():
     por_pagina = 5
     formConfig = FormConfiguracao()
     if current_user.tipoUsuario == 0:  # current_user.nome == "Admin" or
        
         return render_template('configuracao.html')
-    else:
+    elif current_user.tipoUsuario == 1:
       
-        return render_template('configuracao.html', config=configObj)
+        return render_template('configuracao.html')
 
 
 @config.route("/registrarConfiguracoes", methods=["POST"])
@@ -211,7 +208,7 @@ def editarPesquisarConfigJson(id):
             return jsonify({'data': 'Nenhum registro com esse id'})
     else:
         linha = ConfiguracaoJson.query.filter_by(id=id).first()
-        id_nome = Usuario.query.filter_by(id=current_user.id)
+        id_nome = Usuarios.query.filter_by(id=current_user.id)
         print(linha)
         l = [ (linhas.id, linhas.nome) for linhas in id_nome ]
         

@@ -97,36 +97,43 @@
 
                     <div class="modal-body">
 
-                        <form action="{{url_for('informacao.registrarInformacao')}}" method="POST">
-                            {{ form.csrf_token }}
+                        <form id="formInfoAdicionar">
+                             
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
 
-
+                            <input id="id" name="id" type="hidden">
                             <div class="form-group">
-                              {{ form.sensores_id.label }}
-                              {{ form.sensores_id(class="form-control") }}
-                              {{ valida(form.sensores_id) }}
+                                <label for="sensores_id"> SENSORES </label>
+                                <select class="form-control" name="sensores_id" id="sensores_id">
+                                    
+                                </select>
                             </div>
 
+
                             <div class="form-group">
-                              {{ form.modulo_id.label }}
-                              {{ form.modulo_id(class="form-control") }}
-                              {{ valida(form.modulo_id) }}
-                             </div>
+                                <label for="local_id"> LOCAL </label>
+                                <select class="form-control" name="local_id" id="local_id">
+                                    
+                                </select>
+                            </div>
 
-                             <div class="form-group">
-                               {{ form.local_id.label }}
-                               {{ form.local_id(class="form-control") }}
-                               {{ valida(form.local_id) }}
-                             </div>
 
-                             <div class="form-group">
-                                {{ form.submit(class="btn btn-outline-primary") }}
-                             </div>
+                            <div class="form-group">
+                                <label for="modulo_id"> MODULOS </label>
+                                <select class="form-control" name="modulo_id" id="modulo_id">
+                                    
+                                </select>
+                            </div>
+                             
+
+                            <div class="form-group pt-2">
+                                <button class="btn btn-outline-primary" id="submit_action" type="button"> Enviar </button>
+                            </div>
+                            
                         </form>
                     </div>
-
                     <div class="modal-footer">
-                        <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                      <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
                     </div>
                 </div>
             </div>
