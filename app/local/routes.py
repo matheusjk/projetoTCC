@@ -75,14 +75,15 @@ def editar():
         return redirect(url_for('.listar'))
     return redirect(url_for('.listar'))
 
-@local.route('/excluirLocal/<int:id>', methods=['GET'])
+@local.route('/excluirLocal/<int:id>', methods=['DELETE'])
 @login_required
 def excluir(id):
     localObj = Local.query.get(id)
     db.session.delete(localObj)
     db.session.commit()
-    flash("Local excluido com sucesso", category='success')
-    return redirect(url_for('local.listar'))
+    return jsonify({'data': 'Deletado com sucesso'})
+    # flash("Local excluido com sucesso", category='success')
+    # return redirect(url_for('local.listar'))
 
 
 @local.route('/formulario/<int:id>', methods=['GET'])

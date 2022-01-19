@@ -53,21 +53,21 @@ function pegaToken(csrf_token){
 // })
 
 
-// window.setInterval(function() {
-//     console.log("passou 30 segundos");
-//     console.log(document.cookie);
+window.setInterval(function() {
+    console.log("passou 30 segundos");
+    console.log(document.cookie);
 
-//     if(document.cookie == null || document.cookie.length <= 0){
-//         if(document.URL.split("/")[4] == "login"){
-//             console.log("JA ESTOU NA PAGINA DE LOGIN");
-//         }else if(document.URL.split("/")[4] == "register" || document.URL.split("/")[4] == "register" || document.URL.split("/")[4] == "recuperar" || document.URL.split()[4] == "recuperar"){
-//             // alert(document.cookie);
-//             console.log("NADA A FAZER");
-//         }else {
-//             voltaPaginaPrincipal();
-//         }
-//     }
-// }, 30000); // 15 min 900000
+    if(document.cookie == null || document.cookie.length <= 0){
+        if(document.URL.split("/")[4] == "login"){
+            console.log("JA ESTOU NA PAGINA DE LOGIN");
+        }else if(document.URL.split("/")[4] == "register" || document.URL.split("/")[4] == "register" || document.URL.split("/")[4] == "recuperar" || document.URL.split()[4] == "recuperar"){
+            // alert(document.cookie);
+            console.log("NADA A FAZER");
+        }else {
+            voltaPaginaPrincipal();
+        }
+    }
+}, 30000); // 15 min 900000
 
 // var el = document.querySelectorAll('.form-control') 
 // for(i of el){
@@ -1025,6 +1025,29 @@ function editaLocalJson(tabelaLocal){
     pegaToken($("#formLocalEdit #csrf_token").val())
 }
 
+function deletaLocalJson(tabelaLocal){
+    $("#myTable").on("click", ".btn-outline-danger", function(evento) {
+
+        var escolha = window.confirm("Deseja realmente deletar esse local?")
+        if(escolha){
+            $.ajax({
+                url: "/local/excluirLocal/" + Number.parseInt(evento.target.id),
+                type: 'DELETE',
+                success: function(response){
+                    $.notify('Sucesso ao deletar o local', 'success')
+                    tabelaLocal.ajax.reload()
+                },
+                error: function(error) {
+                    $.notify('Error ao deletar local' + error, 'error')
+                }
+            })
+        }else {
+            alert("Local nao foi deletado")
+        }
+    })
+
+    pegaToken($("#formLocalEdit #csrf_token").val())
+}
 
 
 function insereInfoJson(tabelaInfo){
@@ -1310,6 +1333,136 @@ function deletaInfoJson(tabelaInfo){
 
 }
 
+
+function insereSensorJson(tabelaSensores){
+
+    $(".btn-outline-success").click(function() {
+
+        $("#adicionarSensorCabecalho").html("Adicionar Sensor")
+    })
+
+    
+
+    $("#submit_action").click(function(event){
+        event.preventDefault()
+
+        $("adicionarSensorCabecalho").html("Adicionar Sensor")
+
+        var data = {
+           tipoSensor: $("#formSensorInsere #tipoSensor").val(),
+           descritivo: $("#formSensorInsere #descritivo").val()
+        }
+
+       var url = "/sensor/registraSensoresJson"
+       
+        $.ajax({
+           url: url,
+           type: "POST",
+           data: JSON.stringify(data),
+           dataType: 'json',
+           encode: true,
+           contentType: "application/json, charset=UTF-8",
+           processData: false
+        }).done(function(response){
+            $("#mymodal").modal("hide")
+            $.notify("Sucesso ao inserir sensor", 'success')
+            tabelaSensores.ajax.reload()
+        }).fail(function(data, err, opt){
+            console.log("Erro ao inserir o sensor" + data.responseText + err + opt)
+            $.notify("Erro ao inserir informaçao" + data.responseText, "error")
+        })
+    })
+
+    var csrf_token = $("#formSensorInsere #csrf_token").val()
+    pegaToken(csrf_token)
+}
+
+function editaSensorJson(tabelaSensores){
+
+    var tabela = document.querySelector("#myTable")
+    var btnEdita = document.querySelectorAll(".btn-outline-warning")
+
+    $("#myTable").on("click", ".btn-outline-warning", function(event){
+
+        $.ajax({
+            url: "/sensor/editarPesquisarSensorJson/" + Number.parseInt(event.target.id),
+            type: "GET",
+            success: function (response) {
+                $("#modaledit").modal("show")
+                $("#editarSensoresCabecalho").html("Editar Sensor")
+                $("#formSensoresEdit #id").val(event.target.id)
+                $("#formSensoresEdit #tipoSensor").val(response.data.tipoSensor)
+                $("#formSensoresEdit #descritivo").val(response.data.descritivo)
+                
+            },
+            error: function(error){
+                console.log(error.responseText)
+            }
+        })
+
+        var url = "/sensor/editarSensoresJson"
+
+        $("#edit_action").click( function(evento) {
+            evento.preventDefault()
+
+            var data = {
+                id: Number.parseInt($("#formSensoresEdit #id").val()),
+                tipoSensor: $("#formSensoresEdit #tipoSensor").val(),
+                descritivo: $("#formSensoresEdit #descritivo").val()
+            }
+
+            console.log(JSON.stringify(data))
+
+            $.ajax({
+                url: url,
+                type: "PUT",
+                data: JSON.stringify(data),
+                dataType: "json",
+                encode: true,
+                contentType: "application/json, charset=UTF-8",
+                processData: false
+            }).done(function(data){
+                $("#formSensoresEdit #tipoSensor").val(),
+                $("#formSensoresEdit #descritivio").val(),
+
+                $("#modaledit").modal("hide")
+                console.log(data)
+                $.notify("Sucesso ao atualizar o regisitro de sensores", "success")
+                tabelaSensores.ajax.reload()
+            }).fail(function(data, err, opt){
+                console.log("Erro ao atualizar o registro de sensores" + data.responseText + err + opt)
+                $.notify("Erro ao atualizar o registro de sensores" + data + err + opt, 'error')
+            })
+        })
+    })
+
+    pegaToken($("#formSensoresEdit #csrf_token").val())
+}
+
+function deletaSensorJson(tabelaSensores){
+    $("#myTable").on("click", ".btn-outline-danger", function(evento) {
+
+        var escolha = window.confirm("Deseka realmente deletar esse sensor?")
+        if(escolha){
+            $.ajax({
+                url: "/sensor/excluirSensor/" + Number.parseInt(evento.target.id),
+                type: "DELETE",
+                success: function(response){
+                    $.notify("Sucesso ao deletar sensor", 'success')
+                    tabelaSensores.ajax.reload()
+                },
+                error: function(error){
+                    $.notify('Error ao deletar sensor' + error, 'error')
+                }
+            })
+        }else {
+            alert("Sensor nao foi deletado!!!")
+        }
+    })
+
+    var csrf_token = $("#formSensoresEdit #csrf_token").val()
+    pegaToken(csrf_token)
+}
 
 function meuMapa(){
     //   var tr = document.querySelectorAll('tr')
@@ -1677,9 +1830,16 @@ function testeAlteraData(){
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
-                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>' +
-                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Excluir </button>';                      
-                           
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-pencil-square"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">' +
+                            '<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>' +
+                            '<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>' +
+                            '</svg> Editar </button>' +
+
+                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-trash"></i> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">' +
+                            '<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>' +
+                            '<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>' +
+                            '</svg> Excluir </button>';                      
+                            
                         }
                     }
                     // },
@@ -1706,10 +1866,57 @@ function testeAlteraData(){
 
             insereLocalJson(tabelaLocal)
             editaLocalJson(tabelaLocal)
+            deletaLocalJson(tabelaLocal)
 
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Sensores"){
-            chamaTabelaEstatica();
+            var tabelaSensores = $("#myTable").DataTable({
+                ajax: {
+                    url: "/sensor/listarSensorJson",
+                    type: "GET",
+                    xhrFields: {
+                        withCredentials: true
+                    }
+                }, 
+                columns: [
+                    {"data": "id"},
+                    {"data": "nome"},
+                    {"data": "descritivo"},
+                    {"data": "dataCriacao", render: function(data){
+                        novaDataSensor = new Date(data)
+                        return novaDataSensor.getUTCDate().toString().padStart(2, '0') + "/" + (novaDataSensor.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaDataSensor.getFullYear().toString() + " " + novaDataSensor.getUTCHours().toString().padStart(2, '0') + ":" + novaDataSensor.getUTCMinutes().toString().padStart(2, '0') + ":" + novaDataSensor.getUTCSeconds().toString().padStart(2, '0')
+                        }
+                    },
+                    {
+                        "data": null,
+                        render: function(data, type, full_row, meta){
+                             return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-pencil-square"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">' +
+                            '<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>' +
+                            '<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>' +
+                            '</svg> Editar </button>' +
+                            
+                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-trash"></i> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">' +
+                            '<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>' +
+                            '<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>' +
+                            '</svg> Excluir </button>';    
+                        }
+                    }
+                    
+                ],
+                "order": [0, "desc"],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+                },
+                retrieve: true,
+                paging: true,
+                responsive: true
+
+            });
+
+            insereSensorJson(tabelaSensores);
+            editaSensorJson(tabelaSensores);
+            deletaSensorJson(tabelaSensores);
+            
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Modulos"){
             var novaDataModulos = null;
 
@@ -1778,8 +1985,15 @@ function testeAlteraData(){
                         {
                             "data": null,
                             render: function(data, type, full_row, meta){
-                                return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i> Editar </button>' +
-                                ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-trash"></i> Excluir </button>' ;
+                                return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-pencil-square"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">' +
+                                '<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>' +
+                                '<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>' +
+                                '</svg> Editar </button>' +
+                                
+                                ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-trash"></i> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">' +
+                                '<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>' +
+                                '<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>' +
+                                '</svg> Excluir </button>';    
                             }
                         }
                     ],
@@ -1881,8 +2095,15 @@ function testeAlteraData(){
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
-                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#modal-edit" data-id="' + full_row.id + '" id="'+ full_row.id +'"><i class="bi bi-pencil-square"></i>  Editar </button>' + 
-                            '<button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'" ><i class="bi bi-trash"></i>  Excluir </button>';
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-pencil-square"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">' +
+                            '<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>' +
+                            '<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>' +
+                            '</svg> Editar </button>' +
+                            
+                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-trash"></i> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">' +
+                            '<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>' +
+                            '<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>' +
+                            '</svg> Excluir </button>';    
                         }
 
 
@@ -1951,6 +2172,7 @@ function testeAlteraData(){
                         "data": null,
                         render: function (data, type, full_row, meta){
                             return '<button type="button" class="btn btn-outline-info btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" data-lat="'+ full_row.lat +'" data-long="'+ full_row.long +'" id="'+ full_row.id +'" ><i class="bi bi-eye"></i> Visualizar </button>'
+                        
                         }
                     }
 
