@@ -1,4 +1,4 @@
-from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify
+from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response
 from app.models.tables import ConfiguracaoJson, Usuarios, db
 from app.config.forms import FormConfiguracao
 import json
@@ -203,7 +203,9 @@ def editarPesquisarConfigJson(id):
                     "usuario_id": linha.usuarios.nome,   # linha.json["usuarioId"]
                     "usuariosIdNome":  l
             }
-            return jsonify({'data': lista})
+            response = Response()
+            response.headers['X-CSRF-TOKEN'] = csrf_token()
+            return jsonify({'data': lista}) 
         else:
             return jsonify({'data': 'Nenhum registro com esse id'})
     else:

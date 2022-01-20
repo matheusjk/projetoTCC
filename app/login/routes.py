@@ -1,6 +1,6 @@
 from app import login_user, login_required, current_user, request, logout_user, \
     login_manager, Mail, Message, mail, generate_password_hash, session, datetime, jsonify
-from flask import Blueprint, flash, render_template, redirect, url_for
+from flask import Blueprint, flash, render_template, redirect, url_for, Response
 # from flask_login import login_required
 from app.login.forms import LoginForm, Usuario, CadastroUsuario, Recuperar, EditarUsuario
 from app.models.tables import Usuarios, db
@@ -124,6 +124,8 @@ def index():
         return redirect(url_for('form.listarBemVindo'))
     else:
         print(forms.errors)
+    response = Response()
+    response.headers['X-CSRF-TOKEN'] = csrf_token
     return render_template('login.html', form=forms)
 
 
