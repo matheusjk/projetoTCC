@@ -103,6 +103,7 @@ def register():
 @form.route('/login', methods=["GET", "POST"])
 def index():
     forms = LoginForm()
+   
     if forms.validate_on_submit():
         print(forms.email.data, forms.senha.data)
         user = Usuarios.query.filter_by(email=forms.email.data).first()
@@ -124,8 +125,8 @@ def index():
         return redirect(url_for('form.listarBemVindo'))
     else:
         print(forms.errors)
-    response = Response()
-    response.headers['X-CSRF-TOKEN'] = csrf_token
+    # response = Response()
+    # response.headers['X-CSRF-TOKEN'] = csrf.
     return render_template('login.html', form=forms)
 
 
