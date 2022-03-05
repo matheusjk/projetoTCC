@@ -203,8 +203,8 @@ def editarPesquisarConfigJson(id):
                     "usuario_id": linha.usuarios.nome,   # linha.json["usuarioId"]
                     "usuariosIdNome":  l
             }
-            response = Response()
-            response.headers['X-CSRF-TOKEN'] = csrf_token()
+            # response = Response()
+            # response.headers['X-CSRF-TOKEN'] = csrf_token()
             return jsonify({'data': lista}) 
         else:
             return jsonify({'data': 'Nenhum registro com esse id'})
