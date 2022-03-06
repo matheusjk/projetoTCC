@@ -307,7 +307,7 @@ function comboboxSelectedUsuario(id){
 
 
 function voltaPaginaPrincipal(){
-    window.location.href = 'https://192.168.0.13:59000/form/login';
+    window.location.href = 'http://192.168.0.14:59000/form/login';
 }
 
 
@@ -387,7 +387,7 @@ function atualizarTelemetria(){
 function chamaTelemetria(){
    
     var tabela = $('#myTable').DataTable({
-        "ajax": "https://192.168.0.13:59000/telemetria/listarTelemetriaJson",
+        "ajax": "http://192.168.0.14:59000/telemetria/listarTelemetriaJson",
         "columns": [
             {"data": "id"},
             {"data": "NOME"},
@@ -810,7 +810,7 @@ function editaConfigJson(tabelaConfig){
             $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
             tabelaConfig.ajax.reload()
         }).fail(function(data, err, opt){
-            console.log('Erro ao atualizar o registro de configuraçoes'+ data.responseText) // + err + opt)
+            console.log('Erro ao atualizar o registro de configuraçoes'+ data.responseText + err + opt) // + err + opt)
             $.notify('Erro ao atualizar o registro de configuraçoes'+ data + err + opt, 'error')
         })
     })

@@ -1,4 +1,4 @@
-from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response
+from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response, csrf
 from app.models.tables import ConfiguracaoJson, Usuarios, db
 from app.config.forms import FormConfiguracao
 import json
@@ -102,6 +102,40 @@ def excluir(id):
     db.session.commit()
     
     return jsonify({'data': 'Deletado com sucesso'})
+
+
+@config.route('/listarConfigJsonEsp/<int:id>', methods=['GET', 'POST'])
+@csrf.exempt
+def listarConfigJsonEsp(id):
+    try:
+        configObj = ConfiguracaoJson.query.filter(func.json_extract(ConfiguracaoJson.json, "$.usuarioId") == id).all()
+        lista = []
+        print(configObj, type(configObj), len(configObj))
+        if len(configObj) >= 1:
+            for linha in configObj:
+                lista.append({
+                    "id": linha.id,
+                    "tempo_execucao_telemetria": linha.json["tempoTel"],
+                    "tempo_execucao_geolocalizacao": linha.json["tempoGeo"],
+                    "tempo_execucao_soneca": linha.json["tempoSoneca"],
+                    "tempo_execucao_thingspeak": linha.json["tempoThingSpeak"],
+                    "secret_key_thingspeak": linha.json["secretKey"],
+                    "url_ip_api": linha.json["urlIpApi"],
+                    "url_thingspeak": linha.json["urlThingSpeak"],
+                    "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
+                    "alerta_email": linha.json["alertaEmail"],
+                    "valor_gas_aviso": linha.json["valorGasAviso"],
+                    "usuario_id": linha.json["usuarioId"],
+                    "dataCriacao": linha.dataCriacao,
+                    "dataAtualizacao": linha.dataAtualizacao,
+                    "nome_usuario": linha.usuarios.nome 
+                    
+                }) 
+            return jsonify({'data': lista})
+        else:
+            return jsonify({"mensagem": "Erro ID inexistente"})
+    except Exception as error:
+        return jsonify({"mensagem": "Erro ao buscar o ID {}".format(error)})
 
 
 
@@ -259,7 +293,7 @@ def editarConfigJson():
     configObj.usuario_id = request.get_json()["usuarioId"]
     print(novoJson)
     configObj.json = novoJson
-
+    print()
     # db.session.merge(configObj)
     # db.session.flush()
     db.session.commit()

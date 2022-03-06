@@ -1,6 +1,6 @@
 from app import login_user, login_required, current_user, request, logout_user, \
-    login_manager, Mail, Message, mail, generate_password_hash, session, datetime, jsonify
-from flask import Blueprint, flash, render_template, redirect, url_for, Response
+    login_manager, Mail, Message, mail, generate_password_hash, session, datetime, jsonify, csrf
+from flask import Blueprint, flash, make_response, render_template, redirect, url_for, Response
 # from flask_login import login_required
 from app.login.forms import LoginForm, Usuario, CadastroUsuario, Recuperar, EditarUsuario
 from app.models.tables import Usuarios, db
@@ -157,6 +157,27 @@ def listar():
             print(user[0].dataCriacao)
             return render_template('usuariosBlue.html', user=user, form=formsLista) #, name=current_user)
     return redirect(url_for('logout'))
+
+
+
+@form.route('/listarUsuariosEsp/<int:id>', methods=["GET", "POST"])
+@csrf.exempt  # fica isento de csrf autenticação  exclude view from protection
+def listarUsuariosEsp(id):
+    # if request.authorization and request.authorization.username == "admin" and request.authorization.password == "12345":
+    #     return jsonify({'mensagem': "Logado com sucesso!!!"})
+    
+    # return make_response("Não pode ser verificado", 401, {'WWW-Authenticate': 'Basic realm="Login Requerido"'})
+
+    if request.method == "POST":
+        if request.get_json()["usuario"] and request.get_json()["senha"]: 
+            user = Usuarios.query.filter_by(nome=request.get_json()["usuario"]).all()
+            if user is None:
+                return jsonify({'mensagem': "Usuario ou senha incorretos"})
+            else:            
+                print(user)
+                return jsonify({"nome": [linha.nome for linha in user if user is not None] })
+    return jsonify({'mensagem': "Por favor se autentique-se"})
+
 
 @form.route('/editarUsuario', methods=["POST"])
 @login_required

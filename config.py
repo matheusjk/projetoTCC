@@ -37,11 +37,11 @@ class DevelopmentConfig(Config):
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=15)
     REMEMBER_COOKIE_DURATION = timedelta(minutes=15)
     REMEMBER_COOKIE_REFRESH_EACH_REQUEST = True
-    SESSION_COOKIE_NAME = "testePythonSessionJS"
-    SESSION_COOKIE_HTTPONLY = True 
-    SESSION_COOKIE_SAMESITE = 'Lax' 
-    SESSION_COOKIE_SECURE = True
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://tcc3:123@mudar*@192.168.0.13:3306/tcc"
+    # SESSION_COOKIE_NAME = "testePythonSessionJS"
+    # SESSION_COOKIE_HTTPONLY = True 
+    # SESSION_COOKIE_SAMESITE = 'Lax' 
+    # SESSION_COOKIE_SECURE = True
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root@localhost:3306/tcc"
     # SQLALCHEMY_DATABASE_URI = "mysql+pymysql://tcc3:123@mudar*@192.168.0.12:3306/tcc"
     # SQLALCHEMY_DATABASE_URI = "mysql+pymysql://tcc2:123@mudar@192.168.0.7:3306/tcc?charset=utf8"
     SQLALCHEMY_TRACK_MODIFICATIONS = True

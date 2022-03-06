@@ -223,10 +223,31 @@ def listarLocalJson():
                 'idUsuario': linha.usuarios.id,
                 'nomeUsuario': linha.usuarios.nome
             })
+        return jsonify({'data': lista})
+
+    elif current_user.tipoUsuario == 1:
+
+        localObj = Local.query.filter_by(usuario_id=current_user.id).all() 
+
+        lista = []
+        
+
+        for linha in localObj:
+            lista.append({
+                'id': linha.id,
+                "cep": linha.cep,
+                "endereco": linha.endereco,
+                'cidade': linha.cidade,
+                'bairro': linha.bairro,
+                'estado': linha.estado,
+                'obs': linha.obs,
+                'idUsuario': linha.usuarios.id,
+                'nomeUsuario': linha.usuarios.nome
+            })
 
        
 
-    return jsonify({'data': lista})
+        return jsonify({'data': lista})
 
 # @local.after_request
 # def cookies():

@@ -1,4 +1,4 @@
-from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, make_response, jsonify, pdfkit, datetime
+from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, make_response, jsonify, pdfkit, datetime, csrf
 from app.telemetria.forms import TelemetriaForm
 from app.models.tables import Telemetria, db
 import json
@@ -135,6 +135,30 @@ def registrarTelemetria():
     # flash("Telemtria inserida com sucesso!!!")
     # return redirect(url_for('.listar'))
     return "Telemtria inserida com sucesso!!!", 200
+
+
+
+
+@telemetria.route("/registrarTelemetriaEsp", methods=["GET", "POST"])
+@csrf.exempt
+def registrarTelemetriaEsp():
+    # d = 0
+    # d = request.data
+    print(request.get_json(), request.json, type(request.json))
+    # print(request.get_json(), request.data, request.host, request.json, request.content_type, request.content_length)
+    # formTelemetria = TelemetriaForm()
+    # if formTelemetria.validate_on_submit():
+    # telemetriaObj = Telemetria(formTelemetria.json.data)
+    # db.session.add(telemetriaObj)
+    # db.session.commit()
+    if request.method == "POST":
+        tel = Telemetria(request.json)
+        db.session.add(tel)  # request.json.get('groupName')  | json.dumps(request.get_json())
+        db.session.commit()
+        # print(request.json.get('groupName'))
+    # flash("Telemtria inserida com sucesso!!!")
+    # return redirect(url_for('.listar'))
+    return jsonify({"mensagem": "Telemtria inserida com sucesso!!!"})
 
 
 

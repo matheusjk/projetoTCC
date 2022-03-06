@@ -1,5 +1,9 @@
-from app import db, login_manager, generate_password_hash, check_password_hash, func, UserMixin, datetime
+from app import login_manager, generate_password_hash, check_password_hash, func, UserMixin, datetime
+from flask_sqlalchemy import SQLAlchemy
 # create_engine =
+
+
+db = SQLAlchemy()
 
 class Usuarios(UserMixin, db.Model):
     __tablename__ = "usuarios"

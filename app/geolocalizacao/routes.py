@@ -1,5 +1,5 @@
-from app import login_manager, login, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify
-from app.models.tables import Geolocalizacao
+from app import login_manager, login, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf
+from app.models.tables import Geolocalizacao, db
 
 geo = Blueprint("geo", __name__, template_folder="templates", url_prefix="/geo")
 
@@ -27,16 +27,17 @@ def listar():
     # print(geoObj, dir(geoObj), geoObj[0].json)
 
 
-@geo.route("/registrarGeo/<string:dados>", methods=["GET", "POST"])
-def registrarGeo(dados):
-    print(request.get_json, request.data)
-    if request.method == "GET":
+@geo.route("/registrarGeo", methods=["GET", "POST"])
+@csrf.exempt
+def registrarGeo():
+    print(request.get_json(), request.data)
+    if request.method == "POST":
         # geoObj = Geolocalizacao(request.json.get("city"))
-        geoObj = Geolocalizacao(dados)
+        geoObj = Geolocalizacao(request.json)
         db.session.add(geoObj)
         db.session.commit()
         print(geoObj)
-    return "GEO INCLUIDA COM SUCESSO", 200
+    return jsonify({"mensagem": "GEO INCLUIDA COM SUCESSO"})
 
 
 @geo.route('/listarPagGeoJson', methods=['GET'])
