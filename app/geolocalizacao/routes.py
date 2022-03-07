@@ -33,10 +33,13 @@ def registrarGeo():
     print(request.get_json(), request.data)
     if request.method == "POST":
         # geoObj = Geolocalizacao(request.json.get("city"))
-        geoObj = Geolocalizacao(request.json)
-        db.session.add(geoObj)
-        db.session.commit()
-        print(geoObj)
+        if len(request.json) > 25:
+            geoObj = Geolocalizacao(request.json)
+            db.session.add(geoObj)
+            db.session.commit()
+            print(geoObj)
+        else:
+            return jsonify({"mensagem": "Não eh possivel inserir geo"})
     return jsonify({"mensagem": "GEO INCLUIDA COM SUCESSO"})
 
 

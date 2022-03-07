@@ -29,8 +29,8 @@ SMTPSession smtp;
 DHT dht(DHTPINO, DHTTYPE);
 
 
-#define ssid "netvirtua1567 ap 101"
-#define senha "1098550000"
+#define ssid ""
+#define senha ""
 
 String serverName = "http://192.168.0.14:59000/config/listarConfigJsonEsp/1";
 
