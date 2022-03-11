@@ -1,4 +1,5 @@
-from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response, csrf
+from flask import current_app
+from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response, csrf, auth
 from app.models.tables import ConfiguracaoJson, Usuarios, db
 from app.config.forms import FormConfiguracao
 import json
@@ -106,6 +107,7 @@ def excluir(id):
 
 @config.route('/listarConfigJsonEsp/<int:id>', methods=['GET', 'POST'])
 @csrf.exempt
+@auth.login_required
 def listarConfigJsonEsp(id):
     try:
         configObj = ConfiguracaoJson.query.filter(func.json_extract(ConfiguracaoJson.json, "$.usuarioId") == id).all()
@@ -195,7 +197,7 @@ def listarConfigJson():
 @login_required
 def listarUsuariosConfiguracoes():
     if current_user.tipoUsuario == 0:
-        linha = ConfiguracaoJson.query.filter_by(id=id).first()
+        linha = ConfiguracaoJson.query.all()  # filter_by(id=id).first()
         id_nome = Usuarios.query.all()
 
         print(linha)
@@ -206,6 +208,19 @@ def listarUsuariosConfiguracoes():
         }
             
         return jsonify({'data': lista})
+    else:
+        linha = ConfiguracaoJson.query.filter_by(id=current_user.id).first()
+
+        # print(linha)
+        # l = [ (linhas.id, linhas.nome) for linhas in linha ]
+    
+        lista = {
+            "id": linha.id,
+            "nomeUsuario": linha.usuarios.nome  
+        }
+            
+        return jsonify({'data': lista})
+        
 
 
 

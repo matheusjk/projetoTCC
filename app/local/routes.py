@@ -148,25 +148,25 @@ def editarPesquisarLocalJson(id):
         }
 
         return jsonify({'data': lista})
-    # elif current_user.tipoUsuario == 1:
-    #     linha = Local.query.filter_by(id=id).first()
-    #     id_nome = Usuario.query.filter_by(id=)
+    elif current_user.tipoUsuario == 1:
+        linha = Local.query.filter_by(id=id).first()
+        id_nome = Usuarios.query.filter_by(id=current_user.id).first()
 
-    #     print(linha)
-    #     l = [ (linhas.id, linhas.nome) for linhas in id_nome]
-    #     lista = {
-    #         'id': linha.id,
-    #         "cep": linha.cep,
-    #         "endereco": linha.cep,
-    #         'cidade': linha.cidade,
-    #         'bairro': linha.bairro,
-    #         'estado': linha.estado,
-    #         'obs': linha.obs,
-    #         'idUsuario': linha.usuarios.id,
-    #         'nomeUsuario': linha.usuarios.nome
-    #     }
+        print(linha)
+        # l = [ (linhas.id, linhas.nome) for linhas in id_nome]
+        lista = {
+            'id': linha.id,
+            "cep": linha.cep,
+            "endereco": linha.cep,
+            'cidade': linha.cidade,
+            'bairro': linha.bairro,
+            'estado': linha.estado,
+            'obs': linha.obs,
+            'idUsuario': linha.usuarios.id,
+            'nomeUsuario': linha.usuarios.nome
+        }
 
-    #     return jsonify({'data': lista})
+        return jsonify({'data': lista})
 
 
 @local.route('/inserirLocalJson', methods=['GET', 'POST'])

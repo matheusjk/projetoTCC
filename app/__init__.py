@@ -8,13 +8,14 @@ from sqlalchemy.sql import func
 import datetime
 import os
 import pdfkit
+from flask_httpauth import HTTPBasicAuth
 
-
+# auth 
 
 csrf = CSRFProtect()
 mail = Mail()
 login_manager = LoginManager()
-
+auth = HTTPBasicAuth()
 
 def paginaNaoEncontrada(e):
     return render_template('error404.html')
@@ -38,6 +39,8 @@ def create_app():  # or def create_app(config_class=Config)
 
     login_manager.init_app(app)
     mail.init_app(app)
+
+    
 
     with app.app_context():
 
@@ -67,22 +70,30 @@ def create_app():  # or def create_app(config_class=Config)
 
    
     # from app.controllers import default
+    
+    # @auth.verify_password
+    # def verify_password(usuario, senha):
+    #     if usuario in 
+    users = {
+        "esp8266": generate_password_hash("python")
+    }
 
-    from app.models.forms import LoginForm, Usuario
+    @auth.verify_password
+    def verify_password(username, password):
+        if username in users and check_password_hash(users.get(username), password):
+            return username
+
     from app.models.tables import Usuarios
+    @login_manager.user_loader
+    def get_user(user_id):
+        return Usuarios.query.get(int(user_id))
 
     # app.errorhandler(404)
     app.register_error_handler(400, paginaNaoEncontrada)   # sem o decorator
-    
-    
+   
 
     return app
 
 
-from app.models.tables import Usuarios
-
-@login_manager.user_loader
-def get_user(user_id):
-    return Usuarios.query.get(int(user_id))
 
 

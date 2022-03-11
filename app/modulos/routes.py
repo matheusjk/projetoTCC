@@ -1,4 +1,4 @@
-from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify
+from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf
 from app.models.tables import Modulos, Telemetria, Geolocalizacao, Configuracao, db
 
 
@@ -61,9 +61,17 @@ def listarModuloJson():
             })
         return jsonify({'data': lista})
 
-# @modulo.route('/registrarLocal', methods=['GET', 'POST'])
+
+@modulo.route('/registrarModulos', methods=['GET', 'POST'])
 # @login_required
-# def registrarModulo():
-#     formModulos = FormModulos()
-#
-#     print(formModulos.mac.)
+@csrf.exempt
+def registrar():
+    print(request.json)
+    if request.method == "POST":
+        
+        modulosObj = Modulos(request.json)
+        db.session.add(modulosObj)
+        db.session.commit()
+    return jsonify({"mensagem": "MODULOS INSERIDOS COM SUCESSO"})
+    # else:
+    # return jsonify({"mensagem": "MODULOS INSERIDOS COM SUCESSO"})

@@ -1,249 +1,72 @@
 {% from 'base.html' import valida %}
 {% extends 'base.html' %}
 
+{% macro mostrarTelemetria() %}
+
+<div class="col-md-12 pt-3">
+    <div class="jumbotron p-3">
+        <h2> Usuarios </h2>
+    </div>
+
+    {{ mostraAlerta() }}
+    <table class="display table table-hover table-dark table-bordered" style="width: 100%" id="myTable">
+            <thead>
+                <tr id="cabecalho">
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <!-- <th>Data Criação</th> -->
+                    <th>Sexo</th>
+                    <!-- <th>Cpf</th> -->
+                    <th>Tel</th>
+                    <th>Idade</th>
+                    <th>Data Nascimento</th>
+                    <th>Tipo Usuario</th>
+                    <th> Ação </th>
+               
+                </tr>
+            </thead>
+            <tbody>
+                                
+            </tbody>           
+    </table>
+</div>
+{% endmacro %}
+
+
 {% block content %}
 
 {{ validaLogin(current_user) }}
 
 <div class="container">
     <div class="row">
-        <div class="col-md-12 pt-3">
-            <div class="jumbotron p-3">
-                <h2> Usuarios </h2>
-            </div>
-
-{% if current_user.tipoUsuario == 0 %}
-            <table class="table table-hover table-dark" id="myTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Sexo</th>
-                        <th>CPF</th>
-                        <th>Tel</th>
-                        <!-- <th>Idade</th> -->
-                        <th>Data Nascimento</th>
-                        <th>Data Criação</th>
-                        <th>Tipo Usuario</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for linhas in user %}
-                        <tr>
-                            <td>{{ linhas.id }}</td>
-                            <td>{{ linhas.nome }}</td>
-                            <td>{{ linhas.email }}</td>
-                            <td>{{ linhas.sexo }}</td>
-                            <td>{{ linhas.cpf }}</td>
-                            <td>{{ linhas.tel }}</td>
-                            <!-- <td>{{ linhas.idade }}</td> -->
-                            <td>{{ linhas.dataNasc }}</td>
-                            <td>{{ linhas.dataCriacao }}</td>
-                            {% if linhas.tipoUsuario == 0 %}
-                            <td> ADMINISTRADOR </td>
-                            {% else %}
-                            <td> COMUM </td>
-                            {% endif %}
-                            <td>
-                                <a href="/form/alterarUsuario/{{ linhas.id }}" onclick="comboboxSelectedUsuario(this.href)" class="btn btn-outline-warning" data-toggle="modal" data-target="#modaledit{{ linhas.id }}"><i class="bi bi-pencil-square"></i>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                                    </svg>
-                                    Editar
-                                </a>
-                                <a href="/form/excluirUsuario/{{ linhas.id }}" class="btn btn-outline-danger" onclick="return confirm('Deseja realmente deletar o usuario??')"><i class="bi bi-trash"> </i>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                    </svg>
-                                    Excluir
-                                </a>
-                            </td>
-                        </tr>
-
-                        <div id="modaledit{{linhas.id}}" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Alterar Usuarios </h4>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <form action="{{url_for('form.editar')}}" method="POST">
-                                            {{ form.csrf_token }}
-
-
-
-                                            <div class="form-group">
-                                                {{ form.nome.label }}
-                                                {{ form.id(type="hidden", value=linhas.id) }}
-                                                {{ form.nome(class="form-control", placeholder="teste", value=linhas.nome) }}
-                                                {{ valida(form.nome) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                                {{ form.email.label }} {{ form.email(class="form-control", value=linhas.email) }}
-                                                {{ valida(form.email) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                                {{ form.sexo.label }} {{ form.sexo(class="form-control", value=linhas.sexo) }}
-                                                {{ valida(form.sexo) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                                {{ form.tel.label }} {{ form.tel(class="form-control",  value=linhas.tel) }}
-                                                {{ valida(form.tel) }}
-                                            </div>
-
-                                            <div class="form-group">
-                                                {{ form.cpf.label }} {{ form.cpf(class="form-control",  value=linhas.cpf) }}
-                                                {{ valida(form.cpf) }}
-                                            </div>
-
-
-
-                                            <div class="form-group">
-                                                    {{ form.dataNasc.label }} {{ form.dataNasc(class="form-control",  value=linhas.dataNasc) }}
-                                                    {{ valida(form.dataNasc) }}
-                                            </div>
-
-
-                                            <div class="form-group">
-                                                    {{ form.tipoUsuario.label }} {{ form.tipoUsuario(class="form-control",  value=linhas.tipoUsuario) }}
-                                                    {{ valida(form.tipoUsuario) }}
-                                            </div>
-
-                                            <div class="form-group pt-2">
-                                                {{ form.submit(class="btn btn-outline-primary")}}
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
-                                      </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </tbody>
-            </table>
-{% else %}
-
-    <table class="table table-hover table-dark" id="example">
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>CPF</th>
-            <th>Sexo</th>
-            <th>Tel</th>
-            <!-- <th>Idade</th> -->
-            <th>Data Nascimento</th>
-            <th>Data Criação</th>
-            <th>Tipo Usuario</th>
-            <th>Ação</th>
-        </tr>
-
-        {% for linhas in user %}
-            <tr>
-                <td>{{ linhas.id }}</td>
-                <td>{{ linhas.nome }}</td>
-                <td>{{ linhas.email }}</td>
-                <td>{{ linhas.cpf }}</td>
-                <td>{{ linhas.sexo }}</td>
-                <td>{{ linhas.tel }}</td> 
-                <td>{{ linhas.dataNasc }}</td>
-                <!-- <td>{{ linhas.dataNasc }}</td> -->
-                <td>{{ linhas.dataCriacao }}</td>
-                {% if linhas.tipoUsuario == 1 %}
-                  <td> COMUM </td>
-                {% else %}
-                  <td> ADMINISTRADOR </td>
-                {% endif %}
-
-                 <td>
-                    <a href="/alterarPessoa/{{ linhas.id }}" class="btn btn-outline-warning" data-toggle="modal" data-target="#modaledit{{ linhas.id }}"><i class="bi bi-pencil-square"></i>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                        </svg>
-                         Editar
-                    </a>
-
-                </td>
-            </tr>
-
-            <div id="modaledit{{linhas.id}}" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Alterar Usuario </h4>
-                        </div>
-
-                        <div class="modal-body">
-                            <form action="{{url_for('form.editar')}}" method="POST" class="needs-validation">
-                                 {{ form.csrf_token }}
-
-
-
-                                <div class="form-group">
-                                      {{ form.nome.label }}
-                                      {{ form.id(type="hidden", value=linhas.id) }}
-                                      {{ form.nome(class="form-control", placeholder="teste", value=linhas.nome) }}
-                                      {{ valida(form.nome) }}
-                                </div>
-
-                                <div class="form-group">
-                                     {{ form.email.label }} {{ form.email(class="form-control", value=linhas.email) }}
-                                     {{ valida(form.email) }}
-                                </div>
-
-                                <div class="form-group">
-                                    {{ form.sexo.label }} {{ form.sexo(class="form-control", value=linhas.sexo) }}
-                                    {{ valida(form.sexo) }}
-                               </div>
-
-                                <div class="form-group">
-                                     {{ form.tel.label }} {{ form.tel(class="form-control",  value=linhas.tel) }}
-                                     {{ valida(form.tel) }}
-                                </div>
-
-                                <div class="form-group">
-                                     {{ form.cpf.label }} {{ form.cpf(class="form-control",  value=linhas.cpf) }}
-                                     {{ valida(form.cpf) }}
-                                </div>
-
-
-
-                               <div class="form-group">
-                                    {{ form.dataNasc.label }} {{ form.dataNasc(class="form-control",  value=linhas.dataNasc) }}
-                                    {{ valida(form.dataNasc) }}
-                               </div>
-
-
-                               <div class="form-group">
-                                    {{ form.tipoUsuario.label }} {{ form.tipoUsuario(class="form-control",  value=linhas.tipoUsuario) }}
-                                    {{ valida(form.tipoUsuario) }}
-                               </div>
-
-                                <div class="form-group pt-2">
-                                    {{ form.submit(class="btn btn-primary")}}
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </table>
-        </div>
+      
+        {{ mostrarTelemetria() }}
+       
     </div>
 </div>
-{% endif %}
+
+
+<script>
+    function funcaoBuscar(){
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById('meuInput');
+        filter = input.value.toUpperCase();
+        table = document.getElementById('myTable');
+        tr = table.getElementsByTagName("tr");
+        for(i = 0; i < tr.length; i++){
+            td = tr[i].getElementsByTagName("td")[3];  // posicao da coluna de pesquisa
+            if(td){
+                txtValue = td.textContent || td.innerText;
+                if(txtValue.toUpperCase().indexOf(filter) > -1){
+                    tr[i].style.display = "";
+                }else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
 
 {% endblock %}
 

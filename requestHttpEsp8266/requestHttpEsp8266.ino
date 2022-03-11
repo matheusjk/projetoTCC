@@ -2,6 +2,7 @@
 #include <ESP8266HTTPClient.h>
 //#include <WiFiClient.h>
 #include <ArduinoJson.h>
+#include <base64.h>
 
 //#include <WiFiManager.h>
 #include <DHT.h>
@@ -29,12 +30,12 @@ SMTPSession smtp;
 DHT dht(DHTPINO, DHTTYPE);
 
 
-#define ssid ""
-#define senha ""
+#define ssid "netvirtua1567 ap 101"
+#define senha "1098550000"
 
 String serverName = "http://192.168.0.14:59000/config/listarConfigJsonEsp/1";
 
-bool enviou;
+bool enviou = false;
 int cont = 0;
 
 unsigned long ultimoTempoTelemetria = 0, ultimoTempoThingSpeak = 0, ultimoTempoGeo = 0;
@@ -97,24 +98,43 @@ float * lerSensorDhtTemperatura(){
 }
 
 
-void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float temp, float umidadeLocal, float gasLocal){
-  HTTPClient httpThingSpeak;
-  WiFiClient clienteThingSpeak;
-  
-  Serial.println("VINDO DA FUNCAO THINGSPEAK ");
-  Serial.println(urlThingSpeak);
-  httpThingSpeak.begin(clienteThingSpeak, urlThingSpeak);
+void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float temp, float umidadeLocal, float gasLocal, float tempo_execucao_thingspeak){
 
-  httpThingSpeak.addHeader("Content-Type", "application/json");
-  String httpRequestData = "{\"api_key\":\"" + secretKeyThingSpeak + "\",\"field1\":\"" + temp + "\",\"field2\":\"" + umidadeLocal + "\", \"field3\":\"" + gasLocal + "\" }" ;
-  int httpResponseCode = httpThingSpeak.POST(httpRequestData);
+   if((millis() - ultimoTempoThingSpeak) > (tempo_execucao_thingspeak * 60000)){
+//       if(WiFi.status() == WL_CONNECTED){
+              
+          HTTPClient httpThingSpeak;
+          WiFiClient clienteThingSpeak;
+          
+          Serial.println("VINDO DA FUNCAO THINGSPEAK ");
+          Serial.println(urlThingSpeak);
+          httpThingSpeak.begin(clienteThingSpeak, urlThingSpeak);
+        
+          httpThingSpeak.addHeader("Content-Type", "application/json");
+          String httpRequestData = "{\"api_key\":\"" + secretKeyThingSpeak + "\",\"field1\":\"" + temp + "\",\"field2\":\"" + umidadeLocal + "\", \"field3\":\"" + gasLocal + "\" }" ;
+          int httpResponseCode = httpThingSpeak.POST(httpRequestData);
+        
+          Serial.print("HTTP Response Code: ");
+          Serial.print(httpResponseCode);
 
-  Serial.print("HTTP Response Code: ");
-  Serial.print(httpResponseCode);
+          if(httpResponseCode > 0){
+              Serial.print("HTTP Response Code: ");
+              Serial.println(httpResponseCode);
+              String payload = httpThingSpeak.getString();
+              Serial.println(payload);  
+          }else {
+              Serial.print("Error code: ");
+              Serial.println(httpResponseCode);
+          }
 
-  httpThingSpeak.end();
-//  ESP.wdtFeed();
-
+          
+        
+          httpThingSpeak.end();
+//      }
+      
+      ultimoTempoThingSpeak = millis();
+  }
+//    ESP.wdtFeed();
 }
 
 
@@ -204,7 +224,6 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
           httpGeo.addHeader("Content-Type", "application/json");
               
           deserializeJson(doc, payload);
-          
 
           DynamicJsonDocument objeto(2048);
 
@@ -244,35 +263,67 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
               Serial.print("Error code: ");
               Serial.println(httpResponseCode);
           }
-
-//             httpTel.end(); // liberando recursos;
-            
-//          if(enviou == true and cont == 1){
-//            Serial.print(cont);
+             
+          if(enviou == true and cont == 1){
+            Serial.print(cont);
 //            enviou = false;
-//   
-//              Serial.println("MAC JA GRAVADO");
+   
+              Serial.println("MAC JA GRAVADO");
 //              deserializeJson(doc, payload);
-//              const char* ip_externo = doc["query"];
-//              const char* region = doc["region"];
-//              const char* city = doc["city"];
-//  
-//              Serial.println(WiFi.localIP());
-//              Serial.println(WiFi.softAPmacAddress().c_str());
-//              Serial.println(ip_externo);
-//              Serial.println(region);
-//              Serial.println(city);
-//              //https://forum.arduino.cc/t/how-to-manipulate-ipaddress-variables-convert-to-string/222693/9
-//              // old school
+
+               String urlModulos = "http://192.168.0.14:59000/modulo/registrarModulos";
+
+               httpGeo.setURL(urlModulos);
+               httpGeo.addHeader("Content-Type", "application/json");
+                       
+              Serial.println(WiFi.localIP());
+              Serial.println(WiFi.softAPmacAddress().c_str());
+//              Serial.println(doc["query"]);
+//              Serial.println(doc["region"]);
+//              Serial.println(doc["city"]);
+
+               String mac = WiFi.softAPmacAddress().c_str();
+               String ip_interno = WiFi.localIP().toString().c_str();
+                
+               DynamicJsonDocument objetoModulos(2048);
+               objetoModulos["MAC"] = mac;
+               objetoModulos["IP_INTERNO"] = ip_interno; // WiFi.localIP().toString().c_str()
+               objetoModulos["query"] = doc["query"]; 
+               objetoModulos["region"] = doc["region"];
+               objetoModulos["city"] = doc["city"];
+               objetoModulos["NOME"] = nome;
+               objetoModulos["IDUSUARIO"] = usuario_id;
+    
+               String objModulos;
+               serializeJson(objetoModulos, objModulos);
+  //             Serial.println(obj);
+                     
+               int httpResponseCodeModulos = httpGeo.POST(objModulos);
+               Serial.println(objModulos);
+                
+               if(httpResponseCodeModulos > 0){
+                  Serial.print("HTTP Response Code Modulos: ");
+                  Serial.println(httpResponseCodeModulos);
+                  String payload = httpGeo.getString();
+                  Serial.println(payload);
+            
+                }else{
+                  Serial.println("HTTP JSON GEO JA FOI INSERIDO");
+                }
+              //https://forum.arduino.cc/t/how-to-manipulate-ipaddress-variables-convert-to-string/222693/9
+              // old school
 //              sprintf(json, "{\"MAC\": \"%s\" ,\"IP_INTERNO\": \"%s\" , \"query\": \"%s\", \"region\": \"%s\", \"city\": \"%s\", \"NOME\": \"%s\", \"IDUSUARIO\": \"%d\"}", WiFi.softAPmacAddress().c_str(), WiFi.localIP().toString().c_str(), ip_externo, region, city, nome.c_str(), usuarioId);
 //              Serial.print(json);
 //              sprintf(query_insert_modulo, INSERT_SQL_MODULO, json);
 //              Serial.println(query_insert_modulo);
 //              cur_mem->execute(query_insert_modulo);
-//  
-//          }else{
-//            Serial.println("HTTP JSON GEO JA FOI INSERIDO");
-//          }
+          }
+              
+
+          
+
+//             httpTel.end(); // liberando recursos;
+         
 
        }else{
         Serial.println("Codigo de Erro: ");
@@ -313,8 +364,11 @@ void loop() {
       WiFiClient cliente;
 
       String payload = "{}";
-
+      String usuarioHttp = "esp8266";
+      String senhaHttp = "python";
+      String auth = base64::encode(usuarioHttp + ":" + senhaHttp);
         http.begin(cliente, serverName);
+        http.addHeader("Authorization", "Basic " + auth);
 
         Serial.println("http begin OK ConfiguracoesJSON");
       
@@ -360,7 +414,8 @@ void loop() {
 
           chamaTelemetria(temperatura, umidade, tempo_execucao_telemetria, nome_usuario, usuario_id);
           chamaGeo(url_ip_api, tempo_execucao_geolocalizacao, nome_usuario, usuario_id);
-
+//          enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
+          
 //          ESP.wdtDisable();
 //          ESP.wdtFeed();
 //          yield();
@@ -372,16 +427,7 @@ void loop() {
 //          ESP.restart();
 //        }
 
-//        Serial.println((tempo_execucao_thingspeak * 60000));
-//        if((millis() - ultimoTempoThingSpeak) > (tempo_execucao_thingspeak * 60000)){
-//          if(WiFi.status() == WL_CONNECTED){
-//             enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100); // lerSensorMQ()  
-//          }
-//          ultimoTempoThingSpeak = millis();
-//          
-//        }
-
-        
+        Serial.println((tempo_execucao_thingspeak * 60000));    
          
   
         }else {

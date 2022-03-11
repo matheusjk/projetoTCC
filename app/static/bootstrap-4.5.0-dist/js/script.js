@@ -573,6 +573,7 @@ function insereConfigJson(tabelaConfig){
                 //     console.log("Tecla pressionada eh " + codigo + " traduçao " + String.fromCharCode(codigo))
                 // })
 
+                
                 if($('#formAdicionarConfig #tempoTelemetria').val() == ''){
                     $('#formAdicionarConfig #tempoTelemetria').addClass('needs-validation')
                     $('#formAdicionarConfig #tempoTelemetria').addClass('is-invalid')
@@ -583,55 +584,56 @@ function insereConfigJson(tabelaConfig){
                 }else {
                     $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
                     $('.invalid-feedback').html()
-                }
+                
 
-                var data = {
-                    tempoTel: Number.parseFloat($('#formAdicionarConfig #tempoTelemetria').val()),
-                    tempoGeo: Number.parseFloat($('#formAdicionarConfig #tempoGeolocalizacao').val()),
-                    tempoSoneca: Number.parseFloat($('#formAdicionarConfig #tempoSoneca').val()),
-                    tempoThingSpeak: Number.parseFloat($('#formAdicionarConfig #tempoThingSpeak').val()),
-                    urlIpApi: $('#formAdicionarConfig #urlIpApi').val(),
-                    urlThingSpeak: $('#formAdicionarConfig #urlThingSpeak').val(),
-                    secretKey: $('#formAdicionarConfig #secretKeyThingSpeak').val(),
-                    resetarConfigsWifi: Number.parseInt($('#formAdicionarConfig #resetarConfigsWifi').val()),
-                    alertaEmail: Number.parseInt($('#formAdicionarConfig #alertaEmail').val()),
-                    valorGasAviso: Number.parseFloat($('#formAdicionarConfig #valorGasAviso').val()),
-                    usuarioId: Number.parseInt(($('#formAdicionarConfig #usuario_id').val()))
-                }
-                console.log(data)
-                console.log(JSON.stringify(data))
-    
-                $.ajax({
-                   url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-                   type: "POST",
-                   data: JSON.stringify(data),
-                   dataType: 'json',
-                   encode: true,
-                   contentType: "application/json, charset=UTF-8",
-                   processData: false
-               
-                }).done(function(data){
-                    // $("#formConfig").empty()
-                    $('#formAdicionarConfig #tempoTelemetria').val(""),
-                    $('#formAdicionarConfig #tempoGeolocalizacao').val(""),
-                    $('#formAdicionarConfig #tempoSoneca').val(""),
-                    $('#formAdicionarConfig #tempoThingSpeak').val(""),
-                    $('#formAdicionarConfig #urlIpApi').val(""),
-                    $('#formAdicionarConfig #urlThingSpeak').val(""),
-                    $('#formAdicionarConfig #secretKeyThingSpeak').val(""),
-                    $('#formAdicionarConfig #resetarConfigsWifi').val(""),
-                    $('#formAdicionarConfig #alertaEmail').val(""),
-                    $('#formAdicionarConfig #valorGasAviso').val(""),
-                    $('#formAdicionarConfig #usuario_id').val(""),
-                    $("#mymodal").modal("hide")
+                    var data = {
+                        tempoTel: Number.parseFloat($('#formAdicionarConfig #tempoTelemetria').val()),
+                        tempoGeo: Number.parseFloat($('#formAdicionarConfig #tempoGeolocalizacao').val()),
+                        tempoSoneca: Number.parseFloat($('#formAdicionarConfig #tempoSoneca').val()),
+                        tempoThingSpeak: Number.parseFloat($('#formAdicionarConfig #tempoThingSpeak').val()),
+                        urlIpApi: $('#formAdicionarConfig #urlIpApi').val(),
+                        urlThingSpeak: $('#formAdicionarConfig #urlThingSpeak').val(),
+                        secretKey: $('#formAdicionarConfig #secretKeyThingSpeak').val(),
+                        resetarConfigsWifi: Number.parseInt($('#formAdicionarConfig #resetarConfigsWifi').val()),
+                        alertaEmail: Number.parseInt($('#formAdicionarConfig #alertaEmail').val()),
+                        valorGasAviso: Number.parseFloat($('#formAdicionarConfig #valorGasAviso').val()),
+                        usuarioId: Number.parseInt(($('#formAdicionarConfig #usuario_id').val()))
+                    }
                     console.log(data)
-                    alert($("#formAdicionarConfig #csrf_token").val())
-                    $.notify('Sucesso ao inserir nova configuraçao', 'success')
-                    tabelaConfig.ajax.reload()
-                }).fail(function(data, err, opt){
-                    console.log('Erro ao inserir nova configuraçaoo'+ data + err + opt)
-                    $.notify('Erro ao inserir nova configuraçao'+ data + err + opt, 'error')
-                })
+                    console.log(JSON.stringify(data))
+        
+                    $.ajax({
+                    url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    encode: true,
+                    contentType: "application/json, charset=UTF-8",
+                    processData: false
+                
+                    }).done(function(data){
+                        // $("#formConfig").empty()
+                        $('#formAdicionarConfig #tempoTelemetria').val(""),
+                        $('#formAdicionarConfig #tempoGeolocalizacao').val(""),
+                        $('#formAdicionarConfig #tempoSoneca').val(""),
+                        $('#formAdicionarConfig #tempoThingSpeak').val(""),
+                        $('#formAdicionarConfig #urlIpApi').val(""),
+                        $('#formAdicionarConfig #urlThingSpeak').val(""),
+                        $('#formAdicionarConfig #secretKeyThingSpeak').val(""),
+                        $('#formAdicionarConfig #resetarConfigsWifi').val(""),
+                        $('#formAdicionarConfig #alertaEmail').val(""),
+                        $('#formAdicionarConfig #valorGasAviso').val(""),
+                        $('#formAdicionarConfig #usuario_id').val(""),
+                        $("#mymodal").modal("hide")
+                        console.log(data)
+                        alert($("#formAdicionarConfig #csrf_token").val())
+                        $.notify('Sucesso ao inserir nova configuraçao', 'success')
+                        tabelaConfig.ajax.reload()
+                    }).fail(function(data, err, opt){
+                        console.log('Erro ao inserir nova configuraçaoo'+ data + err + opt)
+                        $.notify('Erro ao inserir nova configuraçao'+ data + err + opt, 'error')
+                    })
+                }
         })
 
         pegaToken($("#formAdicionarConfig #csrf_token").val())
@@ -852,50 +854,67 @@ function insereLocalJson(tabelaLocal){
     $("#submit_action").click(function(evento){
         evento.preventDefault()
 
-        var data = {
-            id: Number.parseInt($("#formLocalAdicionar #id").val()),
-            cep: ($('#formLocalAdicionar #cep').val()),
-            endereco: ($('#formLocalAdicionar #endereco').val()),
-            bairro: ($('#formLocalAdicionar #bairro').val()),
-            cidade: ($('#formLocalAdicionar #cidade').val()),
-            estado: ($('#formLocalAdicionar #estado').val()),
-            obs: $('#formLocalAdicionar #obs').val(),
-            nomeUsuario: Number.parseInt($('#formLocalAdicionar #usuario_id').val())
-            // usuarioId: Number.parseInt(($('#usuario_id').val()))
-        }
-        console.log(data)
-        console.log(JSON.stringify(data))
+        if($("#formLocalAdicionar #endereco").val() == '' || $("#formLocalAdicionar #cidade").val() == '' || $("#formLocalAdicionar #bairro").val() == '' || $("#formLocalAdicionar #estado").val() == ''){
+            if($('#formLocalAdicionar #cep').val() == ''){
+                $('#formLocalAdicionar').addClass('needs-validation')
+                $('#formLocalAdicionar #cep').addClass('is-invalid')
+                $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
+                    'class': 'invalid-feedback'
+                }).appendTo('#formLocalAdicionar .form-group');
+                //$("#formConfigEdit #tempoTel").addClass('.invalid-feedback')
+                $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
+            }else{
+                $('#formLocalAdicionar #cep').removeClass('is-invalid')
+                $('.invalid-feedback').html('')
+            }
+            // exit;
+        }else {
 
-        var url = "/local/inserirLocalJson"
-
-        $.ajax({
-           url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-           type: "POST",
-           data: JSON.stringify(data),
-           dataType: 'json',
-           encode: true,
-           contentType: "application/json, charset=UTF-8",
-           processData: false
-        }).done(function(data){
-            $('#formLocalAdicionar #cep').val(""),
-            $('#formLocalAdicionar #endereco').val(""),
-            $('#formLocalAdicionar #cidade').val(""),
-            $('#formLocalAdicionar #bairro').val(""),
-            $('#formLocalAdicionar #estado').val(""),
-            $('#formLocalAdicionar #obs').val(""),
-            $('#formLocalAdicionar #nomeUsuario').val(""),
-            
-            // $('#formConfigEdit #nomeUsuario').val(""),
-            $("#modaledit").modal("hide")
+            var data = {
+                id: Number.parseInt($("#formLocalAdicionar #id").val()),
+                cep: ($('#formLocalAdicionar #cep').val()),
+                endereco: ($('#formLocalAdicionar #endereco').val()),
+                bairro: ($('#formLocalAdicionar #bairro').val()),
+                cidade: ($('#formLocalAdicionar #cidade').val()),
+                estado: ($('#formLocalAdicionar #estado').val()),
+                obs: $('#formLocalAdicionar #obs').val(),
+                nomeUsuario: Number.parseInt($('#formLocalAdicionar #usuario_id').val())
+                // usuarioId: Number.parseInt(($('#usuario_id').val()))
+            }
             console.log(data)
-            alert(data)
-            $.notify('Sucesso ao inserir o registro de local', 'success')
-            tabelaLocal.ajax.reload()
+            console.log(JSON.stringify(data))
 
-        }).fail(function(data, err, opt){
-            console.log('Erro ao inserir o registro de local'+ data.responseText + err + opt)
-            $.notify('Erro ao inserir o registro de local'+ data + err + opt, 'error')
-        })
+            var url = "/local/inserirLocalJson"
+
+            $.ajax({
+            url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false
+            }).done(function(data){
+                $('#formLocalAdicionar #cep').val(""),
+                $('#formLocalAdicionar #endereco').val(""),
+                $('#formLocalAdicionar #cidade').val(""),
+                $('#formLocalAdicionar #bairro').val(""),
+                $('#formLocalAdicionar #estado').val(""),
+                $('#formLocalAdicionar #obs').val(""),
+                $('#formLocalAdicionar #nomeUsuario').val(""),
+                
+                // $('#formConfigEdit #nomeUsuario').val(""),
+                $("#modaledit").modal("hide")
+                console.log(data)
+                alert(data)
+                $.notify('Sucesso ao inserir o registro de local', 'success')
+                tabelaLocal.ajax.reload()
+
+            }).fail(function(data, err, opt){
+                console.log('Erro ao inserir o registro de local'+ data.responseText + err + opt)
+                $.notify('Erro ao inserir o registro de local'+ data + err + opt, 'error')
+            })
+        }
     })
     
     pegaToken($("#formLocalAdicionar #csrf_token").val())
@@ -914,6 +933,21 @@ function editaLocalJson(tabelaLocal){
     $("#myTable").on("click", ".btn-outline-warning", function (e) {
         console.log(e.target.id, typeof(e.target.id))
         // var id = $(this).data('id');
+
+        if($("#endereco").val() == null && $("#cidade").val() == null && $("#bairro").val() == null && $("#estado").val() == null){
+            if($('#formLocalEdit #cep').val() == ''){
+                $('#formLocalAdicionar').addClass('needs-validation')
+                $('#formLocalAdicionar #cep').addClass('is-invalid')
+                $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
+                    'class': 'invalid-feedback'
+                }).appendTo('#formLocalAdicionar .form-group');
+                //$("#formConfigEdit #tempoTel").addClass('.invalid-feedback')
+                $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
+            }else{
+                $('#formLocalAdicionar #cep').removeClass('is-invalid')
+                $('.invalid-feedback').html('')
+            }
+        }
         
         $.ajax({
             url: "/local/editarPesquisarLocalJson/" + Number.parseInt(e.target.id), 
@@ -1353,24 +1387,43 @@ function insereSensorJson(tabelaSensores){
            descritivo: $("#formSensorInsere #descritivo").val()
         }
 
-       var url = "/sensor/registraSensoresJson"
-       
-        $.ajax({
-           url: url,
-           type: "POST",
-           data: JSON.stringify(data),
-           dataType: 'json',
-           encode: true,
-           contentType: "application/json, charset=UTF-8",
-           processData: false
-        }).done(function(response){
-            $("#mymodal").modal("hide")
-            $.notify("Sucesso ao inserir sensor", 'success')
-            tabelaSensores.ajax.reload()
-        }).fail(function(data, err, opt){
-            console.log("Erro ao inserir o sensor" + data.responseText + err + opt)
-            $.notify("Erro ao inserir informaçao" + data.responseText, "error")
-        })
+        if(data.tipoSensor == '' || data.descritivo == ''){
+            if(data.tipoSensor == '' || data.descritivo){
+                $("#formSensorInsere").addClass('needs-validation')
+                $("#formSensorInsere #tipoSensor").addClass('is-invalid')
+                $("#formSensorInsere #descritivo").addClass('is-invalid')
+                $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
+                    'class': 'invalid-feedback'
+                }).appendTo('#formSensorInsere .form-group');
+                //$("#formConfigEdit #tempoTel").addClass('.invalid-feedback')
+                $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
+            }else{
+                $("#formSensorInsere #tipoSensor").removeClass('is-invalid')
+                $("#formSensorInsere #descritivo").removeClass('is-invalid')
+                $('.invalid-feedback').html('')
+            }
+
+        }else {
+
+        var url = "/sensor/registraSensoresJson"
+        
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false
+            }).done(function(response){
+                $("#mymodal").modal("hide")
+                $.notify("Sucesso ao inserir sensor", 'success')
+                tabelaSensores.ajax.reload()
+            }).fail(function(data, err, opt){
+                console.log("Erro ao inserir o sensor" + data.responseText + err + opt)
+                $.notify("Erro ao inserir informaçao" + data.responseText, "error")
+            })
+        }
     })
 
     var csrf_token = $("#formSensorInsere #csrf_token").val()
@@ -1807,7 +1860,80 @@ function testeAlteraData(){
         //     // })
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Usuarios"){
-            chamaTabelaEstatica();
+            
+
+            var tabelaUsuarios = $("#myTable").DataTable({
+                ajax: {
+                    url: "/form/listarUsuariosJson",
+                    type: "GET",
+                    xhrFields: {
+                        withCredentials: true
+                    }
+                }, 
+                columns: [
+                    {"data": "id"},
+                    {"data": "nome"},
+                    {"data": "email"},
+                    // {"data": "dataCriacao", render: function(data){
+                    //     novaDataSensor = new Date(data)
+                    //     return novaDataSensor.getUTCDate().toString().padStart(2, '0') + "/" + (novaDataSensor.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaDataSensor.getFullYear().toString() + " " + novaDataSensor.getUTCHours().toString().padStart(2, '0') + ":" + novaDataSensor.getUTCMinutes().toString().padStart(2, '0') + ":" + novaDataSensor.getUTCSeconds().toString().padStart(2, '0')
+                    //     }
+                    // },
+                    {"data": "sexo"},
+                    // {"data": "cpf"},
+                    {"data": "tel"},
+                    {"data": "idade"},
+                    {"data": "dataNasc", render: function(data){
+                        novaDataSensor = new Date(data)
+                        return novaDataSensor.getUTCDate().toString().padStart(2, '0') + "/" + (novaDataSensor.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaDataSensor.getFullYear().toString() 
+                        }
+                    },                    
+                    {"data": "tipoUsuario", render: function(data){
+                        if (data == 0){
+                            return 'ADMIN'
+                        }else{
+                            return 'COMUM'
+                        }
+                    }
+                    },
+                    {
+                        "data": null,
+                        render: function(data, type, full_row, meta){
+                            return '<button type="button" class="btn btn-outline-warning btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-pencil-square"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">' +
+                            '<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>' +
+                            '<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>' +
+                            '</svg> Editar </button>' +
+
+                            ' <button type="button" class="btn btn-outline-danger btn-xs" data-toggle="modal" data-target="#myModal" data-id="' + full_row.id + '" id="'+ full_row.id +'"> <i class="bi bi-trash"></i> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">' +
+                            '<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>' +
+                            '<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>' +
+                            '</svg> Excluir </button>';                      
+                            
+                        }
+                    }
+                ],
+                "order": [0, 'desc'],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
+                },
+                retrieve: true,
+                paging: true,
+                responsive: true,
+                // dom: 'Bftrip',
+                colReorder: true,
+                // buttons: [
+                //     {
+                //         text: 'Visibilidade de Colunas',
+                //         extend: 'colvis',
+                //         collectionLayout: 'fixed two-column'
+                //     }
+                // ]
+            });
+
+            setInterval(function(){
+                tabelaUsuarios.ajax.reload()
+            }, 3000);
+
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Local"){
             
             var tabelaLocal = $("#myTable").DataTable({

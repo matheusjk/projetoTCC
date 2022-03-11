@@ -144,20 +144,64 @@ def formataDataTemplate(date, fmt='%d/%m/%Y %H:%M:%S'):
 
 @form.route('/listarUsuarios', methods=["GET", "POST"])
 @login_required
+def listarUsuarios():
+    if current_user.is_authenticated:
+        if current_user.tipoUsuario == 0:
+            return render_template('usuariosBlue.html') 
+        else:
+            return render_template('usuariosBlue.html') 
+    return redirect(url_for('logout'))
+
+
+@form.route('/listarUsuariosJson', methods=["GET", "POST"])
+@login_required
 def listar():
     # forms = CadastroUsuario()
     formsLista = EditarUsuario()
     if current_user.is_authenticated:
         if current_user.tipoUsuario == 0:
             user = Usuarios.query.all()
+            listaUsuarios = []
+
+            for linha in user:
+                listaUsuarios.append({
+                    'id': linha.id,
+                    'nome': linha.nome,
+                    'email': linha.email,
+                    'senha': linha.senha,
+                    'dataCriacao': linha.dataCriacao,
+                    'sexo': linha.sexo,
+                    'cpf': linha.cpf,
+                    'tel': linha.tel,
+                    'idade': linha.idade,
+                    'dataNasc': linha.dataNasc,
+                    'tipoUsuario': linha.tipoUsuario
+                })
+
             print(user[0].dataCriacao)
-            return render_template('usuariosBlue.html', user=user, form=formsLista) #, name=current_user)
+            return jsonify({'data': listaUsuarios})
         else:
             user = Usuarios.query.filter_by(nome=current_user.nome).all()
-            print(user[0].dataCriacao)
-            return render_template('usuariosBlue.html', user=user, form=formsLista) #, name=current_user)
-    return redirect(url_for('logout'))
+            listaUsuarios = []
 
+            for linha in user:
+                listaUsuarios.append({
+                    'id': linha.id,
+                    'nome': linha.nome,
+                    'email': linha.email,
+                    'senha': linha.senha,
+                    'dataCriacao': linha.dataCriacao,
+                    'sexo': linha.sexo,
+                    'cpf': linha.cpf,
+                    'tel': linha.tel,
+                    'idade': linha.idade,
+                    'dataNasc': linha.dataNasc,
+                    'tipoUsuario': linha.tipoUsuario
+                })
+
+            print(user[0].dataCriacao)
+            return jsonify({'data': listaUsuarios})
+    return redirect(url_for('logout'))
 
 
 @form.route('/listarUsuariosEsp/<int:id>', methods=["GET", "POST"])

@@ -1,4 +1,4 @@
-from app import login_manager, login, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf
+from app import login_manager, login, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf, generate_password_hash, check_password_hash
 from app.models.tables import Geolocalizacao, db
 
 geo = Blueprint("geo", __name__, template_folder="templates", url_prefix="/geo")
@@ -30,16 +30,15 @@ def listar():
 @geo.route("/registrarGeo", methods=["GET", "POST"])
 @csrf.exempt
 def registrarGeo():
+    # usuario = request.json["usuario"]
     print(request.get_json(), request.data)
     if request.method == "POST":
         # geoObj = Geolocalizacao(request.json.get("city"))
-        if len(request.json) > 25:
-            geoObj = Geolocalizacao(request.json)
-            db.session.add(geoObj)
-            db.session.commit()
-            print(geoObj)
-        else:
-            return jsonify({"mensagem": "Não eh possivel inserir geo"})
+        # if len(request.json) > 25:
+        geoObj = Geolocalizacao(request.json)
+        db.session.add(geoObj)
+        db.session.commit()
+        print(geoObj)
     return jsonify({"mensagem": "GEO INCLUIDA COM SUCESSO"})
 
 
