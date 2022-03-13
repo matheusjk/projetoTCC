@@ -307,7 +307,7 @@ function comboboxSelectedUsuario(id){
 
 
 function voltaPaginaPrincipal(){
-    window.location.href = 'http://192.168.0.14:59000/form/login';
+    window.location.pathname = '/form/login';
 }
 
 
@@ -345,10 +345,19 @@ function consultaCep(){
                 // document.getElementById('bairro').innerHTML = response.bairro;
                 // $('#cidade').html(response.localidade);
                 // document.getElementById('estado').innerHTML = response.uf;
-                document.querySelectorAll('.show')[0].querySelector('#bairro').value = response.bairro;
-                document.querySelectorAll('.show')[0].querySelector('#cidade').value = response.localidade;
-                document.querySelectorAll('.show')[0].querySelector('#estado').value = response.uf;
-                document.querySelectorAll('.show')[0].querySelector('#endereco').value = response.logradouro;
+                if(response.erro){
+                    alert("NAO CONSEGUIMOS ENCONTRAR SEU CEP :(");
+                    document.querySelectorAll('.show')[0].querySelector('#bairro').value = null;
+                    document.querySelectorAll('.show')[0].querySelector('#cidade').value = null;
+                    document.querySelectorAll('.show')[0].querySelector('#estado').value = null;
+                    document.querySelectorAll('.show')[0].querySelector('#endereco').value = null;
+                }else{
+                    document.querySelectorAll('.show')[0].querySelector('#bairro').value = response.bairro;
+                    document.querySelectorAll('.show')[0].querySelector('#cidade').value = response.localidade;
+                    document.querySelectorAll('.show')[0].querySelector('#estado').value = response.uf;
+                    document.querySelectorAll('.show')[0].querySelector('#endereco').value = response.logradouro;
+                }
+                
             },
             error: function(response){
                 console.log(response)
@@ -463,14 +472,28 @@ function insereConfigJson(tabelaConfig){
             type: "GET",
             success: function(response) {
                 console.log(response.data)
-                $.each(response.data.usuariosIdNome, function(i, d){ // i - value | d - texto/informaçao 
-                    // $('<option>').val(i).text(d[1]).appendTo(options);
-                    if(response.data.usuariosIdNome.length == $("#formAdicionarConfig #usuario_id option").length){
-                        // console.log(cont)
+                var cont = $("#formAdicionarConfig #usuario_id option").length
+
+                if(response.data["tipoUsuario"] == 1){
+                    console.log("CONTADOR DE NOME " + cont)
+                    if(Object.keys(response.data.id).length == cont){
+                        $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : response.data.id }).text(response.data.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                        
                     }else{
-                        $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : i+1 }).text(d[1]))  // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                        console.log(cont)
                     }
-                })
+                    
+                }else {
+
+                    $.each(response.data.usuariosIdNome, function(i, d){ // i - value | d - texto/informaçao 
+                        // $('<option>').val(i).text(d[1]).appendTo(options);
+                        if(response.data.usuariosIdNome.length == $("#formAdicionarConfig #usuario_id option").length){
+                            // console.log(cont)
+                        }else{
+                            $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : i+1 }).text(d[1]))  // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                        }
+                    })
+                }
             }
         })
         
@@ -499,6 +522,7 @@ function insereConfigJson(tabelaConfig){
                 $('.invalid-feedback').fadeOut(1600, function() {
                    $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
                    $('#formAdicionarConfig #tempoTelemetria').removeClass('invalid-feedback')
+                   $('.invalid-feedback').html()
                         
                 })
                 // if($('#tempoTelemetria .invalid-feedback').length == 0){
@@ -593,6 +617,7 @@ function insereConfigJson(tabelaConfig){
                         tempoThingSpeak: Number.parseFloat($('#formAdicionarConfig #tempoThingSpeak').val()),
                         urlIpApi: $('#formAdicionarConfig #urlIpApi').val(),
                         urlThingSpeak: $('#formAdicionarConfig #urlThingSpeak').val(),
+                        tokenTelegram: $('#formAdicionarConfig #tokenTelegram').val(),
                         secretKey: $('#formAdicionarConfig #secretKeyThingSpeak').val(),
                         resetarConfigsWifi: Number.parseInt($('#formAdicionarConfig #resetarConfigsWifi').val()),
                         alertaEmail: Number.parseInt($('#formAdicionarConfig #alertaEmail').val()),
@@ -619,6 +644,7 @@ function insereConfigJson(tabelaConfig){
                         $('#formAdicionarConfig #tempoThingSpeak').val(""),
                         $('#formAdicionarConfig #urlIpApi').val(""),
                         $('#formAdicionarConfig #urlThingSpeak').val(""),
+                        $('#formAdicionarConfig #tokenTelegram').val(""),
                         $('#formAdicionarConfig #secretKeyThingSpeak').val(""),
                         $('#formAdicionarConfig #resetarConfigsWifi').val(""),
                         $('#formAdicionarConfig #alertaEmail').val(""),
@@ -697,6 +723,7 @@ function editaConfigJson(tabelaConfig){
                 $("#tempoThingSpeak").val(response.data.tempo_execucao_thingspeak)
                 $("#urlIpApi").val(response.data.url_ip_api)
                 $("#urlThingSpeak").val(response.data.url_thingspeak)
+                $("#tokenTelegram").val(response.data.token_telegram)
                 $("#secretKeyThingSpeak").val(response.data.secret_key_thingspeak)
               
               
@@ -763,58 +790,60 @@ function editaConfigJson(tabelaConfig){
         }else{
             $('#formConfigEdit #tempoTel').removeClass('is-invalid')
             $('.invalid-feedback').html('')
-        }
+        
 
     
-        // $('#formConfigEdit #urlIpApi').val()
-        var data = {
-            id: Number.parseInt($("#id").val()),
-            tempoTel: Number.parseFloat($('#tempoTel').val()),
-            tempoGeo: Number.parseFloat($('#tempoGeo').val()),
-            tempoSoneca: Number.parseFloat($('#tempoSoneca').val()),
-            tempoThingSpeak: Number.parseFloat($('#tempoThingSpeak').val()),
-            urlIpApi: $('#urlIpApi').val(),
-            
-            urlThingSpeak: $('#urlThingSpeak').val(),
-            secretKey: $('#secretKeyThingSpeak').val(),
-            resetarConfigsWifi: Number.parseInt($('#resetarConfigsWifi').val()),
-            alertaEmail: Number.parseInt($('#alertaEmail').val()),
-            valorGasAviso: Number.parseFloat($('#valorGasAviso').val()),
-            usuarioId: Number.parseInt(($('#usuario_id').val()))
-        }
-        console.log(data)
-        console.log(JSON.stringify(data))
-        alert($("#formConfigEdit #csrf_token").val())
-
-        $.ajax({
-           url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-           type: "PUT",
-           data: JSON.stringify(data),
-           dataType: 'json',
-           encode: true,
-           contentType: "application/json, charset=UTF-8",
-           processData: false
-        }).done(function(data){
-            $('#formConfigEdit #tempoTel').val(""),
-            $('#formConfigEdit #tempoGeo').val(""),
-            $('#formConfigEdit #tempoSoneca').val(""),
-            $('#formConfigEdit #tempoThingSpeak').val(""),
-            $('#formConfigEdit #urlIpApi').val(""),
-            $('#formConfigEdit #urlThingSpeak').val(""),
-            $('#formConfigEdit #secretKeyThingSpeak').val(""),
-            $('#formConfigEdit #resetarConfigsWifi').val(""),
-            $('#formConfigEdit #alertaEmail').val(""),
-            $('#formConfigEdit #valorGasAviso').val(""),
-            $('#formConfigEdit #usuario_id').val(""),
-            $("#modal-edit").modal("hide")
+            // $('#formConfigEdit #urlIpApi').val()
+            var data = {
+                id: Number.parseInt($("#id").val()),
+                tempoTel: Number.parseFloat($('#tempoTel').val()),
+                tempoGeo: Number.parseFloat($('#tempoGeo').val()),
+                tempoSoneca: Number.parseFloat($('#tempoSoneca').val()),
+                tempoThingSpeak: Number.parseFloat($('#tempoThingSpeak').val()),
+                urlIpApi: $('#urlIpApi').val(),
+                tokenTelegram: $('#tokenTelegram').val(),
+                urlThingSpeak: $('#urlThingSpeak').val(),
+                secretKey: $('#secretKeyThingSpeak').val(),
+                resetarConfigsWifi: Number.parseInt($('#resetarConfigsWifi').val()),
+                alertaEmail: Number.parseInt($('#alertaEmail').val()),
+                valorGasAviso: Number.parseFloat($('#valorGasAviso').val()),
+                usuarioId: Number.parseInt(($('#usuario_id').val()))
+            }
             console.log(data)
-            alert(data)
-            $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
-            tabelaConfig.ajax.reload()
-        }).fail(function(data, err, opt){
-            console.log('Erro ao atualizar o registro de configuraçoes'+ data.responseText + err + opt) // + err + opt)
-            $.notify('Erro ao atualizar o registro de configuraçoes'+ data + err + opt, 'error')
-        })
+            console.log(JSON.stringify(data))
+            alert($("#formConfigEdit #csrf_token").val())
+
+            $.ajax({
+            url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+            type: "PUT",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false
+            }).done(function(data){
+                $('#formConfigEdit #tempoTel').val(""),
+                $('#formConfigEdit #tempoGeo').val(""),
+                $('#formConfigEdit #tempoSoneca').val(""),
+                $('#formConfigEdit #tempoThingSpeak').val(""),
+                $('#formConfigEdit #urlIpApi').val(""),
+                $('#formConfigEdit #urlThingSpeak').val(""),
+                $('#formConfigEdit #tokenTelegram').val(""),
+                $('#formConfigEdit #secretKeyThingSpeak').val(""),
+                $('#formConfigEdit #resetarConfigsWifi').val(""),
+                $('#formConfigEdit #alertaEmail').val(""),
+                $('#formConfigEdit #valorGasAviso').val(""),
+                $('#formConfigEdit #usuario_id').val(""),
+                $("#modal-edit").modal("hide")
+                console.log(data)
+                alert(data)
+                $.notify('Sucesso ao atualizar o registro de configuraçoes', 'success')
+                tabelaConfig.ajax.reload()
+            }).fail(function(data, err, opt){
+                console.log('Erro ao atualizar o registro de configuraçoes'+ data.responseText + err + opt) // + err + opt)
+                $.notify('Erro ao atualizar o registro de configuraçoes'+ data + err + opt, 'error')
+            })
+        }
     })
 
     pegaToken($("#formConfigEdit #csrf_token").val()) 
@@ -921,6 +950,26 @@ function insereLocalJson(tabelaLocal){
 }
 
 
+function validaFormularios(formularioPrincipal, textoId){
+    for(let i of formularioPrincipal){
+        if($(`#${i.id}`).val() == null){
+            if($(`#${i.id}`).val() == ''){
+                $($(`#${textoId}`)).addClass('needs-validation')
+                $(`#${i.id}`).addClass('is-invalid')
+                $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
+                    'class': 'invalid-feedback'
+                }).appendTo(`#${textoId} .form-group`);
+                //$("#formConfigEdit #tempoTel").addClass('.invalid-feedback')
+                $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
+            }else{
+                $(`#${i.id}`).removeClass('is-invalid')
+                $('.invalid-feedback').html('')
+            }
+        }
+    }
+    return true
+}
+
 function editaLocalJson(tabelaLocal){
     console.log("aqui edita")
     
@@ -936,15 +985,15 @@ function editaLocalJson(tabelaLocal){
 
         if($("#endereco").val() == null && $("#cidade").val() == null && $("#bairro").val() == null && $("#estado").val() == null){
             if($('#formLocalEdit #cep').val() == ''){
-                $('#formLocalAdicionar').addClass('needs-validation')
-                $('#formLocalAdicionar #cep').addClass('is-invalid')
+                $('#formLocalEdit').addClass('needs-validation')
+                $('#formLocalEdit #cep').addClass('is-invalid')
                 $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
                     'class': 'invalid-feedback'
-                }).appendTo('#formLocalAdicionar .form-group');
+                }).appendTo('#formLocalEdit .form-group');
                 //$("#formConfigEdit #tempoTel").addClass('.invalid-feedback')
                 $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
             }else{
-                $('#formLocalAdicionar #cep').removeClass('is-invalid')
+                $('#formLocalEdit #cep').removeClass('is-invalid')
                 $('.invalid-feedback').html('')
             }
         }
@@ -966,6 +1015,7 @@ function editaLocalJson(tabelaLocal){
 
                 // $("#nomeUsuario").val(response.data.nomeUsuario)
                 
+                
                 console.log(response.data.nomeUsuario)
                 var cont = $.map($("#usuario_id"), function(e) {
                     return (e.length)
@@ -981,9 +1031,30 @@ function editaLocalJson(tabelaLocal){
                     console.log("USUARIOS ID"+ i + " d: " + d)
                 })
 
-                $("#usuario_id option").filter(function(){
-                    return $(this).text() == response.data.nomeUsuario
-                }).prop("selected", true)
+                    $("#usuario_id option").filter(function(){
+                        return $(this).text() == response.data.nomeUsuario
+                    }).prop("selected", true)
+                
+                    // console.log(response.data.nomeUsuario)
+                    // var cont = $.map($("#usuario_id"), function(e) {
+                    //     return (e.length)
+                    // })
+
+                    // console.log("CONTADOR DE NOME " + cont)
+                    // if(Object.keys(response.data.idUsuario).length == cont){
+                    //     $('#usuario_id').append($('<option>', { "value" : response.data.idUsuario }).text(response.data.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                       
+                    // }else{
+                    //     console.log(cont)
+                    // }
+                    // console.log("USUARIOS ID"+ i + " d: " + d)
+                
+
+                    // $("#usuario_id option").filter(function(){
+                    //     return $(this).text() == response.data.nomeUsuario
+                    // }).prop("selected", true)
+                
+
                   
             },
             error: function(error){
@@ -994,12 +1065,52 @@ function editaLocalJson(tabelaLocal){
 
     var url = '/local/editarLocalJson'
 
+    document.addEventListener('keydown', function(e){
+        e = e || window.event
+        var codigo =  e.key
+        console.log("Tecla pressionada eh " + codigo + " traduçao " + String.fromCharCode(codigo))
+        $('.invalid-feedback').fadeOut(1600, function() {
+            // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+            $('.invalid-feedback').html()
+            // $('.is-invalid').html()
+            // $('#formAdicionarConfig #tempoTelemetria').removeClass('invalid-feedback')
+            $('#formLocalEdit #cep').removeClass('is-invalid')
+            $('#formLocalEdit #endereco').removeClass('is-invalid')
+            $('#formLocalEdit #bairro').removeClass('is-invalid')
+            $('#formLocalEdit #cidade').removeClass('is-invalid')
+            $('#formLocalEdit #estado').removeClass('is-invalid')
+
+            $('#formLocalEdit #cep').addClass('is-valid')
+            $('#formLocalEdit #endereco').addClass('is-invalid')
+            $('#formLocalEdit #bairro').addClass('is-invalid')
+            $('#formLocalEdit #cidade').addClass('is-invalid')
+            $('#formLocalEdit #estado').addClass('is-invalid')
+            
+        })
+        // $('.is-invalid').fadeOut(1600, function() {
+            // $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
+            
+        // })
+        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+        // if($('#tempoTelemetria .invalid-feedback').length == 0){
+            
+        // }
+        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
+        // $('.invalid-feedback').html()
+    })
+
     $("#edit_action").click(function(e){
         e.preventDefault();
-      
-        if($('#formLocalEdit #cep').val() == ''){
+        
+
+        if($('#formLocalEdit #cep').val() == '' || $('#formLocalEdit #endereco').val() == '' || $('#formLocalEdit #bairro').val() == '' || $('#formLocalEdit #cidade').val() == '' || $('#formLocalEdit #estado').val() == '' ){
             $('#formLocalEdit').addClass('needs-validation')
             $('#formLocalEdit #cep').addClass('is-invalid')
+            $('#formLocalEdit #endereco').addClass('is-invalid')
+            $('#formLocalEdit #bairro').addClass('is-invalid')
+            $('#formLocalEdit #cidade').addClass('is-invalid')
+            $('#formLocalEdit #estado').addClass('is-invalid')
             $('<div/>', {   // criando o elemento html div dentro do <div class='form-group' e incluindo a classe invalid-feedback
                 'class': 'invalid-feedback'
             }).appendTo('#formLocalEdit .form-group');
@@ -1007,53 +1118,63 @@ function editaLocalJson(tabelaLocal){
             $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
         }else{
             $('#formLocalEdit #cep').removeClass('is-invalid')
-            $('.invalid-feedback').html('')
-        }
+            $('#formLocalEdit #endereco').removeClass('is-invalid')
+            $('#formLocalEdit #bairro').removeClass('is-invalid')
+            $('#formLocalEdit #cidade').removeClass('is-invalid')
+            $('#formLocalEdit #estado').removeClass('is-invalid')
+            $('.invalid-feedback').html()
+        
 
     
         // $('#formConfigEdit #urlIpApi').val()
-        var data = {
-            id: Number.parseInt($("#id").val()),
-            cep: ($('#cep').val()),
-            endereco: ($('#endereco').val()),
-            bairro: ($('#bairro').val()),
-            cidade: ($('#cidade').val()),
-            estado: ($('#estado').val()),
-            obs: $('#obs').val(),
-            nomeUsuario: Number.parseInt($('#usuario_id').val())
-            // usuarioId: Number.parseInt(($('#usuario_id').val()))
-        }
-        console.log(data)
-        console.log(JSON.stringify(data))
+        // if(validaFormularios($("#formLocalEdit")[0], "formLocalEdit")){
+        //     console.log("Ainda necessario preenchimento")
+        // }else {
 
-        $.ajax({
-           url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
-           type: "PUT",
-           data: JSON.stringify(data),
-           dataType: 'json',
-           encode: true,
-           contentType: "application/json, charset=UTF-8",
-           processData: false
-        }).done(function(data){
-            $('#formLocalEdit #cep').val(""),
-            $('#formLocalEdit #endereco').val(""),
-            $('#formLocalgEdit #cidade').val(""),
-            $('#formLocalEdit #bairro').val(""),
-            $('#formLocalEdit #estado').val(""),
-            $('#formLocalEdit #obs').val(""),
-            $('#formLocalEdit #nomeUsuario').val(""),
-            
-            // $('#formConfigEdit #nomeUsuario').val(""),
-            $("#modaledit").modal("hide")
+            var data = {
+                id: Number.parseInt($("#id").val()),
+                cep: ($('#cep').val()),
+                endereco: ($('#endereco').val()),
+                bairro: ($('#bairro').val()),
+                cidade: ($('#cidade').val()),
+                estado: ($('#estado').val()),
+                obs: $('#obs').val(),
+                nomeUsuario: Number.parseInt($('#usuario_id').val())
+                // usuarioId: Number.parseInt(($('#usuario_id').val()))
+            }
             console.log(data)
-            alert(data)
-            $.notify('Sucesso ao atualizar o registro de local', 'success')
-            tabelaLocal.ajax.reload()
-
-        }).fail(function(data, err, opt){
-            console.log('Erro ao atualizar o registro de local'+ data.responseText + err + opt)
-            $.notify('Erro ao atualizar o registro de local'+ data + err + opt, 'error')
-        })
+            console.log(JSON.stringify(data))
+    
+            $.ajax({
+               url: url,  // "https://192.168.0.13:59000/config/registrarConfiguracoes"
+               type: "PUT",
+               data: JSON.stringify(data),
+               dataType: 'json',
+               encode: true,
+               contentType: "application/json, charset=UTF-8",
+               processData: false
+            }).done(function(data){
+                $('#formLocalEdit #cep').val(""),
+                $('#formLocalEdit #endereco').val(""),
+                $('#formLocalgEdit #cidade').val(""),
+                $('#formLocalEdit #bairro').val(""),
+                $('#formLocalEdit #estado').val(""),
+                $('#formLocalEdit #obs').val(""),
+                $('#formLocalEdit #nomeUsuario').val(""),
+                
+                // $('#formConfigEdit #nomeUsuario').val(""),
+                $("#modaledit").modal("hide")
+                console.log(data)
+                alert(data)
+                $.notify('Sucesso ao atualizar o registro de local', 'success')
+                tabelaLocal.ajax.reload()
+    
+            }).fail(function(data, err, opt){
+                console.log('Erro ao atualizar o registro de local'+ data.responseText + err + opt)
+                $.notify('Erro ao atualizar o registro de local'+ data + err + opt, 'error')
+            })
+        }
+        
     })
     
     pegaToken($("#formLocalEdit #csrf_token").val())
@@ -1114,7 +1235,7 @@ function insereInfoJson(tabelaInfo){
                         $("#formInfoAdicionar #local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
                     })
                 }
-
+                
                 if(d.modulos.length == valores[2]){
                     console.log(d.modulos)                    
                 }else{
@@ -1135,10 +1256,10 @@ function insereInfoJson(tabelaInfo){
         evento.preventDefault()
 
         var data = {
-            id: Number.parseInt($("#formInfoEdit #id").val()),
-            id_sensores: Number.parseInt($("#formInfoEdit #sensores_id").val()),
-            id_local: Number.parseInt($("#formInfoEdit #local_id").val()),
-            id_modulos: Number.parseInt($("#formInfoEdit #modulo_id").val())
+            id: Number.parseInt($("#formInfoAdicionar #id").val()),
+            id_sensores: Number.parseInt($("#formInfoAdicionar #sensores_id").val()),
+            id_local: Number.parseInt($("#formInfoAdicionar #local_id").val()),
+            id_modulos: Number.parseInt($("#formInfoAdicionar #modulo_id").val())
         }
 
         console.log(data)
@@ -2181,6 +2302,7 @@ function testeAlteraData(){
                     {"data": "url_ip_api", "visible": false},
                     {"data": "url_thingspeak", "visible": false},
                     {"data": "secret_key_thingspeak", "visible": false},
+                    {"data": "token_telegram", "visible": false},
                     {"data": "resetar_configs_wifi", render: function(data){
                             if (data == 0){
                                 return 'NAO'
@@ -2217,7 +2339,7 @@ function testeAlteraData(){
                         return formataData.getUTCDate().toString().padStart(2, '0') + "/" + (formataData.getUTCMonth()+1).toString().padStart(2, "0") + "/" + formataData.getUTCFullYear() + " " + formataData.getUTCHours().toString().padStart(2, "0") + ":" + formataData.getUTCMinutes().toString().padStart(2, "0") + ":" + formataData.getUTCSeconds().toString().padStart(2, "0")
                     }},
     
-                    {"data": "usuario_id", "visible": false},
+                    {"data": "nomeUsuario", "visible": false},
                     {
                         "data": null,
                         render: function(data, type, full_row, meta){
@@ -2368,7 +2490,7 @@ window.setInterval(function(){
 
 function notificaVazamento(){
 
-    var url = "/telemetria/listarTelemetriaJson"
+    // var url = "/telemetria/listarTelemetriaJson"
     var urlConfig = "/config/listarConfigJson"
     var nomeUsuarioLogado = document.querySelectorAll('.nav-link')[8].text.split(': ')[1]
     var idUsuarioLogado = parseInt(document.querySelectorAll('.navbar-nav')[1].querySelectorAll('.nav-item')[0].querySelectorAll('.nav-link')[0].id)
@@ -2396,15 +2518,124 @@ function notificaVazamento(){
                     //     // alert(valorGas)
                     // }
                 // }
-                for(let x of response.data){
-                    // console.log(x)
-                    console.log(x.usuario_id, typeof(x.usuario_id))
-                    if(x.id == idUsuarioLogado){
-                        valorGas = x.valor_gas_aviso
-                        // alert(valorGas)
+                if(response.data.tipoUsuario == 1){
+                    for(let x of response.data){
+                        // console.log(x)
+                        console.log(x.usuario_id, typeof(x.usuario_id))
+                        if(x.usuario_id == idUsuarioLogado){
+                            valorGas = x.valor_gas_aviso
+                            // alert(valorGas)
+                        }
                     }
+                    // valorGas.data[""]
+
+                    let ultimoValor = response
+                    console.log(ultimoValor.data.length)
+                    console.log(ultimoValor.data[0].usuarioTelemetria)
+                    console.log(ultimoValor.data[ultimoValor.data.length - 1])
+                    
+                    console.log( ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1] )
+
+                    if(ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"] < valorGas){
+                        // alert("URGENTE VERIFICAR POSSIVEL VAZAMENTO DE GAS!!!")
+                        // $(".alert").removeClass('hidden')
+                        // $(".alert").addClass('show')
+                        // $('.alert').remove
+                        // mostraAlerta({message: `Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, class: 'danger'})
+                    
+                        // var indiceLinguagem = null;
+                        // var synth = window.speechSynthesis;
+                        // console.log(synth)
+                        // var voz = synth.getVoices();
+                        // console.log(voz)
+                        // for(var i = 0; i < voz.length; i++){
+                        //     var option = document.createElement('option')
+                        //     option.textContent = voz[i].name + ' (' + voz[i].lang + ')'
+                        //     option.value = i
+                        //     if(option.text ==  "Spanish (Latin America)"){// "Portuguese (Brazil) (pt-BR)"){
+                        //         indiceLinguagem = option.value
+                        //         console.log("AQUI: "+indiceLinguagem, option.innerText)
+                        //     }
+                        //     console.log(option)
+                        // }
+                        
+                        // var utterThis = new SpeechSynthesisUtterance(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`)
+                        // utterThis.voice = voz[indiceLinguagem]
+                        // synth.speak(utterThis)
+                    
+                        $.notify(`Possivel vazamento de gas ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"]} | ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]['NOME']}`, 'error')
+                    }
+                }else if(response.data[0].tipoUsuario == 0){
+                    // let valorGasGeral = {valor_gas_aviso: null, sensor_gas: null, nome_usuario: null}
+                    // let listaObj = []
+                    for(let x of response.data){
+                        // console.log(`VALOR GAS AVISO: ${i.valor_gas_aviso} | TELEMETRIA: ${i.sensor_gas} | NOME USUARIO TELEMETRIA: ${i.nome_usuario} `)
+                        if(x.valor_gas_aviso > x.usuarioTelemetria[x.usuarioTelemetria.length - 1]["SENSORG"]){
+                            $.notify(`Possivel vazamento de gas ${x.usuarioTelemetria[x.usuarioTelemetria.length - 1]["SENSORG"]} | ${x.usuarioTelemetria[x.usuarioTelemetria.length - 1]["NOME"]}`, 'error')
+                        }
+                        // console.log(x)
+                        console.log(x.usuario_id, typeof(x.usuario_id), x.usuarioTelemetria[x.usuarioTelemetria.length - 1])
+                        // valorGasGeral.valor_gas_aviso = x.valor_gas_aviso
+                        // valorGasGeral.sensor_gas = x.usuarioTelemetria[x.usuarioTelemetria.length - 1]["SENSORG"]
+                        // valorGasGeral.nome_usuario = x.usuarioTelemetria[x.usuarioTelemetria.length - 1]["NOME"] 
+                        // listaObj.push(valorGasGeral)
+                        
+                        // valorGasGeral.add(  )
+                    }
+                    // console.log(listaObj[0], listaObj[1])
+                    // console.log("\n ============================ \n")
+                    // for(let i of listaObj){
+                    //     console.log(`VALOR GAS AVISO: ${i.valor_gas_aviso} | TELEMETRIA: ${i.sensor_gas} | NOME USUARIO TELEMETRIA: ${i.nome_usuario} `)
+                    //     if(i.valor_gas_aviso > i.sensor_gas){
+                    //         $.notify(`Possivel vazamento de gas ${i.sensor_gas} | ${i.nome_usuario}`, 'error')
+                    //     }
+                    // }
+                    
+                    // console.log(`VALOR GAS AVISO: ${valor_gas_aviso} | TELEMETRIA: ${sensor_gas} | NOME USUARIO TELEMETRIA: ${nome_usuario} `)
+                    // if(valor_gas_aviso > sensor_gas){
+                    //     $.notify(`Possivel vazamento de gas ${sensor_gas} | ${nome_usuario}`, 'error')
+                    // }
+
+
+                    // valorGas.data[""]
+
+                    // let ultimoValor = response
+                    // console.log(ultimoValor.data.length)
+                    // console.log(ultimoValor.data[0].usuarioTelemetria)
+                    // console.log(ultimoValor.data[ultimoValor.data.length - 1])
+                    
+                    // console.log( ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1] )
+
+                    // if(ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"] < valorGas){
+                        // alert("URGENTE VERIFICAR POSSIVEL VAZAMENTO DE GAS!!!")
+                        // $(".alert").removeClass('hidden')
+                        // $(".alert").addClass('show')
+                        // $('.alert').remove
+                        // mostraAlerta({message: `Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, class: 'danger'})
+                    
+                        // var indiceLinguagem = null;
+                        // var synth = window.speechSynthesis;
+                        // console.log(synth)
+                        // var voz = synth.getVoices();
+                        // console.log(voz)
+                        // for(var i = 0; i < voz.length; i++){
+                        //     var option = document.createElement('option')
+                        //     option.textContent = voz[i].name + ' (' + voz[i].lang + ')'
+                        //     option.value = i
+                        //     if(option.text ==  "Spanish (Latin America)"){// "Portuguese (Brazil) (pt-BR)"){
+                        //         indiceLinguagem = option.value
+                        //         console.log("AQUI: "+indiceLinguagem, option.innerText)
+                        //     }
+                        //     console.log(option)
+                        // }
+                        
+                        // var utterThis = new SpeechSynthesisUtterance(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`)
+                        // utterThis.voice = voz[indiceLinguagem]
+                        // synth.speak(utterThis)
+                    
+                        // $.notify(`Possivel vazamento de gas ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"]} | ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]['NOME']}`, 'error')
+                    // }
                 }
-                // valorGas.data[""]
             },
             error: function(error){
                 console.log(error.responseText)
@@ -2412,53 +2643,53 @@ function notificaVazamento(){
             }
         })
 
-        $.ajax({
-            url: url,
-            type: "GET",
-            success : function(response){
-                // console.log(response)
-                // JSON.stringify(response)
-                var ultimoValor = response
-                console.log(ultimoValor.data.length)
-                console.log(ultimoValor.data[ultimoValor.data.length - 1]["SENSORG"])
-                console.log(ultimoValor.data[ultimoValor.data.length - 1])
+        // $.ajax({
+        //     url: url,
+        //     type: "GET",
+        //     success : function(response){
+        //         // console.log(response)
+        //         // JSON.stringify(response)
+        //         var ultimoValor = response
+        //         console.log(ultimoValor.data.length)
+        //         console.log(ultimoValor.data[ultimoValor.data.length - 1]["SENSORG"])
+        //         console.log(ultimoValor.data[ultimoValor.data.length - 1])
                 
-                if(ultimoValor.data[ultimoValor.data.length - 1]["SENSORG"] < valorGas){
-                    // alert("URGENTE VERIFICAR POSSIVEL VAZAMENTO DE GAS!!!")
-                    // $(".alert").removeClass('hidden')
-                    // $(".alert").addClass('show')
-                    // $('.alert').remove
-                    // mostraAlerta({message: `Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, class: 'danger'})
+        //         if(ultimoValor.data[ultimoValor.data.length - 1]["SENSORG"] < valorGas){
+        //             // alert("URGENTE VERIFICAR POSSIVEL VAZAMENTO DE GAS!!!")
+        //             // $(".alert").removeClass('hidden')
+        //             // $(".alert").addClass('show')
+        //             // $('.alert').remove
+        //             // mostraAlerta({message: `Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, class: 'danger'})
                    
-                    // var indiceLinguagem = null;
-                    // var synth = window.speechSynthesis;
-                    // console.log(synth)
-                    // var voz = synth.getVoices();
-                    // console.log(voz)
-                    // for(var i = 0; i < voz.length; i++){
-                    //     var option = document.createElement('option')
-                    //     option.textContent = voz[i].name + ' (' + voz[i].lang + ')'
-                    //     option.value = i
-                    //     if(option.text ==  "Spanish (Latin America)"){// "Portuguese (Brazil) (pt-BR)"){
-                    //         indiceLinguagem = option.value
-                    //         console.log("AQUI: "+indiceLinguagem, option.innerText)
-                    //     }
-                    //     console.log(option)
-                    // }
+        //             // var indiceLinguagem = null;
+        //             // var synth = window.speechSynthesis;
+        //             // console.log(synth)
+        //             // var voz = synth.getVoices();
+        //             // console.log(voz)
+        //             // for(var i = 0; i < voz.length; i++){
+        //             //     var option = document.createElement('option')
+        //             //     option.textContent = voz[i].name + ' (' + voz[i].lang + ')'
+        //             //     option.value = i
+        //             //     if(option.text ==  "Spanish (Latin America)"){// "Portuguese (Brazil) (pt-BR)"){
+        //             //         indiceLinguagem = option.value
+        //             //         console.log("AQUI: "+indiceLinguagem, option.innerText)
+        //             //     }
+        //             //     console.log(option)
+        //             // }
                     
-                    // var utterThis = new SpeechSynthesisUtterance(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`)
-                    // utterThis.voice = voz[indiceLinguagem]
-                    // synth.speak(utterThis)
+        //             // var utterThis = new SpeechSynthesisUtterance(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`)
+        //             // utterThis.voice = voz[indiceLinguagem]
+        //             // synth.speak(utterThis)
                 
-                    $.notify(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, 'error')
+        //             $.notify(`Possivel vazamento de gas ${ultimoValor.data[ultimoValor.data.length - 1]['SENSORG']} | ${ultimoValor.data[ultimoValor.data.length - 1]['NOME']}`, 'error')
 
-                }
-            }, 
-            error: function(response){
-                console.log(response)
-                alert(response)
-            } 
-        })
+        //         }
+        //     }, 
+        //     error: function(response){
+        //         console.log(response)
+        //         alert(response)
+        //     } 
+        // })
 
     }, 15000)
 }

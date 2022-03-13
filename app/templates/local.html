@@ -53,37 +53,37 @@
 
                             <div class="form-group">
                                 <label for="cep"> CEP </label>
-                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()">               
+                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()" required>               
                             </div>
 
                             <div class="form-group">
                                 <label for="endereco"> ENDERECO </label>
-                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie"> 
+                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie" required> 
                             </div>
 
                             <div class="form-group">
                                 <label for="cidade"> CIDADE </label>
-                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ">
+                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="bairro"> BAIRRO </label>
-                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro">
+                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro" required>
                             </div>
 
                            <div class="form-group">
                                 <label for="estado"> ESTADO </label>
-                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ">
+                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ" required>
                            </div>
 
                            <div class="form-group">
                                 <label for="obs"> OBS </label>
-                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste...">
+                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste..." required>
                            </div>
 
                             <div class="form-group">
                                <label for="usuario_id"> Nome Usuario </label>
-                               <select class="form-control" id="usuario_id" name="usuario_id">
+                               <select class="form-control" id="usuario_id" name="usuario_id" required>
 
                                </select>
                             </div>
@@ -117,37 +117,37 @@
 
                             <div class="form-group">
                                 <label for="cep"> CEP </label>
-                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()">               
+                                <input name="cep" id="cep" type="text" class="form-control" placeholder="20221-410" onfocusout="consultaCep()" required>               
                             </div>
 
                             <div class="form-group">
                                 <label for="endereco"> ENDERECO </label>
-                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie"> 
+                                <input name="endereco" id="endereco" type="text" class="form-control" placeholder="Rua Alexandre Mackenzie" required> 
                             </div>
 
                             <div class="form-group">
                                 <label for="cidade"> CIDADE </label>
-                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ">
+                                <input name="cidade" id="cidade" type="text" class="form-control" placeholder="RJ" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="bairro"> BAIRRO </label>
-                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro">
+                                <input name="bairro" id="bairro" type="text" class="form-control" placeholder="Centro" required>
                             </div>
 
                            <div class="form-group">
                                 <label for="estado"> ESTADO </label>
-                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ">
+                                <input name="estado" id="estado" type="text" class="form-control" placeholder="RJ" required>
                            </div>
 
                            <div class="form-group">
                                 <label for="obs"> OBS </label>
-                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste...">
+                                <input name="obs" id="obs" type="text" class="form-control" placeholder="teste..." required>
                            </div>
 
                             <div class="form-group">
                                <label for="usuario_id"> Nome Usuario </label>
-                               <select class="form-control" id="usuario_id" name="usuario_id">
+                               <select class="form-control" id="usuario_id" name="usuario_id" required>
 
                                </select>
                             </div>
@@ -175,9 +175,11 @@
 {% endblock %}
 
 {% block footer %}
-    <footer class="footer mt-auto py-3">
+    <!-- <footer class="footer mt-auto py-3">
         <div class="container">
             <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
         </div>
-    </footer>
+    </footer> -->
+
+    {{ rodape() }}
 {% endblock %}

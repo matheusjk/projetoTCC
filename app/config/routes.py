@@ -1,6 +1,6 @@
 from flask import current_app
 from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, Response, csrf, auth
-from app.models.tables import ConfiguracaoJson, Usuarios, db
+from app.models.tables import ConfiguracaoJson, Telemetria, Usuarios, db
 from app.config.forms import FormConfiguracao
 import json
 # from io import StringIO
@@ -124,6 +124,7 @@ def listarConfigJsonEsp(id):
                     "secret_key_thingspeak": linha.json["secretKey"],
                     "url_ip_api": linha.json["urlIpApi"],
                     "url_thingspeak": linha.json["urlThingSpeak"],
+                    "token_telegram": linha.json["tokenTelegram"],
                     "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
                     "alerta_email": linha.json["alertaEmail"],
                     "valor_gas_aviso": linha.json["valorGasAviso"],
@@ -147,9 +148,12 @@ def listarConfigJson():
     if current_user.tipoUsuario == 0:
 
         configObj = ConfiguracaoJson.query.all()
+        usuarioTelemetria = Telemetria.query.all()
+
         print(configObj, dir(configObj))
         for l in configObj:
             print(l.usuarioId)
+        
         lista = []
         for linha in configObj:
             lista.append({
@@ -161,16 +165,22 @@ def listarConfigJson():
                 "secret_key_thingspeak": linha.json["secretKey"],
                 "url_ip_api": linha.json["urlIpApi"],
                 "url_thingspeak": linha.json["urlThingSpeak"],
+                "token_telegram": linha.json["tokenTelegram"],
                 "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
                 "alerta_email": linha.json["alertaEmail"],
                 "valor_gas_aviso": linha.json["valorGasAviso"],
                 "dataCriacao": linha.dataCriacao,
                 "dataAtualizacao": linha.dataAtualizacao,
-                "usuario_id": linha.usuarios.nome  # linha.json["usuarioId"]
+                "usuario_id": linha.usuarios.id,  # linha.json["usuarioId"]
+                "nomeUsuario": linha.usuarios.nome,
+                "tipoUsuario": linha.usuarios.tipoUsuario,
+                "usuarioTelemetria": [usuarioTel.json for usuarioTel in usuarioTelemetria ]
             }) 
         return jsonify({'data': lista})
     else:
         configObj = ConfiguracaoJson.query.filter(func.json_extract(ConfiguracaoJson.json, "$.usuarioId") == current_user.id).all()
+        usuarioTelemetria = Telemetria.query.filter(func.json_extract(Telemetria.json, "$.IDUSUARIO") == current_user.id).all()
+
         lista = []
         for linha in configObj:
             lista.append({
@@ -182,12 +192,16 @@ def listarConfigJson():
                 "secret_key_thingspeak": linha.json["secretKey"],
                 "url_ip_api": linha.json["urlIpApi"],
                 "url_thingspeak": linha.json["urlThingSpeak"],
+                "token_telegram": linha.json["tokenTelegram"],
                 "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
                 "alerta_email": linha.json["alertaEmail"],
                 "valor_gas_aviso": linha.json["valorGasAviso"],
                 "dataCriacao": linha.dataCriacao,
                 "dataAtualizacao": linha.dataAtualizacao,
-                "usuario_id": linha.usuarios.nome 
+                "usuario_id": linha.usuarios.id,
+                "nomeUsuario": linha.usuarios.nome,
+                "tipoUsuario": linha.usuarios.tipoUsuario,
+                "usuarioTelemetria": [usuarioTel.json for usuarioTel in usuarioTelemetria ]
             }) 
         return jsonify({'data': lista})
 
@@ -216,7 +230,8 @@ def listarUsuariosConfiguracoes():
     
         lista = {
             "id": linha.id,
-            "nomeUsuario": linha.usuarios.nome  
+            "nomeUsuario": linha.usuarios.nome,  
+            "tipoUsuario": linha.usuarios.tipoUsuario
         }
             
         return jsonify({'data': lista})
@@ -244,6 +259,7 @@ def editarPesquisarConfigJson(id):
                     "secret_key_thingspeak": linha.json["secretKey"],
                     "url_ip_api": linha.json["urlIpApi"],
                     "url_thingspeak": linha.json["urlThingSpeak"],
+                    "token_telegram": linha.json["tokenTelegram"],
                     "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
                     "alerta_email": linha.json["alertaEmail"],
                     "valor_gas_aviso": linha.json["valorGasAviso"],
@@ -272,6 +288,7 @@ def editarPesquisarConfigJson(id):
                 "secret_key_thingspeak": linha.json["secretKey"],
                 "url_ip_api": linha.json["urlIpApi"],
                 "url_thingspeak": linha.json["urlThingSpeak"],
+                "token_telegram": linha.json["tokenTelegram"],
                 "resetar_configs_wifi": linha.json["resetarConfigsWifi"],
                 "alerta_email": linha.json["alertaEmail"],
                 "valor_gas_aviso": linha.json["valorGasAviso"],
@@ -301,6 +318,7 @@ def editarConfigJson():
     novoJson["tempoThingSpeak"] = request.get_json()["tempoThingSpeak"]
     novoJson["urlIpApi"] = request.get_json()["urlIpApi"]
     novoJson["urlThingSpeak"] = request.get_json()["urlThingSpeak"]
+    novoJson["tokenTelegram"] = request.get_json()["tokenTelegram"]
     novoJson["secretKey"] = request.get_json()["secretKey"]
     novoJson["resetarConfigsWifi"] = request.get_json()["resetarConfigsWifi"]
     novoJson["alertaEmail"] = request.get_json()["alertaEmail"]

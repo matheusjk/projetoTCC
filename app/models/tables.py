@@ -177,6 +177,7 @@ class Modulos(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     json = db.Column(db.JSON, nullable=False)
     dataCriacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.current_timestamp(), nullable=False)
     informacao_id = db.relationship('Informacao', backref='modulos', uselist=False)
     # mac = db.Column(db.String(15), nullable=False)
     # ip_interno = db.Column(db.String(15), nullable=False)
@@ -194,7 +195,7 @@ class ConfiguracaoJson(UserMixin, db.Model):
     json = db.Column(db.JSON, nullable=False)
     usuarioId = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
     dataCriacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
-    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.current_timestamp(), nullable=False)
 
     def __init__(self, json, usuarioId):
         self.json = json

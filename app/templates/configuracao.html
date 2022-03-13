@@ -30,6 +30,7 @@
                             <th>URL-IPAPI</th>
                             <th>URL-ThinSpeak</th>
                             <th>SECRETKEY</th>
+                            <th>Token Telegram</th>
                             <th>ResetarConfigsWifi</th>
                             <th>AlertaEmail</th>
                             <th>GasAviso</th>
@@ -61,61 +62,66 @@
                             <div class="form-group">
                               <input name='id' id="id" type="hidden">
                               <label for="tempoTel">Tempo Telemetria</label>
-                              <input name="tempoTel" id="tempoTel" type="number" value="" class="form-control" placeholder="5">
+                              <input name="tempoTel" id="tempoTel" type="number" value="" class="form-control" placeholder="5" min="1" required>
                             </div>
 
                             <div class="form-group">
                               <label for="tempoGeo">Tempo Geolocalizacao </label>
-                              <input name="tempoGeo" id="tempoGeo" type="number" value="" class="form-control" placeholder="5">
+                              <input name="tempoGeo" id="tempoGeo" type="number" value="" class="form-control" placeholder="5" min="1" required>
                             </div>
 
                             <div class="form-group">
                               <label for="tempoSoneca">Tempo Soneca</label>
-                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" placeholder="5">
+                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" placeholder="5" min="1" required>
                             </div>
 
                             <div class="form-group">
                               <label for="tempoThingSpeak">Tempo ThingSpeak</label>
-                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" placeholder="5">
+                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" placeholder="5" min="1" required>
                             </div>
 
                             <div class="form-group">
                               <label for="urlIpApi">URL IPAPI</label>
-                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="5">                            
+                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="5" required>                            
                             </div>
                           
                             <div class="form-group">
                               <label for="urlThingSpeak">URL ThingSpeak</label>
-                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="5">
+                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="http://ipApi.com" required>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tokenTelegram">Token Telegram</label>
+                              <input name="tokenTelegram" id="tokenTelegram" type="url" value="" class="form-control" placeholder="932AOWIDKSM329irkfvmS" minlength="7" required>
                             </div>
 
                             <div class="form-group">
                               <label for="secretKeyThingSpeak">ThingSpeak KEY</label>
-                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="5">
+                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="http://api.thingspeak.com" minlength="7" required >
                             </div>
 
                             <div class="form-group">
                               <label for="resetarConfigsWifi">RESETAR WIFI</label>
-                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi">
+                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi" required>
 
                               </select>
                             </div>
 
                             <div class="form-group">
                               <label for="alertaEmail">ALERTA EMAIL</label>
-                              <select class="form-control" id="alertaEmail" name="alertaEmail">
+                              <select class="form-control" id="alertaEmail" name="alertaEmail" required>
                                 
                               </select>
                             </div>
 
                             <div class="form-group">
                               <label for="valorGasAviso">Valor Gas Alerta</label>
-                              <input name="valorGasAviso" id="valorGasAviso" type="number" value="" class="form-control" placeholder="5">
+                              <input name="valorGasAviso" id="valorGasAviso" type="number" value="" class="form-control" placeholder="5" required>
                             </div>
 
                             <div class="form-group">
                               <label for="usuario_id">Usuario</label>
-                              <select class="form-control" id="usuario_id" name="usuario_id">
+                              <select class="form-control" id="usuario_id" name="usuario_id" required>
                                 
                               </select>
                             </div>
@@ -149,42 +155,47 @@
                             <div class="form-group">
                               <input name='id' id="id" type="hidden">
                               <label for="tempoTelemetria">Tempo Telemetria</label>
-                              <input name="tempoTelemetria" id="tempoTelemetria" type="number" value="" class="form-control" min="1" placeholder="5">
+                              <input name="tempoTelemetria" id="tempoTelemetria" type="number" value="" class="form-control" min="1" placeholder="5" required>
                             </div>
 
                             <div class="form-group">
                               <label for="tempoGeo">Tempo Geolocalizacao </label>
-                              <input name="tempoGeo" id="tempoGeolocalizacao" type="number" value="" class="form-control" min="1" placeholder="5">
+                              <input name="tempoGeo" id="tempoGeolocalizacao" type="number" value="" class="form-control" min="1" placeholder="5" required>
                             </div>
 
                             <div class="form-group">
                               <label for="tempoSoneca">Tempo Soneca</label>
-                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" min="1" placeholder="5">
+                              <input name="tempoSoneca" id="tempoSoneca" type="number" value="" class="form-control" min="1" placeholder="5" required> 
                             </div>
 
                             <div class="form-group">
                               <label for="tempoThingSpeak">Tempo ThingSpeak</label>
-                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" min="1" placeholder="5">
+                              <input name="tempoThingSpeak" id="tempoThingSpeak" type="number" value="" class="form-control" min="1" placeholder="5" required>
                             </div>
 
                             <div class="form-group">
                               <label for="urlIpApi">URL IPAPI</label>
-                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="5">                            
+                              <input name="urlIpApi" id="urlIpApi" type="url" value="" class="form-control" placeholder="http://ipApi.com" required>                            
                             </div>
                           
                             <div class="form-group">
                               <label for="urlThingSpeak">URL ThingSpeak</label>
-                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="5">
+                              <input name="urlThingSpeak" id="urlThingSpeak" type="url" value="" class="form-control" placeholder="https://api.thingspeak.com" required >
                             </div>
 
                             <div class="form-group">
                               <label for="secretKeyThingSpeak">ThingSpeak KEY</label>
-                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="5">
+                              <input name="secretKeyThingSpeak" id="secretKeyThingSpeak" type="text" value="" class="form-control" placeholder="5I72OPEKDLSMN97822" required>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="tokenTelegram">Token Telegram</label>
+                              <input name="tokenTelegram" id="tokenTelegram" type="url" value="" class="form-control" placeholder="932AOWIDKSM329irkfvmS" required>
                             </div>
 
                             <div class="form-group">
                               <label for="resetarConfigsWifi">RESETAR WIFI</label>
-                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi">
+                              <select class="form-control" id="resetarConfigsWifi" name="resetarConfigsWifi" required>
 
                               </select>
                             </div>
@@ -229,17 +240,11 @@
 
 {% block footer %}
 
-<script>
-
-  // var elementos = document.getElementById("teste")
-  // for(i = 0; i < elementos.length; i++){
-  //   elementos[i].value = elementos[i]
-  // }
-</script>
-
-  <footer class="footer mt-auto py3">
+  <!-- <footer class="footer mt-auto py3">
     <div class="container">
       <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
     </div>
-  </footer>
+  </footer> -->
+
+  {{ rodape() }}
 {% endblock %}
