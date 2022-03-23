@@ -55,7 +55,7 @@
 
 <h4> TELA DE LOGIN </h4>
 
-<img src="novoLogin.png">
+<img src="prints_sistema/novoLogin.png">
 
 <p> Na tela de LOGIN o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -74,7 +74,7 @@
 
 <h4> TELA DE CADASTRO DE USUARIO </h4>
 
-<img src="cadastroUsuario.png">
+<img src="prints_sistema/cadastroUsuario.png">
 
 <p> Na tela de CADASTRO o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -91,7 +91,7 @@
 
 <h4> TELA DE RECUPERAR SENHA </h4>
 
-<img src="recuperarSenha.png">
+<img src="prints_sistema/recuperarSenha.png">
 
 <p> Na tela de RECUPERAR SENHA o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -109,9 +109,9 @@
 
 <h4> TELA DE LOCAL </h4>
 
-<img src="novoLocal.png">
+<img src="prints_sistema/novoLocal.png">
 <br>
-<img src="editarLocal.png">
+<img src="prints_sistema/editarLocal.png">
 
 <p> Na tela de LOCAL o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -132,9 +132,9 @@
 
 <h4> TELA DE CONFIGURAÇOES </h4>
 
-<img src="novoConfig.png">
+<img src="prints_sistema/novoConfig.png">
 <br>
-<img src="btnVisibilidadeConfig.png">
+<img src="prints_sistema/btnVisibilidadeConfig.png">
 
 <p> Na tela de CONFIGURAÇOES o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -156,7 +156,7 @@
 
 <h4> TELA DE TELEMETRIA </h4>
 
-<img src="novoTelemetria.png">
+<img src="prints_sistema/novoTelemetria.png">
 
 <p> Na tela de TELEMETRIA o usuario podera realizar as seguintes açoes abaixo. </p>
 
@@ -174,7 +174,7 @@
 
 <h4> TELA DE MODULOS </h4>
 
-<img src="novoModulos.png">
+<img src="prints_sistema/novoModulos.png">
 
 <p> Na tela de MODULOS o usuario podera realizar a seguinte açao abaixo. </p>
 
@@ -191,7 +191,7 @@
 
 <h4> TELA DE GEOLOCALIZAÇAO </h4>
 
-<img src="geoVisualizar.png">
+<img src="prints_sistema/geoVisualizar.png">
 
 <p> Na tela de GEOLOCALIZAÇAO o usuario podera realizar as seguintes açoes abaixo. </p>
 
