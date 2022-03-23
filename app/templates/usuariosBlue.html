@@ -43,11 +43,74 @@
       
         {{ mostrarTelemetria() }}
        
+
+        <div id="modaledit" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="editarUsuariosCabecalho"> </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="formUsuarioEdit">
+                            <!-- <input id="csrfToken" value='{# {{ form.csrf_token }} #}' type="hidden">  -->
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}" >
+                            <input id="id" name="id" type="hidden">
+
+                            <div class="form-group">
+                                <label for="nome"> Nome </label>
+                                <input name="nome" id="nome" type="text" class="form-control" placeholder="Joao da Silva" required>               
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email"> Email </label>
+                                <input name="email" id="email" type="email" class="form-control" placeholder="joao@gmail.com" required> 
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sexo"> Sexo </label>
+                                <input name="sexo" id="sexo" type="text" class="form-control" placeholder="Masculino" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="telefone"> Telefone </label>
+                                <input name="telefone" id="telefone" type="tel" class="form-control" placeholder="219849589984" required>
+                            </div>
+
+                           <div class="form-group">
+                                <label for="idade"> Idade </label>
+                                <input name="idade" id="idade" type="number" min="1" max="110" value="" class="form-control" placeholder="32" required>
+                           </div>
+
+                           <div class="form-group">
+                                <label for="dataNascimento"> Data Nascimento </label>
+                                <input name="dataNascimento" id="dataNascimento" type="date" value="" class="form-control" placeholder="20/09/1988" required>
+                           </div>
+
+                            <div class="form-group">
+                               <label for="tipo_usuario"> Tipo Usuario </label>
+                               <select class="form-control" id="tipo_usuario" name="tipo_usuario" required>
+
+                               </select>
+                            </div>
+
+
+                            <div class="form-group pt-2">
+                                <button class="btn btn-outline-primary" id="edit_action" type="button">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 
-<script>
+<!-- <script>
     function funcaoBuscar(){
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById('meuInput');
@@ -66,17 +129,12 @@
             }
         }
     }
-</script>
+</script> -->
 
     
 
 {% endblock %}
 
 {% block footer %}
-    <!-- <footer class="footer mt-auto py-3">
-        <div class="container">
-            <p class="mt-5 mb-3 text-muted text-center">Todos os direitos reservados. &copy; 2021</p>
-        </div>
-    </footer> -->
     {{ rodape() }}
 {% endblock %}

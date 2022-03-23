@@ -68,7 +68,7 @@ def recuperarAlterar():
 def register():
     formRegistroPessoa = CadastroUsuario()
     print(formRegistroPessoa.nome.data, formRegistroPessoa.tipoUsuario.data)
-    usuario = Usuarios.query.filter_by(tipoUsuario=0).all()
+    usuario = Usuarios.query.filter_by(tipoUsuario=formRegistroPessoa.tipoUsuario.data).all()
 
     # usuario = [user for user in usuario if user == 1 else user = 0]
     print(formRegistroPessoa.errors, usuario)
@@ -159,7 +159,7 @@ def listar():
     # forms = CadastroUsuario()
     formsLista = EditarUsuario()
     if current_user.is_authenticated:
-        if current_user.tipoUsuario == 0:
+        if current_user.tipoUsuario == 1:
             user = Usuarios.query.all()
             listaUsuarios = []
 
@@ -223,6 +223,99 @@ def listarUsuariosEsp(id):
     return jsonify({'mensagem': "Por favor se autentique-se"})
 
 
+@form.route('/editarUsuarioJson', methods=["POST"])
+# @login_required
+def editarUsuarioJson():
+    print("Entrando no POST editar usuario {}".format(request.get_json()))
+    if request.method == "POST":
+        print("Entrando no POST editar usuario {}".format(request.get_json()))
+        usuarioObj = Usuarios.query.filter_by(tipoUsuario=request.get_json()['id']).first()
+        print(usuarioObj.tipoUsuario)
+        if current_user.tipoUsuario == 1:
+            if usuarioObj.tipoUsuario == 0:
+                return jsonify({"mensagem": "Desculpe esse sistema permite somente um usuario ADMINISTRADOR"})
+            elif usuarioObj.tipoUsuario == 1:
+                usuarioObj = Usuarios.query.get(request.get_json()["id"])
+                # usuarioObj.get(formsEditar.id.data)
+                usuarioObj.nome = request.get_json()["nome"]
+                usuarioObj.senha = usuarioObj.senha  # request.get_json()["senha"]
+                usuarioObj.email = request.get_json()["email"]
+                usuarioObj.sexo = request.get_json()["sexo"]
+                usuarioObj.dataNasc = request.get_json()["dataNasc"]
+                usuarioObj.tel = request.get_json()["tel"]
+                usuarioObj.cpf = request.get_json()["cpf"]
+                usuarioObj.idade = request.get_json()["idade"]
+                usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
+                print(usuarioObj.idade, usuarioObj.dataNasc)
+               
+                db.session.commit()
+                return jsonify({"mensagem": "Usuario alterado com sucesso!!!"})
+        elif current_user.tipoUsuario == 0:
+                usuarioObj = Usuarios.query.get(request.get_json()["id"])
+                # usuarioObj.get(formsEditar.id.data)
+                usuarioObj.nome = request.get_json()["nome"]
+                usuarioObj.senha = usuarioObj.senha # request.get_json()["senha"]
+                usuarioObj.email = request.get_json()["email"]
+                usuarioObj.sexo = request.get_json()["sexo"]
+                usuarioObj.dataNasc = request.get_json()["dataNasc"]
+                usuarioObj.tel = request.get_json()["tel"]
+                usuarioObj.cpf = request.get_json()["cpf"]
+                usuarioObj.idade = request.get_json()["idade"]
+                usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
+                print(usuarioObj.idade, usuarioObj.dataNasc)
+               
+                db.session.commit()
+                return jsonify({"mensagem": "Usuario alterado com sucesso!!!"})
+              
+    return jsonify({"mensagem": "Usuario alterado com sucesso!!!"})
+
+
+
+@form.route('/editarPesquisarUsuarioJson/<int:id>', methods=["GET"])
+@login_required
+def editarPesquisarUsuarioJson(id):   
+      
+    if current_user.tipoUsuario == 1:
+        usuarioObj = Usuarios.query.filter_by(tipoUsuario=id).first()
+        
+        if usuarioObj is not None: 
+            lista = {
+                "nome": usuarioObj.nome,
+                "senha": usuarioObj.senha,
+                "email": usuarioObj.email,
+                "sexo": usuarioObj.sexo,
+                "dataNasc": usuarioObj.dataNasc ,
+                "tel": usuarioObj.tel,
+                "cpf": usuarioObj.cpf,
+                "idade": usuarioObj.idade,
+                "tipoUsuario": usuarioObj.tipoUsuario 
+            }
+            
+            print(usuarioObj.idade, usuarioObj.dataNasc)
+            
+            return jsonify({"data": lista if len(lista) != [] or lista is not None else "ID não existente"})
+            
+    elif current_user.tipoUsuario == 0:
+        usuarioObj = Usuarios.query.filter_by(tipoUsuario=id).first()
+                
+        if usuarioObj is not None: 
+            listaComum = {
+                "nome": usuarioObj.nome,
+                "senha": usuarioObj.senha,
+                "email": usuarioObj.email,
+                "sexo": usuarioObj.sexo,
+                "dataNasc": usuarioObj.dataNasc ,
+                "tel": usuarioObj.tel,
+                "cpf": usuarioObj.cpf,
+                "idade": usuarioObj.idade,
+                "tipoUsuario": usuarioObj.tipoUsuario 
+            }
+            
+        print(usuarioObj.idade, usuarioObj.dataNasc)
+            
+        return jsonify({"data": listaComum if len(listaComum) != [] or listaComum is not None else "ID não existente"})
+
+
 @form.route('/editarUsuario', methods=["POST"])
 @login_required
 def editar():
@@ -280,6 +373,8 @@ def editar():
                 # flash("Usuario alterado com sucesso!!!", category="success")
 
     return redirect(url_for("form.listar"))
+
+
 
 @form.route('/insereFormulario', methods=["GET", "POST"])
 def insereFormulario():

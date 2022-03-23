@@ -41,7 +41,7 @@ class CadastroUsuario(FlaskForm):
     cpf = StringField("CPF", validators=[DataRequired(), Regexp("^\d{3}\.\d{3}\.\d{3}\-\d{2}$", message="Por favor colocar no formato de CPF")])
     tel = TelField("Telefone", validators=[DataRequired()])
     dataNasc = DateField("Data Nascimento", validators=[DataRequired()])
-    tipoUsuario = SelectField("Tipo Usuario", coerce=int,  choices=[("0", "ADMINISTRADOR"), ("1", "COMUM")], validate_choice=False)
+    tipoUsuario = SelectField("Tipo Usuario", coerce=int,  choices=[("1", "ADMINISTRADOR"), ("2", "COMUM")], validate_choice=False)
     botaoVolta = SubmitField("Voltar")
     submit = SubmitField("Enviar")
 

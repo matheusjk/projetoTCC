@@ -43,8 +43,8 @@ def create_app():  # or def create_app(config_class=Config)
     
 
     with app.app_context():
-
-        db.create_all()
+        # db.drop_all()
+        # db.create_all()
         db.reflect()
 
     
@@ -57,6 +57,7 @@ def create_app():  # or def create_app(config_class=Config)
     from app.config.routes import config
     from app.modulos.routes import modulo
     from app.informacao.routes import informacao
+    from app.tipo_usuario.routes import tipo_usuario
 
 
     app.register_blueprint(sensor)
@@ -68,7 +69,7 @@ def create_app():  # or def create_app(config_class=Config)
     app.register_blueprint(config)
     app.register_blueprint(modulo)
     app.register_blueprint(informacao)
-
+    app.register_blueprint(tipo_usuario)
    
     # from app.controllers import default
     

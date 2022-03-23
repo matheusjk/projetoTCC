@@ -161,7 +161,7 @@ def listarInfoJson():
         listaA = [{
             'sensores': [(s.id, s.tipoSensor) for s in sensoresObj] ,
             'modulos': [(m.id, m.json['MAC']) for m in modulosObj] ,
-            'local': [(l.id, l.endereco) for l in localObj]
+            'local': [(l.id, l.endereco, l.usuarios.nome) for l in localObj]
         }]
         # pp = pprint.PrettyPrinter(deth=6)
         # pprint.pprint(lista)

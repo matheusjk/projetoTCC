@@ -4,7 +4,9 @@
 #include <ArduinoJson.h>
 #include <base64.h>
 
-//#include <WiFiManager.h>
+//#include <ThingSpeak.h>
+
+#include <WiFiManager.h>
 #include <DHT.h>
 #include <ESP_Mail_Client.h>
 
@@ -27,11 +29,13 @@ SMTPSession smtp;
 #define DHTPINO D5
 #define DHTTYPE DHT11
 
+
 DHT dht(DHTPINO, DHTTYPE);
 
 
 #define ssid "netvirtua1567 ap 101"
 #define senha "1098550000"
+
 
 String serverName = "http://192.168.0.14:59000/config/listarConfigJsonEsp/1";
 
@@ -42,10 +46,10 @@ unsigned long ultimoTempoTelemetria = 0, ultimoTempoThingSpeak = 0, ultimoTempoG
 
 unsigned long lastTime = 0;
 
-unsigned long timerDelay = 5000; // de 5 em 5 segundos
+unsigned long timerDelay = 30000; // de 5 em 5 segundos
 
 
-//WiFiManager wifiManager;
+WiFiManager wifiManager;
 DynamicJsonDocument doc(1024);
 char json[] = "";
 
@@ -55,17 +59,26 @@ void setup() {
   
   dht.begin();
 
-//  wifiManager.autoConnect("ESP8266", "123@mudar");
+  wifiManager.autoConnect("ESP8266", "123@mudar");
 
 
-   WiFi.begin(ssid, senha);
-    
+//   meuBot.wifiConnect("netvirtua1567 ap 101", "1098550000");
+//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
+//
+//   if(meuBot.testConnection()){
+//     Serial.println("\n Conexão OK!");
+//   }else {
+//     Serial.println("\n Falha na conexão!");
+//   }
 
-  Serial.println("Conectando...");
-  while(WiFi.status() != WL_CONNECTED){
-    delay(1000);
-    Serial.print(".");
-  }
+//   WiFi.begin(ssid, senha);
+// 
+//
+//  Serial.println("Conectando...");
+//  while(WiFi.status() != WL_CONNECTED){
+//    delay(1000);
+//    Serial.print(".");
+//  }
   
   Serial.println("Conectando...");
  
@@ -99,20 +112,23 @@ float * lerSensorDhtTemperatura(){
 
 
 void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float temp, float umidadeLocal, float gasLocal, float tempo_execucao_thingspeak){
-
+   
+//   ThingSpeak.begin(clienteThingSpeak);
+   
    if((millis() - ultimoTempoThingSpeak) > (tempo_execucao_thingspeak * 60000)){
-//       if(WiFi.status() == WL_CONNECTED){
-              
-          HTTPClient httpThingSpeak;
-          WiFiClient clienteThingSpeak;
+       if(WiFi.status() == WL_CONNECTED){
+
+          WiFiClient clienteThing;
+          HTTPClient httpThing;
+//        int temp = ThingSpeak.writeField()
           
           Serial.println("VINDO DA FUNCAO THINGSPEAK ");
           Serial.println(urlThingSpeak);
-          httpThingSpeak.begin(clienteThingSpeak, urlThingSpeak);
+          httpThing.begin(clienteThing, urlThingSpeak);
         
-          httpThingSpeak.addHeader("Content-Type", "application/json");
+          httpThing.addHeader("Content-Type", "application/json");
           String httpRequestData = "{\"api_key\":\"" + secretKeyThingSpeak + "\",\"field1\":\"" + temp + "\",\"field2\":\"" + umidadeLocal + "\", \"field3\":\"" + gasLocal + "\" }" ;
-          int httpResponseCode = httpThingSpeak.POST(httpRequestData);
+          int httpResponseCode = httpThing.POST(httpRequestData);
         
           Serial.print("HTTP Response Code: ");
           Serial.print(httpResponseCode);
@@ -120,7 +136,7 @@ void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float tem
           if(httpResponseCode > 0){
               Serial.print("HTTP Response Code: ");
               Serial.println(httpResponseCode);
-              String payload = httpThingSpeak.getString();
+              String payload = httpThing.getString();
               Serial.println(payload);  
           }else {
               Serial.print("Error code: ");
@@ -129,13 +145,43 @@ void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float tem
 
           
         
-          httpThingSpeak.end();
-//      }
+          httpThing.end();
+      }else {
+        Serial.print("WiFi desconectado!!!");
+      }
       
       ultimoTempoThingSpeak = millis();
   }
 //    ESP.wdtFeed();
+
 }
+
+
+
+void enviaThingSpeakVersao2(String urlThingSpeak, String secretKeyThingSpeak, float temp, float umidadeLocal, float gasLocal, float tempo_execucao_thingspeak){
+    WiFiClient cliente;
+
+    if((millis() - ultimoTempoThingSpeak) > (tempo_execucao_thingspeak * 60000)){
+      if(cliente.connect(urlThingSpeak, 80)){
+        String httpRequestData = "{\"api_key\":\"" + secretKeyThingSpeak + "\",\"field1\":\"" + temp + "\",\"field2\":\"" + umidadeLocal + "\", \"field3\":\"" + gasLocal + "\" }" ;
+       
+        cliente.print("POST /update HTTP/1.1\n");
+        cliente.print("Host: api.thingspeak.com\n");
+        cliente.print("Connection: close\n");
+        cliente.print("X-THINGSPEAKAPIKEY: "+secretKeyThingSpeak+"\n");
+        cliente.print("Content-Type: application/json\n");
+        cliente.print("Content-Length: ");
+        cliente.print(httpRequestData.length());
+        cliente.print("\n\n");
+  
+        Serial.println("- INformações enviadas ao ThingSpeak!");
+      }
+      
+      ultimoTempoThingSpeak = millis();
+    }
+    Serial.println("- ThingSpeak!");
+}
+
 
 
 void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_telemetria, const char* nome_usuario, int usuario_id){
@@ -148,12 +194,20 @@ void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_tele
            WiFiClient clienteTel;
            HTTPClient httpTel;
 
+          
+
            String payload = "{}";
            
            
            String serverTelemetria = "http://192.168.0.14:59000/telemetria/registrarTelemetriaEsp";
-            
-              httpTel.begin(clienteTel, serverTelemetria);
+
+               String usuarioHttp = "esp8266";
+               String senhaHttp = "python";
+               String auth = base64::encode(usuarioHttp + ":" + senhaHttp);
+               httpTel.begin(clienteTel, serverTelemetria);
+               httpTel.setTimeout(60000); // em ms - milesegundos
+               httpTel.addHeader("Authorization", "Basic " + auth);
+              
               Serial.println("http begin OK Telemetria");
            
            
@@ -165,8 +219,8 @@ void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_tele
   
              DynamicJsonDocument objeto(2048);
              objeto["SENSORG"] = rand() % 100;
-             objeto["SENSORT"] = String(temperatura, 1);
-             objeto["SENSORU"] = String(umidade, 1);
+             objeto["SENSORT"] = (float)String(temperatura, 1).toFloat();  // converte String em Float .toFloat()
+             objeto["SENSORU"] = (float)String(umidade, 1).toFloat();
              objeto["NOME"] = nome_usuario;
              objeto["IDUSUARIO"] = usuario_id;
   
@@ -338,6 +392,46 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
 }
 
 
+void chamaBot(String token, float temperatura, float umidade, float gas){
+
+   
+//   TBMessage msg;
+//   String aviso;
+
+//   meuBot.wifiConnect(ssid, senha);
+//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
+//
+//   Serial.println();
+//   Serial.println(token);
+   
+//   if(meuBot.testConnection()){
+//     Serial.println("\n Conexão OK!");
+//   }else {
+//     Serial.println("\n Falha na conexão!");
+//   }
+  
+
+//  if(meuBot.getNewMessage(msg)){
+//    if(msg.text.equalsIgnoreCase("Temperatura")){
+//      aviso = "Temperatura: " + (String)temperatura + " ºC";
+//      meuBot.sendMessage(msg.sender.id, aviso);
+//    }
+//
+//    if(msg.text.equalsIgnoreCase("Umidade")){
+//      aviso = "Umidade: " + (String)umidade + " %";
+//      meuBot.sendMessage(msg.sender.id, aviso);
+//    }
+//
+//     if(msg.text.equalsIgnoreCase("Gas")){
+//      aviso = "Gas: " + (String)gas + " %";
+//      meuBot.sendMessage(msg.sender.id, aviso);
+//    }
+//  }
+//  delay(500);
+//  ESP.wdtFeed();
+}
+
+
 void loop() {
   
   if((millis() - lastTime) > timerDelay) {
@@ -368,6 +462,7 @@ void loop() {
       String senhaHttp = "python";
       String auth = base64::encode(usuarioHttp + ":" + senhaHttp);
         http.begin(cliente, serverName);
+        http.setTimeout(60000); // em ms - milesegundos
         http.addHeader("Authorization", "Basic " + auth);
 
         Serial.println("http begin OK ConfiguracoesJSON");
@@ -393,6 +488,7 @@ void loop() {
           float tempo_execucao_thingspeak = doc["data"][0]["tempo_execucao_thingspeak"];
           const char* url_ip_api = doc["data"][0]["url_ip_api"];
           const char* url_thingspeak = doc["data"][0]["url_thingspeak"];
+          String token_telegram = doc["data"][0]["token_telegram"];
           const char* nome_usuario = doc["data"][0]["nome_usuario"];
           int usuario_id = doc["data"][0]["usuario_id"];
           float valor_gas_aviso = doc["data"][0]["valor_gas_aviso"]; 
@@ -412,10 +508,13 @@ void loop() {
           temperatura = chamaFuncao[0];
           umidade = chamaFuncao[1];
 
+          enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
           chamaTelemetria(temperatura, umidade, tempo_execucao_telemetria, nome_usuario, usuario_id);
           chamaGeo(url_ip_api, tempo_execucao_geolocalizacao, nome_usuario, usuario_id);
-//          enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
+//          chamaBot(token_telegram, temperatura, umidade, 22.2);
+         
           
+//          enviaThingSpeakVersao2(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
 //          ESP.wdtDisable();
 //          ESP.wdtFeed();
 //          yield();

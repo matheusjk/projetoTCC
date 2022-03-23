@@ -135,40 +135,47 @@ def editarPesquisarLocalJson(id):
         l = [ (linhas.id, linhas.nome ) for linhas in id_nome]
         # [ { "idUsuarioDicionario": linhas.id, "nomeUsuarioDicionario": linhas.nome, "tipoUsuario": linhas.tipoUsuario } for linhas in id_nome]
         print(l)
-        lista = {
-            'id': linha.id,
-            "cep": linha.cep,
-            "endereco": linha.endereco,
-            'cidade': linha.cidade,
-            'bairro': linha.bairro,
-            'estado': linha.estado,
-            'obs': linha.obs,
-            'idUsuario': linha.usuarios.id,
-            'nomeUsuario': linha.usuarios.nome,
-            'usuariosIdNome': l
-        }
-
-        return jsonify({'data': lista})
+        print(linha)
+        lista = {}
+        if linha is not None: 
+            lista = {
+                'id': linha.id,
+                "cep": linha.cep,
+                "endereco": linha.endereco,
+                'cidade': linha.cidade,
+                'bairro': linha.bairro,
+                'estado': linha.estado,
+                'obs': linha.obs,
+                'idUsuario': linha.usuarios.id,
+                'nomeUsuario': linha.usuarios.nome,
+                'usuariosIdNome': l
+            }
+            return jsonify({'data': lista if len(lista) != [] or lista is not None else "ID nao existente"})
+        else:
+            return jsonify({'data': lista if len(lista) > 0 else "ID nao existente"})
     elif current_user.tipoUsuario == 1:
         linha = Local.query.filter_by(id=id).first()
         id_nome = Usuarios.query.filter_by(id=current_user.id).all()
 
         print(linha)
         l = [ (linhas.id, linhas.nome) for linhas in id_nome]
-        lista = {
-            'id': linha.id,
-            "cep": linha.cep,
-            "endereco": linha.endereco,
-            'cidade': linha.cidade,
-            'bairro': linha.bairro,
-            'estado': linha.estado,
-            'obs': linha.obs,
-            'idUsuario': linha.usuarios.id,
-            'nomeUsuario': linha.usuarios.nome,
-            "usuariosIdNome": l
-        }
-
-        return jsonify({'data': lista})
+        lista = {}
+        if linha is not None: 
+            lista = {
+                'id': linha.id,
+                "cep": linha.cep,
+                "endereco": linha.endereco,
+                'cidade': linha.cidade,
+                'bairro': linha.bairro,
+                'estado': linha.estado,
+                'obs': linha.obs,
+                'idUsuario': linha.usuarios.id,
+                'nomeUsuario': linha.usuarios.nome,
+                'usuariosIdNome': l
+            }
+            return jsonify({'data': lista if len(lista) != [] or lista is not None else "ID nao existente"})
+        else:
+            return jsonify({'data': lista if len(lista) > 0 else "ID nao existente"})
 
 
 @local.route('/inserirLocalJson', methods=['GET', 'POST'])
@@ -195,6 +202,8 @@ def editarLocalJson():
     localObj.estado = request.get_json()["estado"]
     localObj.obs = request.get_json()["obs"]
     localObj.usuario_id = request.get_json()["nomeUsuario"]
+
+    print(localObj.cep, localObj, localObj.usuario_id)
 
     db.session.commit()
        

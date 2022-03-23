@@ -1,3 +1,4 @@
+from enum import auto
 from app import login_manager, generate_password_hash, check_password_hash, func, UserMixin, datetime
 from flask_sqlalchemy import SQLAlchemy
 # create_engine =
@@ -17,7 +18,7 @@ class Usuarios(UserMixin, db.Model):
     tel = db.Column(db.String(15), nullable=False)
     idade = db.Column(db.Integer, nullable=False)
     dataNasc = db.Column(db.Date(), nullable=False)
-    tipoUsuario = db.Column(db.Integer, nullable=False)
+    tipoUsuario = db.Column(db.Integer, db.ForeignKey("tipo_usuario.id", ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
     local = db.relationship('Local', backref='usuarios', lazy=True)
     
     # sensor = db.Column(db.Integer, db.ForeignKey('sensores.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
@@ -56,6 +57,17 @@ class Usuarios(UserMixin, db.Model):
         return (idade / 365).days
 
 
+class TipoUsuario(UserMixin, db.Model):
+    __tablename__ = "tipo_usuario"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tipoUsuario = db.Column(db.String(50), nullable=False)
+    usuario_id = db.relationship('Usuarios', backref='tipo_usuario', lazy=True)
+    dataCriacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=True)
+    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
+
+    def __init__(self, tipoUsuario):
+        self.tipoUsuario = tipoUsuario
 
 
 class Sensores(UserMixin, db.Model):

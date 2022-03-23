@@ -16,7 +16,6 @@ function corInput () {
         $(this).removeClass('border-primary');
     });
 
-    
 }
 
 document.addEventListener('DOMContentLoaded', function(event){  // assim que o DOM carregar chamar funcao dos inputs
@@ -47,11 +46,6 @@ function pegaToken(csrf_token){
     })
 }
 
-// var btnEnviar = document.getElementById("submit")
-// btnEnviar.addEventListener("click", function(){
-//     $("#cpf").tooltip({"title": "TESTANDO VALIDACAO CPF TOOLTIP"});
-// })
-
 
 window.setInterval(function() {
     console.log("passou 30 segundos");
@@ -68,44 +62,6 @@ window.setInterval(function() {
         }
     }
 }, 30000); // 15 min 900000
-
-// var el = document.querySelectorAll('.form-control') 
-// for(i of el){
-//     i.classList.add('border-bottom')
-// }
-
-
-// formulario = () => {  // arrow function
-    
-// var $ = jQuery
-
-
-
-// window.addEventListener('click', formulario)
-
-
-// formularioBlur = () => {
-    
-        
-        
-// }
-
-// window.addEventListener('blur', formularioBlur)
-
-
-// document.querySelectorAll('#email')[0].addEventListener('click', function(){ 
-//     console.log('AQUI TESTE LOGIN')
-//     $('#email').addClass('border-bottom border-primary rounded-0')
-// })
-
-
-// document.querySelectorAll('#email')[0].addEventListener('click', function(){ 
-// // $(document).ready(function () {
-//     $("#email").blur(function () {
-//         $(this).removeClass('border-primary')
-//     })
-// })
-// })
 
 
 
@@ -199,8 +155,7 @@ function comboboxSelected(id){
             // alert(response);
             console.log(response);
             console.log(JSON.stringify(response));
-            // var dados = JSON.parse(response);
-            // console.log(dados.dados);
+          
             if (response.dadosConfigsWiFi == false){
                 $("#resetarConfigsWifi option").filter(function() {
                     return $(this).text() == "NAO";
@@ -235,9 +190,7 @@ function comboboxSelected(id){
                     
                     }  
                 }
-                // $("#usuario_id option").filter(function() {
-                //     return $(this).value == response.dadosUsuario;
-                // }).prop("selected", true);
+              
             }
         }
     }); 
@@ -256,8 +209,6 @@ function comboboxSelectedLocal(id){
             // alert(response);
             console.log(response);
             console.log(JSON.stringify(response));
-            // var dados = JSON.parse(response);
-            // console.log(dados.dados);
            
             if (response.dadosUsuario){
                 var el = document.getElementById("usuario_id");
@@ -292,11 +243,11 @@ function comboboxSelectedUsuario(id){
             console.log(JSON.stringify(response));
             // var dados = JSON.parse(response);
             // console.log(dados.dados);
-            if (response.dadosTipoUsuario == false){
+            if (response.dadosTipoUsuario == 1){
                 $("#tipoUsuario option").filter(function() {
                     return $(this).text() == "ADMINISTRADOR";
                 }).prop("selected", true);
-            }else if (response.dadosTipoUsuario == true) {
+            }else if (response.dadosTipoUsuario == 2) {
                 $("#tipoUsuario option").filter(function() {
                     return $(this).text() == "COMUM";
                 }).prop("selected", true);
@@ -341,10 +292,7 @@ function consultaCep(){
             type: "GET",
             success: function(response){
                 console.log(response);
-                // $("#endereco").html(response.logradouro);
-                // document.getElementById('bairro').innerHTML = response.bairro;
-                // $('#cidade').html(response.localidade);
-                // document.getElementById('estado').innerHTML = response.uf;
+       
                 if(response.erro){
                     alert("NAO CONSEGUIMOS ENCONTRAR SEU CEP :(");
                     document.querySelectorAll('.show')[0].querySelector('#bairro').value = null;
@@ -383,11 +331,7 @@ function atualizarTelemetria(){
         type: "GET",
         success: function(response){
             console.log(response);
-            // $("#endereco").html(response.logradouro);
-            // document.getElementById('bairro').innerHTML = response.bairro;
-            // $('#cidade').html(response.localidade);
-            // document.getElementById('estado').innerHTML = response.uf;
-            // document.querySelectorAll('.show')[0].querySelector('#bairro').value = response.bairro;
+           
         }
     })
 }
@@ -436,6 +380,39 @@ function chamaTabelaEstatica(){
 }
 
 
+function editaUsuarios(tabelaUsuarios){
+
+    let tabela = document.querySelector("#myTable")
+    let btnEdita = document.querySelector(".btn-outline-warning")
+    
+    $("#myTable").on("click", ".btn-outline-warning", function(evento){
+        console.log(evento.target.id, typeof(evento.target.id))
+
+        $.ajax({
+            url: "/form/editarPesquisarUsuarioJson/ " + Number.parseInt(evento.target.id),
+            type: "GET",
+            success: function (response) {
+                $("#editarUsuariosCabecalho").html("Editar Usuario")
+                $("#modaledit").modal("show")
+                $("#formUsuarioEdit #id").val(evento.target.id)
+                $("#formUsuarioEdit #nome").val(response.data.nome)
+                $("#formUsuarioEdit #email").val(response.data.email)
+                $("#formUsuarioEdit #sexo").val(response.data.sexo)
+                $("#formUsuarioEdit #telefone").val(response.data.telefone)
+                $("#formUsuarioEdit #idade").val(response.data.idade)
+                $("#formUsuarioEdit #dataNascimento").val(response.data.dataNascimento)
+                
+                if (response.data.tipoUsuario == 1) {
+                    $("#formUsuarioEdit #tipoUsuario")
+                }
+            }
+        })
+    })
+
+    
+}
+
+
 function configuraSelectConfig(tag){
     var valores = [$(tag+" #resetarConfigsWifi option").length, $(tag+" #alertaEmail option").length]
     if(valores[0] <= 1){
@@ -474,27 +451,31 @@ function insereConfigJson(tabelaConfig){
                 console.log(response.data)
                 var cont = $("#formAdicionarConfig #usuario_id option").length
 
-                if(response.data["tipoUsuario"] == 1){
-                    console.log("CONTADOR DE NOME " + cont)
-                    if(Object.keys(response.data.id).length == cont){
-                        $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : response.data.id }).text(response.data.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
-                        
-                    }else{
-                        console.log(cont)
-                    }
-                    
-                }else {
+                // if(response.data["tipoUsuario"] == 1){
 
                     $.each(response.data.usuariosIdNome, function(i, d){ // i - value | d - texto/informaçao 
                         // $('<option>').val(i).text(d[1]).appendTo(options);
                         if(response.data.usuariosIdNome.length == $("#formAdicionarConfig #usuario_id option").length){
                             // console.log(cont)
                         }else{
-                            $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : i+1 }).text(d[1]))  // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                            $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : d[0] }).text(d[1]))  // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
                         }
                     })
-                }
+                    // console.log("CONTADOR DE NOME " + cont)
+                    // if(Object.keys(response.data.id).length == cont){
+                    //     $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : response.data.id }).text(response.data.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                        
+                    // }else{
+                    //     console.log(cont)
+                    // }
+                // }
+                // }else {
+                   
+                // }
             }
+        }).fail(function(xhr, statusText, err){
+            // alert(`Error Code: ${xhr.status} | Texto Error: ${xhr.responseText} | ${statusText}`)
+            $('#formAdicionarConfig #usuario_id').append($('<option>', { "value" : 0 }).text(`${xhr.responseText}`))
         })
         
     })
@@ -768,17 +749,7 @@ function editaConfigJson(tabelaConfig){
 
     $("#edit_action").click(function(e){
         e.preventDefault();
-        // if($('#formConfigEdit #urlIpApi').val() == null || $('#formConfigEdit #urlIpApi').val() == ''){
-        //     $('#formConfigEdit').addClass('needs-validation')
-        //     $('#formConfigEdit #urlIpApi').addClass('is-invalid')
-        //     $('.invalid-feedback').html('Campo vazio nao permitido favor preencher')
-        // }else{
-        //     $('#formConfigEdit').removeClass('needs-validation')
-        //     $('#formConfigEdit #urlIpApi').removeClass('is-invalid')
-        //     $('.invalid-feedback').html('')
-        // }
-
-
+       
         if($('#formConfigEdit #tempoTel').val() == ''){
             $('#formConfigEdit').addClass('needs-validation')
             $('#formConfigEdit #tempoTel').addClass('is-invalid')
@@ -973,11 +944,6 @@ function validaFormularios(formularioPrincipal, textoId){
 function editaLocalJson(tabelaLocal){
     console.log("aqui edita")
     
-   
-    // $("#alertaEmail").append($('<option>', {
-    //     value: 0,
-    //     text: 'NAO'
-    // }))
 
     $("#myTable").on("click", ".btn-outline-warning", function (e) {
         console.log(e.target.id, typeof(e.target.id))
@@ -1026,7 +992,7 @@ function editaLocalJson(tabelaLocal){
                     if(response.data.usuariosIdNome.length == cont){
                         console.log(cont)
                     }else{
-                        $('#usuario_id').append($('<option>', { "value" : i+1 }).text(d[1])) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
+                        $('#usuario_id').append($('<option>', { "value" : d[0] }).text(d[1])) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
                     }
                     console.log("USUARIOS ID"+ i + " d: " + d)
                 })
@@ -1034,28 +1000,7 @@ function editaLocalJson(tabelaLocal){
                     $("#usuario_id option").filter(function(){
                         return $(this).text() == response.data.nomeUsuario
                     }).prop("selected", true)
-                
-                    // console.log(response.data.nomeUsuario)
-                    // var cont = $.map($("#usuario_id"), function(e) {
-                    //     return (e.length)
-                    // })
-
-                    // console.log("CONTADOR DE NOME " + cont)
-                    // if(Object.keys(response.data.idUsuario).length == cont){
-                    //     $('#usuario_id').append($('<option>', { "value" : response.data.idUsuario }).text(response.data.nomeUsuario)) // ou usar o d[1] mas tem que pegar a primeira posiçao do array ex: [1, 'admin']
-                       
-                    // }else{
-                    //     console.log(cont)
-                    // }
-                    // console.log("USUARIOS ID"+ i + " d: " + d)
-                
-
-                    // $("#usuario_id option").filter(function(){
-                    //     return $(this).text() == response.data.nomeUsuario
-                    // }).prop("selected", true)
-                
-
-                  
+                                  
             },
             error: function(error){
                 console.log(error.responseText)
@@ -1087,17 +1032,7 @@ function editaLocalJson(tabelaLocal){
             $('#formLocalEdit #estado').addClass('is-invalid')
             
         })
-        // $('.is-invalid').fadeOut(1600, function() {
-            // $('#formAdicionarConfig #tempoTelemetria').removeClass('is-invalid')
-            
-        // })
-        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-        // if($('#tempoTelemetria .invalid-feedback').length == 0){
-            
-        // }
-        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-        // $('#formConfig #tempoTelemetria').removeClass('is-invalid')
-        // $('.invalid-feedback').html()
+       
     })
 
     $("#edit_action").click(function(e){
@@ -1126,20 +1061,17 @@ function editaLocalJson(tabelaLocal){
         
 
     
-        // $('#formConfigEdit #urlIpApi').val()
-        // if(validaFormularios($("#formLocalEdit")[0], "formLocalEdit")){
-        //     console.log("Ainda necessario preenchimento")
-        // }else {
+      
 
             var data = {
-                id: Number.parseInt($("#id").val()),
-                cep: ($('#cep').val()),
-                endereco: ($('#endereco').val()),
-                bairro: ($('#bairro').val()),
-                cidade: ($('#cidade').val()),
-                estado: ($('#estado').val()),
-                obs: $('#obs').val(),
-                nomeUsuario: Number.parseInt($('#usuario_id').val())
+                id: Number.parseInt($("#formLocalEdit #id").val()),
+                cep: ($('#formLocalEdit #cep').val()),
+                endereco: ($('#formLocalEdit #endereco').val()),
+                bairro: ($('#formLocalEdit #bairro').val()),
+                cidade: ($('#formLocalEdit #cidade').val()),
+                estado: ($('#formLocalEdit #estado').val()),
+                obs: $('#formLocalEdit #obs').val(),
+                nomeUsuario: Number.parseInt($('#formLocalEdit #usuario_id').val())
                 // usuarioId: Number.parseInt(($('#usuario_id').val()))
             }
             console.log(data)
@@ -1154,15 +1086,7 @@ function editaLocalJson(tabelaLocal){
                contentType: "application/json, charset=UTF-8",
                processData: false
             }).done(function(data){
-                $('#formLocalEdit #cep').val(""),
-                $('#formLocalEdit #endereco').val(""),
-                $('#formLocalgEdit #cidade').val(""),
-                $('#formLocalEdit #bairro').val(""),
-                $('#formLocalEdit #estado').val(""),
-                $('#formLocalEdit #obs').val(""),
-                $('#formLocalEdit #nomeUsuario').val(""),
                 
-                // $('#formConfigEdit #nomeUsuario').val(""),
                 $("#modaledit").modal("hide")
                 console.log(data)
                 alert(data)
@@ -1232,7 +1156,7 @@ function insereInfoJson(tabelaInfo){
                     console.log(d.local)
                 }else{
                     $.each(d.local, function(i, d){
-                        $("#formInfoAdicionar #local_id").append($('<option>', { "value" : d[0] }).text(d[1]))
+                        $("#formInfoAdicionar #local_id").append($('<option>', { "value" : d[0] }).text(d[1]  + " - " + d[2]))
                     })
                 }
                 
@@ -1311,9 +1235,7 @@ function editaInfoJson(tabelaInfo){
                 // console.log(response.dados.sensores)
                 var valores = [ $("#formInfoEdit #sensores_id option").length, $("#formInfoEdit #local_id option").length , $("#formInfoEdit #modulo_id option").length ]
              
-                // var testeTamanho = $.map($("#sensores_id"), function(e){
-                //     return e.length
-                // })
+               
 
                 console.log("VAL " + valores[0])
                 $.each(response.dados, function(i, d){ // como o dados esta vindo como um vetor/lista temos que percorre-lo e depois pegar atraves do parametro d os campos do json que queremos i - indice | d - campos do json nesse caso
@@ -1409,56 +1331,7 @@ function editaInfoJson(tabelaInfo){
     
     var csrf_token = $("#formInfoEdit #csrf_token").val()
     pegaToken(csrf_token) 
-    // $.ajaxSetup({
-    //     beforeSend: function(xhr, settings) {
-    //         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-    //             xhr.setRequestHeader("X-CSRFToken", csrf_token)
-    //         }    
-    //     }
-    // })
 
-
-
-    // tabela.addEventListener('click', function(e){
- 
-    // console.log(Object.values(tabelaInfo))
- 
-
-    // for(let i = 0; i < btnEdita.length; i++){
-    //     // console.log(e.target)
-    //         // var tr = tabela.querySelectorAll('tr')
-    //         // var cont = 0
-    //         // for(lin of tr){
-    //         //     console.log(lin.querySelectorAll('td'))
-    //         //     for(let linText of lin.querySelectorAll('td')){
-    //         //         console.log(linText.outerText)
-    //         //     }
-    //         // }
-    //         btnEdita[i].addEventListener('click', function(e){
-    //             alert('OLA HUMANO')
-    //         })
-    // }
-    
-    // btnEdita[0].addEventListener('click', function(evento) {
-    //     console.log(evento.target.id, typeof(evento.target.id))
-    //     alert('OI')
-    // })
-    
-
-    // document.addEventListener('DOMContentLoaded', function(){
-    //     if(btnEdita){
-    //         btnEdita.addEventListener('click', function(evento) {
-    //             console.log(evento.target.id, typeof(evento.target.id))
-    //             alert('OI')
-    
-    
-    //         })
-    //     }else{
-    //         alert('DEU RUIM CARA')
-    //     }
-    // })
-
-   
 }
 
 function deletaInfoJson(tabelaInfo){
@@ -1639,10 +1512,6 @@ function deletaSensorJson(tabelaSensores){
 }
 
 function meuMapa(){
-    //   var tr = document.querySelectorAll('tr')
-    //   for(var i = 0; i < tr.length; i++){
-    //     tr[i].getElementsByTagName('td')
-    //   }
 
         var idElemento = document.querySelectorAll(".btn-outline-info")
         let idModal;
@@ -1754,35 +1623,12 @@ function testeAlteraData(){
                     xhrFields: {
                         withCredentials: true
                     }
-                    // success: function(response){
-                    //     // alert(response);
-                    //     // tabela.empty();
-                    //     console.log(response);
-                    // //     // $.each(response.data, function(a, b){
-                    // //     //     data = new Date(b["dataCriacao"]);
-                    // //     //     let novaData = new Date(data.valueOf() - data.getTimezoneOffset() * 60000);
-                    // //     //     tabela.append("<tr><td>" + b["id"] + "</td>" + 
-                    // //     //     "<td>" + b["NOME"] + "</td>" +
-                    // //     //     "<td>" + b["SENSORG"] + "</td>" +
-                    // //     //     "<td>" + b["SENSORT"] + "</td>" +
-                    // //     //     "<td>" + b["SENSORU"] + "</td>" +
-                    // //     //     "<td>" + novaData.toISOString().replace(/\. \d{3}\$/, '') + "</td>" +
-                            
-                    // //     //     "</tr>");
-            
-                    // //     // });
-            
-                    // }
+                 
                 },
                 columns: [
                     {"data": "id"},
                     {"data": "NOME"}, //render: function(data){
-                        // var lista = null;
-                        // if(data == document.querySelectorAll('.nav-link')[7].text.split(":")[1].replace(" ", "")){
-                        //     lista = data;
-                        // }
-                        // return lista;
-                        // }},
+                      
                     {"data": "SENSORG", render: function(data){
                         return `${data} PPM`;
                     }},
@@ -1801,11 +1647,7 @@ function testeAlteraData(){
                         // return novaData.toLocaleString('pt-BR', {timeZone: 'GMT'})  // new Intl.DateTimeFormat('pt-BR', {dataStyle: 'short', timeStyle: 'short'}).format(new Date(data));  novaData.toLocaleString('pt-BR', {timeZone: 'GMT'})
                         }
                     }
-                    // data = new Date("dataCriacao"),
-                    // console.log(data),
-                    // novaData = new Date(data.valueOf() - data.getTimezoneOffset() * 60000),
-                    // novaData = novaData.toISOString().replace(/\.\d{3}Z$/, ''),
-                    // {novaData}
+                  
                 ], 
                 "order": [0, 'desc'],           
                 "language": {
@@ -1824,162 +1666,7 @@ function testeAlteraData(){
                 tabela2.ajax.reload();  
             }, 30000); // 3 min
             
-        // }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Geolocalizacao"){
-        //     var tabela = $(".table").find("tbody");
-        //     // var 
-        //     var dataFormatada = null;
-        //     var novaData = null;
-
-        //     var tabela2 = $('#myTable').DataTable({
-        //         ajax: {
-        //             url: "/geo/listarGeoJson",
-        //             type: "GET",
-        //             xhrFields: {
-        //                 withCredentials: true
-        //             }
-        //         //     success: function(response){
-        //         //         // alert(response);
-        //         //         tabela.empty();
-        //         //         console.log(response);
-        //         //         $.each(response.data, function(a, b){
-        //         //             data = new Date(b["dataCriacao"]);
-        //         //             let novaData = new Date(data.valueOf() - data.getTimezoneOffset() * 60000);
-        //         //             tabela.append("<tr><td>" + b["id"] + "</td>" + 
-        //         //             // "<td>" + b["dataCriacao"] + "</td>" +
-        //         //             "<td>" + novaData.getUTCDate().toString().padStart(2, '0') + "/" + (novaData.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaData.getUTCFullYear().toString().padStart(2, '0') + ":" + novaData.getUTCHours().toString().padStart(2, '0') + ":" + novaData.getUTCMinutes().toString().padStart(2, '0') + ":" + novaData.getUTCSeconds().toString().padStart(2, '0') + "</td>" +     //toISOString().replace(/\. \d{3}\$/, '') + "</td>" +
-        //         //             "<td>" + b.json["query"] + "</td>" +
-        //         //             "<td>" + b.json["status"] + "</td>" +
-        //         //             "<td>" + b.json["region"] + "</td>" +
-        //         //             "<td>" + b.json["city"] + "</td>" +
-        //         //             "<td>" + b.json["zip"] + "</td>" +
-        //         //             "<td>" + b.json["lat"] + "</td>" +
-        //         //             "<td>" + b.json["lon"] + "</td>" +
-        //         //             "<td>" + b.json["NOME"] + "</td>" +
-                            
-                            
-        //         //             "</tr>");
-            
-        //         //         });
-            
-        //         //     }
-        //         },
-        //         columns: [
-        //             {"data": "id"},
-        //             {"data": "dataCriacao", render: function(data){
-        //                 var dataHora = new Date(data)
-        //                 var novaDataHora = dataHora.getUTCDate().toString().padStart(2, '0') + "/" + (dataHora.getUTCMonth()+1).toString().padStart(2, '0') + "/" +  dataHora.getUTCFullYear().toString().padStart(2, '0') + " " + dataHora.getUTCHours().toString().padStart(2, '0') + ":" + dataHora.getUTCMinutes().toString().padStart(2, '0') + ":" + dataHora.getUTCSeconds().toString().padStart(2, '0')
-        //                 return dataHora.toLocaleString('pt-BR', { timeZone: 'GMT' })       //novaDataHora
-        //             }},
-        //             {"data": "json.query"},
-        //             {"data": "json.status"},
-        //             {"data": "json.region"},
-        //             {"data": "json.city"}, 
-        //             {"data": "json.zip"},
-        //             {"data": "json.lat"},
-        //             {"data": "json.lon"},
-        //             {"data": "json.NOME"},
-        //             {
-        //                 "data": null, 
-        //                 render: function(data, type, row, meta){
-        //                     return '<button class="btn btn-outline-info btn-xs" data-toogle="modal" data-target=#modaledit" data-id="' + row.id + '" data-title="' + row.title + '" data-slug="' + row.slug + '" data-text="' + data.json["lat"] + '"><i class="bi bi-eye"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/> <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg> Visualizar </button>';
-        //                     // id="btnMapa"  ';
-        //                 }
-        //             }                
-        //             // {"defaultContent": "<button> Visualize </button>"}
-        //         ],   
-        //         // responsive: {
-        //         //     details: {
-        //         //         display: $.fn.dataTable.Responsive.display.modal({
-        //         //             header: function(row){
-        //         //                 var data = row.data();
-        //         //                 return "Detalhes de " + data[0] + data[1];
-        //         //             }
-        //         //         }),
-        //         //         renderer: $.fn.dataTable.Responsive.renderer.tableAll({
-        //         //             tableClass: 'table'
-        //         //         })
-        //         //     }
-        //         // },       
-        //         // dom: 'Bftrip',   
-        //         // buttons: [{
-        //         //     text: 'Visualizar',
-        //         //     action: function(e, dt, node, conf){
-        //         //         alert("TESTE CLICK")
-        //         //     },
-        //         //     className: 'btn btn-outline-info'
-        //         // }
-        //         // ],
-            
-        //         "language": {
-        //             "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Portuguese-Brasil.json"
-        //         },
-        //         retrieve: true,
-        //         paging: true
-        //     });
-        //     // tabela2.buttons.info('TESTANDO', 3000);
-        //     setInterval(function(){
-        //         tabela2.ajax.reload();  
-        //     }, 30000); // 3 min
-
-
-        //     function meuMapa(){
-        //         //   var tr = document.querySelectorAll('tr')
-        //         //   for(var i = 0; i < tr.length; i++){
-        //         //     tr[i].getElementsByTagName('td')
-        //         //   }
-            
-        //             var idElemento = document.querySelectorAll(".btn-outline-info")
-        //             let idModal;
-        //             console.log(idElemento)
-        //             for(var i = 0; i < idElemento.length; i++){
-        //                 idElemento[i].addEventListener('click', function(e){
-        //                     // alert("Elemento clicado foi o " + e.target.id)
-        //                     alert(e.target.id)
-        //                     console.log(e.target)
-                           
-        //                     idModal = e.target.id;
-        //                     // console.log(e.target.getAttribute('data-lat'))
-        //                     // console.log(e.target.getAttribute('data-long'))
-        //                     var lat = parseFloat(e.target.getAttribute('data-lat'))
-        //                     var long = parseFloat(e.target.getAttribute('data-long'))
-        //                     console.log(lat)
-        //                     // console.log(idModal.split('btnMapa')[1])
-        //                     var mapaProp = {
-        //                         center: new google.maps.LatLng(lat, long),
-        //                         // center: {lat: lat, lng: long},
-        //                         //   center: new google.maps.LatLng(minhaPosicao, idMapa),
-        //                         zoom: 14,
-        //                         mapTYpeId: 'hybrid',
-        //                         scaleControl: true,
-        //                         fullscreenControlOptions: {
-        //                         position: google.maps.ControlPosition.RIGHT_BOTTOM
-        //                         },
-        //                     };
-            
-        //                     var map = new google.maps.Map(
-        //                         document.getElementById("googleMap"+idModal.split('btnMapa')[1])    
-        //                     , mapaProp);
-            
-                            
-        //                 });
-                        
-        //             }
-        //             console.log(idModal)
-            
-            
-                    
-            
-                   
-                 
-                    
-        //         }
-        //     // $("#myTable tbody").on('click', 'button', function() {
-        //     //     var data = tabela2.row( $(this).parents('tr') ).data();
-
-        //     //     tabela.row( $(this).parents('tr') ).select();
-        //     //     c = 
-        //     // })
-
+        
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Usuarios"){
             
 
@@ -2010,7 +1697,7 @@ function testeAlteraData(){
                         }
                     },                    
                     {"data": "tipoUsuario", render: function(data){
-                        if (data == 0){
+                        if (data == 1){
                             return 'ADMIN'
                         }else{
                             return 'COMUM'
@@ -2053,7 +1740,9 @@ function testeAlteraData(){
 
             setInterval(function(){
                 tabelaUsuarios.ajax.reload()
-            }, 3000);
+            }, 30000);
+
+            editaUsuarios(tabelaUsuarios)
 
         }else if(document.querySelectorAll(".jumbotron")[0].innerText.split("\n")[0] == "Local"){
             
@@ -2089,14 +1778,7 @@ function testeAlteraData(){
                             
                         }
                     }
-                    // },
-                    // {
-                    //     "data": null,
-                    //     render: function(data, type, full_row, meta){
-                    //         return '';
-                    //     }
-                    
-                    // }
+                   
                 ],
                 "order": [0, 'desc'],
                 "language": {
@@ -2565,7 +2247,7 @@ function notificaVazamento(){
                     
                         $.notify(`Possivel vazamento de gas ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"]} | ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]['NOME']}`, 'error')
                     }
-                }else if(response.data[0].tipoUsuario == 0){
+                }else if(response.data[0].tipoUsuario == 1){
                     // let valorGasGeral = {valor_gas_aviso: null, sensor_gas: null, nome_usuario: null}
                     // let listaObj = []
                     for(let x of response.data){

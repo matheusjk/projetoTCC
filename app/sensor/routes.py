@@ -79,7 +79,7 @@ def registraSensoresJson():
 @sensor.route("/editarPesquisarSensorJson/<int:id>", methods=['GET'])
 @login_required
 def editarPesquisarSensoresJson(id):
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         linha = Sensores.query.filter_by(id=id).first()
 
         if linha is not None:
@@ -122,7 +122,7 @@ def editarSensoresJson():
 @sensor.route("/listarSensorJson", methods=['GET'])
 @login_required
 def listarSensorJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
 
         sensorObj = Sensores.query.all()
         lista = []

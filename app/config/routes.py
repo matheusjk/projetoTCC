@@ -14,10 +14,11 @@ config = Blueprint('config',  __name__, template_folder="templates", url_prefix=
 def listar():
     por_pagina = 5
     formConfig = FormConfiguracao()
-    if current_user.tipoUsuario == 0:  # current_user.nome == "Admin" or
+    print(current_user.tipoUsuario)
+    if current_user.tipoUsuario == 1:  # current_user.nome == "Admin" or
        
         return render_template('configuracao.html')
-    elif current_user.tipoUsuario == 1:
+    elif current_user.tipoUsuario == 2:
       
         return render_template('configuracao.html')
 
@@ -145,7 +146,7 @@ def listarConfigJsonEsp(id):
 @config.route('/listarConfigJson', methods=['GET'])
 @login_required
 def listarConfigJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
 
         configObj = ConfiguracaoJson.query.all()
         usuarioTelemetria = Telemetria.query.all()
@@ -210,7 +211,7 @@ def listarConfigJson():
 @config.route("/listaUsuarios", methods=["GET"])
 @login_required
 def listarUsuariosConfiguracoes():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         linha = ConfiguracaoJson.query.all()  # filter_by(id=id).first()
         id_nome = Usuarios.query.all()
 
@@ -222,27 +223,29 @@ def listarUsuariosConfiguracoes():
         }
             
         return jsonify({'data': lista})
-    else:
-        linha = ConfiguracaoJson.query.filter_by(id=current_user.id).first()
+    elif current_user.tipoUsuario == 2:
+        # linha = ConfiguracaoJson.query.filter_by(id=current_user.id).first()
+        id_user = Usuarios.query.filter_by(id=current_user.id).first()
 
         # print(linha)
-        # l = [ (linhas.id, linhas.nome) for linhas in linha ]
+        # l = [ (linhas.id, linhas.nome) for linhas in id_nome ]
     
         lista = {
-            "id": linha.id,
-            "nomeUsuario": linha.usuarios.nome,  
-            "tipoUsuario": linha.usuarios.tipoUsuario
+            "usuariosIdNome":  [(id_user.id, id_user.nome)]
         }
             
         return jsonify({'data': lista})
-        
-
+        # else:
+        #     return Response(
+        #         "NENHUMA CONFIG P/ ESSE USUARIO",
+        #         status=404
+        #     )
 
 
 @config.route('/editarPesquisarConfigJson/<int:id>', methods=['POST', 'GET'])
 @login_required
 def editarPesquisarConfigJson(id):
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         linha = ConfiguracaoJson.query.filter_by(id=id).first()
         id_nome = Usuarios.query.all()
 

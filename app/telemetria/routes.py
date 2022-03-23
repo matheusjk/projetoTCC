@@ -1,4 +1,4 @@
-from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, make_response, jsonify, pdfkit, datetime, csrf
+from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, make_response, jsonify, pdfkit, datetime, csrf, auth
 from app.telemetria.forms import TelemetriaForm
 from app.models.tables import Telemetria, db
 import json
@@ -12,7 +12,7 @@ linhas_por_pagina = 5
 # @telemetria.route("/listar/<int:pagina>", methods=["GET"])
 @login_required
 def listar():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         por_pagina = 5
         formTelemetria = TelemetriaForm()
         # telemetriaObj = Telemetria.query.order_by(Telemetria.id.asc()).paginate(pagina, por_pagina, error_out=False)
@@ -54,37 +54,44 @@ def listarJson():
 @telemetria.route("/pdf", methods=["GET"])
 @login_required
 def pdf():
-    if current_user.tipoUsuario == 0:
-        try:
+    if current_user.tipoUsuario == 1:
+        # try:
             # telemetriaObjComum = Telemetria.query.all()
-            telemetriaObj = Telemetria.query.all() #.paginate(pagina, por_pagina, error_out=False)
+        telemetriaObj = Telemetria.query.all() #.paginate(pagina, por_pagina, error_out=False)
             # print(telemetriaObjComum)
             # renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObjComum)
             # pdf = pdfkit.from_url(renderiza, False)
             
-            renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObj, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            options = {
+        renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObj, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        print(request.cookies.get('session'))
+        options = {
                 'page-size': 'Letter',
                 'margin-top': '0.75in',
                 'margin-right': '0.75in',
                 'margin-bottom': '0.75in',
                 'margin-left': '0.75in',
-                'encoding': 'UTF-8'
-            }
-            pdf = pdfkit.from_string(renderiza, False, options=options)
+                'encoding': 'UTF-8',
+                'custom-header': [
+                    ('Accept-Encoding', 'gzip')
+                ],
+                'cookie': [
+                    ('session', request.cookies.get('session'))
+                ]
+        }
+        # print(renderiza)
+        pdf = pdfkit.from_url('http://192.168.0.14:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
             # for id, json, dataCriacao in telemetriaObj:
             #     '{} {} {} {} {} {}'.format(id, json["NOME"], json["SENSORG"], json["SENSORT"], json["SENSORU"]))
 
-            response = make_response(pdf)
-            response.headers['Content-Type'] = 'application/pdf'
-            response.headers['Content-Disposition'] = 'attachment; filename=output.pdf'
-
-            flash("Sucesso ao gerar o PDF!!!", category='info')
-            return response
-        except: 
-            flash('Erro ao gerar o PDF!!!')
-            return redirect(url_for('telemetria.listar'))
-        return redirect(url_for('telemetria.listar'))
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+            # attachment
+        # flash("Sucesso ao gerar o PDF!!!", category='info')
+        return response
+        # except Exception as error: 
+        #     flash('Erro ao gerar o PDF!!! {}'.format(error))
+        #     return redirect(url_for('telemetria.listar'))
     else:
         try:
             telemetriaObjComum = Telemetria.query.filter(func.json_extract(Telemetria.json, "$.IDUSUARIO")).all()
@@ -96,25 +103,46 @@ def pdf():
             options = {
                 'page-size': 'Letter',
                 'margin-top': '0.75in',
-                'margin-right': '0.70in',
+                'margin-right': '0.75in',
                 'margin-bottom': '0.75in',
-                'margin-left': '0.70in',
-                'encoding': 'UTF-8'
+                'margin-left': '0.75in',
+                'encoding': 'UTF-8',
+                'custom-header': [
+                    ('Accept-Encoding', 'gzip')
+                ],
+                'cookie': [
+                    ('session', request.cookies.get('session'))
+                ]
             }
-            pdf = pdfkit.from_string(renderiza, False, options=options)
+            pdf = pdfkit.from_url('http://192.168.0.14:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
             # for id, json, dataCriacao in telemetriaObj:
             #     '{} {} {} {} {} {}'.format(id, json["NOME"], json["SENSORG"], json["SENSORT"], json["SENSORU"]))
 
             response = make_response(pdf)
             response.headers['Content-Type'] = 'application/pdf'
-            response.headers['Content-Disposition'] = 'attachment; filename=output.pdf'
+            response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
 
-            flash("Sucesso ao gerar o PDF!!!", category='info')
+            # flash("Sucesso ao gerar o PDF!!!", category='info')
             return response
         except: 
             flash('Erro ao gerar o PDF!!!')
             return redirect(url_for('telemetria.listar'))
-        return redirect(url_for('telemetria.listar'))
+
+
+
+@telemetria.route("/renderizaPdf", methods=["GET"])
+@login_required
+def renderizaPdf():
+    if current_user.tipoUsuario == 1:
+        telemetriaObj = Telemetria.query.all() #.paginate(pagina, por_pagina, error_out=False)
+            # print(telemetriaObjComum)
+         
+            
+        renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObj, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        
+        # flash("Sucesso ao gerar o PDF!!!", category='info')
+        return renderiza
+
 
 
 @telemetria.route("/registrarTelemetria", methods=["GET", "POST"])
@@ -141,6 +169,7 @@ def registrarTelemetria():
 
 @telemetria.route("/registrarTelemetriaEsp", methods=["GET", "POST"])
 @csrf.exempt
+@auth.login_required
 def registrarTelemetriaEsp():
     # d = 0
     # d = request.data
@@ -152,7 +181,7 @@ def registrarTelemetriaEsp():
     # db.session.add(telemetriaObj)
     # db.session.commit()
     if request.method == "POST":
-        tel = Telemetria(request.json)
+        tel = Telemetria(request.get_json())
         db.session.add(tel)  # request.json.get('groupName')  | json.dumps(request.get_json())
         db.session.commit()
         # print(request.json.get('groupName'))
@@ -205,7 +234,7 @@ def paginaNaoEncontrada(e):
 # @telemetria.route("/listar/<int:pagina>", methods=["GET"])
 @login_required
 def listarTesteJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         # por_pagina = 5
         # formTelemetria = TelemetriaForm()
         # # telemetriaObj = Telemetria.query.order_by(Telemetria.id.asc()).paginate(pagina, por_pagina, error_out=False)
@@ -240,7 +269,7 @@ def listarTesteJson():
 @login_required
 def listarTelemetriaJson():
     formTelemetria = TelemetriaForm()
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         telemetriaObj = Telemetria.query.all()  #.paginate(pagina, por_pagina, error_out=False)
         lista = []
         for linha in telemetriaObj:
@@ -282,7 +311,7 @@ def listarTelemetriaJson():
 @login_required
 def listarTelemetriaJsonGraph():
     formTelemetria = TelemetriaForm()
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         telemetriaObj = Telemetria.query.all()  #.paginate(pagina, por_pagina, error_out=False)
         lista = []
         for linha in telemetriaObj:
