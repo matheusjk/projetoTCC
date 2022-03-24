@@ -63,7 +63,7 @@ void setup() {
 
 
 //   meuBot.wifiConnect("netvirtua1567 ap 101", "1098550000");
-//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
+//   meuBot.setTelegramToken("");
 //
 //   if(meuBot.testConnection()){
 //     Serial.println("\n Conexão OK!");
