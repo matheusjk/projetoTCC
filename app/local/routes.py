@@ -98,7 +98,7 @@ def formulario(id):
 @local.route("/usuariosLocalJson", methods=["GET"])
 @login_required
 def listarUsuariosLocal():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
 
         usuarioId = Usuarios.query.all()
         listaUsuarios = []
@@ -109,7 +109,7 @@ def listarUsuariosLocal():
                 'idUsuario': linhaUsuario.id,
                 'nomeUsuario': linhaUsuario.nome
             })
-    elif current_user.tipoUsuario == 1:
+    elif current_user.tipoUsuario == 2:
         usuarioId = Usuarios.query.filter_by(nome=current_user.nome).first()
         listaUsuarios = []
 
@@ -127,7 +127,7 @@ def listarUsuariosLocal():
 @local.route("/editarPesquisarLocalJson/<int:id>", methods=['POST', 'GET'])
 @login_required
 def editarPesquisarLocalJson(id):
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         linha = Local.query.filter_by(id=id).first()
         id_nome = Usuarios.query.all()
 
@@ -153,7 +153,7 @@ def editarPesquisarLocalJson(id):
             return jsonify({'data': lista if len(lista) != [] or lista is not None else "ID nao existente"})
         else:
             return jsonify({'data': lista if len(lista) > 0 else "ID nao existente"})
-    elif current_user.tipoUsuario == 1:
+    elif current_user.tipoUsuario == 2:
         linha = Local.query.filter_by(id=id).first()
         id_nome = Usuarios.query.filter_by(id=current_user.id).all()
 
@@ -214,7 +214,7 @@ def editarLocalJson():
 @local.route("/listarLocalJson", methods=['GET'])
 @login_required
 def listarLocalJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
 
         
         localObj = Local.query.all() 
@@ -236,7 +236,7 @@ def listarLocalJson():
             })
         return jsonify({'data': lista})
 
-    elif current_user.tipoUsuario == 1:
+    elif current_user.tipoUsuario == 2:
 
         localObj = Local.query.filter_by(usuario_id=current_user.id).all() 
 

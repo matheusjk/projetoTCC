@@ -132,7 +132,8 @@ def listarConfigJsonEsp(id):
                     "usuario_id": linha.json["usuarioId"],
                     "dataCriacao": linha.dataCriacao,
                     "dataAtualizacao": linha.dataAtualizacao,
-                    "nome_usuario": linha.usuarios.nome 
+                    "nome_usuario": linha.usuarios.nome,
+                    "email": linha.usuarios.email
                     
                 }) 
             return jsonify({'data': lista})

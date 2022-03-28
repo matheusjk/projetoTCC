@@ -1,3 +1,4 @@
+from flask import Response
 from app import login_user, render_template, redirect, url_for, login_required, current_user, request, logout_user, login_manager, Blueprint, flash, func, jsonify
 from app.informacao.forms import FormInformacao
 from app.models.tables import Informacao, Sensores, Local, Modulos, db
@@ -128,7 +129,7 @@ def listar():
 @informacao.route("/listarInfoJson/", methods=["GET"])
 @login_required
 def listarInfoJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         sensoresObj = [sensor for sensor in Sensores.query.all()]
         modulosObj = [modulos for modulos in Modulos.query.all()]
         localObj = [local for local in Local.query.all()]
@@ -143,18 +144,20 @@ def listarInfoJson():
 
         informacaoObj = Informacao.query.order_by(Informacao.id.asc()).all()
         lista = []
+        
         # print(informacaoObj[2].sensores.tipoSensor)
         for linha in informacaoObj:
             # print(linha.sensores.tipoSensor)
+            # print(linha.local.endereco)
             lista.append({
                 'id': linha.id,
                 'nome_sensores': linha.sensores.tipoSensor,
                 'id_sensores': linha.sensores.id,
                 'nome_modulos': linha.modulos.json['MAC'],
                 'id_modulos': linha.id_modulos,
-                'nome_local': linha.local.endereco,
-                'nome_local_usuarios': linha.local.usuarios.nome,
-                'id_local': linha.local.id,
+                'nome_local': linha.local.endereco if linha.local is not None else "NULL",
+                'nome_local_usuarios': linha.local.usuarios.nome if linha.local is not None else "NULL",
+                'id_local': linha.local.id if linha.local is not None else "NULL",
                 'dataCriacao': linha.dataCriacao
             })
         
@@ -165,8 +168,12 @@ def listarInfoJson():
         }]
         # pp = pprint.PrettyPrinter(deth=6)
         # pprint.pprint(lista)
-        return jsonify({'data': lista, 'dados': listaA})
-    else:
+        print(listaA[0].get('sensores'))
+        if lista is None and listaA[0].get('sensores') == [] or listaA[0].get('local') == [] or listaA[0].get('modulos') == []:
+            return Response("NENHUM DADO ENCONTRADO", 404)
+        else:
+            return jsonify({'data': lista, 'dados': listaA})
+    elif current_user.tipoUsuario == 2:
         sensoresObj = Sensores.query.all()
         modulosObj = Modulos.query.filter(func.json_extract(Modulos.json, "$.IDUSUARIO") == current_user.id).all()
         localObj = Local.query.filter_by(usuario_id=current_user.id).all()
@@ -211,7 +218,10 @@ def listarInfoJson():
             'local': [(l.id, l.endereco) for l in localObj]
         }]
 
-        return jsonify({'data': informacaoObj, 'dados': listaA})
+        if lista is None and listaA[0].get('sensores') == [] or listaA[0].get('local') == [] or listaA[0].get('modulos') == []:
+            return Response("NENHUM DADO ENCONTRADO", 404)
+        else:
+            return jsonify({'data': informacaoObj, 'dados': listaA})
 
 
 

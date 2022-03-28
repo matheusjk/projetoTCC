@@ -389,7 +389,7 @@ function editaUsuarios(tabelaUsuarios){
         console.log(evento.target.id, typeof(evento.target.id))
 
         $.ajax({
-            url: "/form/editarPesquisarUsuarioJson/ " + Number.parseInt(evento.target.id),
+            url: "/form/editarPesquisarUsuarioJson/" + Number.parseInt(evento.target.id),
             type: "GET",
             success: function (response) {
                 $("#editarUsuariosCabecalho").html("Editar Usuario")
@@ -398,17 +398,97 @@ function editaUsuarios(tabelaUsuarios){
                 $("#formUsuarioEdit #nome").val(response.data.nome)
                 $("#formUsuarioEdit #email").val(response.data.email)
                 $("#formUsuarioEdit #sexo").val(response.data.sexo)
-                $("#formUsuarioEdit #telefone").val(response.data.telefone)
+                $("#formUsuarioEdit #telefone").val(response.data.tel)
                 $("#formUsuarioEdit #idade").val(response.data.idade)
-                $("#formUsuarioEdit #dataNascimento").val(response.data.dataNascimento)
+                $("#formUsuarioEdit #cpf").val(response.data.cpf)
+
+                novaData = new Date(response.data.dataNasc)
+                let novaDataInput = novaData.getUTCDate().toString().padStart(2, '0') + "/" + (novaData.getUTCMonth()+1).toString().padStart(2, '0') + "/" + novaData.getFullYear().toString()
+
+                console.log(novaDataInput)
+                console.log(novaData.getFullYear() + "-" + "0" +(novaData.getUTCMonth()+1) + "-" + novaData.getUTCDate())
+
+                // novaData.getFullYear() + "-" + novaData.getUTCMonth()+1 + "-" + novaData.getUTCDate()
                 
-                if (response.data.tipoUsuario == 1) {
-                    $("#formUsuarioEdit #tipoUsuario")
+                $("#formUsuarioEdit #dataNascimento").val(novaData.getFullYear().toString() + "-" + (novaData.getUTCMonth()+1).toString().padStart(2, '0') + "-" + novaData.getUTCDate().toString().padStart(2, '0')) 
+
+                // novaData.getFullYear() + "-" + "0" + (novaData.getUTCMonth()+1) + "-" + novaData.getUTCDate()
+               
+                var cont = $.map($("#formUsuarioEdit #tipo_usuario"), function(e){
+                    return (e.length)
+                })
+
+                console.log(cont)
+                $.each(response.data.tiposUsuariosGeral, function(i, d){
+                    if(response.data.tiposUsuariosGeral.length == cont){
+
+                    }else{
+                        $("#formUsuarioEdit #tipo_usuario").append($('<option>', { "value": d[0] }).text(d[1]))
+                    }
+                })
+                    
+                $("#formUsuarioEdit #tipo_usuario option").filter(function() {
+                    return $(this).val() == response.data.tipoUsuario
+                }).prop("selected", true)
+
+                let dataAtual = new Date()
+                let dtAtualNasc = document.querySelectorAll("#dataNascimento")[0].value
+                let dtNascData = new Date(dtAtualNasc)
+
+                if(dataAtual.getMonth()+1 == dtNascData.getMonth()+1){
+                    console.log("EH IGUAL")
+                    let total = (dataAtual.getFullYear() - dtNascData.getFullYear()) + 1
+                    console.log(`VOCE TEM ${total} anos de idade`)
+                    document.querySelectorAll("#idade")[0].value = total
+
+                }else {
+                    console.log("NAO EH IGUAL")
                 }
             }
+        }).fail(function(data, err, opt){
+            console.log('Erro ao consultar usuario a ser alterado'+ data.responseText + err + opt) // + err + opt)
+            $.notify('Erro ao consultar usuario a ser alterado'+ data + err + opt, 'error')
         })
     })
 
+    let url = "/form/editarUsuarioJson"
+
+    $("#edit_action").click(function(e){
+        e.preventDefault()
+
+        let data = {
+            id: Number.parseInt($("#formUsuarioEdit #id").val()),
+            nome: $("#formUsuarioEdit #nome").val(),
+            email: $("#formUsuarioEdit #email").val(),
+            sexo: $("#formUsuarioEdit #sexo").val(),
+            telefone: $("#formUsuarioEdit #telefone").val(),
+            cpf: $("#formUsuarioEdit #cpf").val(),
+            idade: Number.parseInt($("#formUsuarioEdit #idade").val()),
+            dataNascimento: $("#formUsuarioEdit #dataNascimento").val(),
+            tipoUsuario: Number.parseInt($("#formUsuarioEdit #tipo_usuario").val())
+        }
+
+        console.log(JSON.stringify(data))
+
+        $.ajax({
+            url: url,
+            type: 'PUT',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            encode: true,
+            contentType: "application/json, charset=UTF-8",
+            processData: false,
+        }).done(function(data){
+            $.notify('Sucesso ao atualizar usuario', 'success')
+            $("#modaledit").modal("hide")
+            tabelaUsuarios.ajax.reload()
+        }).fail(function(data, err, opt){
+            console.log('Erro ao atualizar usuario'+ data.responseText + err + opt) // + err + opt)
+            $.notify('Erro ao atualizar usuario'+ data + err + opt, 'error')
+        })
+    })
+
+    pegaToken($("#formUsuarioEdit #csrf_token").val())
     
 }
 
@@ -637,8 +717,8 @@ function insereConfigJson(tabelaConfig){
                         $.notify('Sucesso ao inserir nova configuraçao', 'success')
                         tabelaConfig.ajax.reload()
                     }).fail(function(data, err, opt){
-                        console.log('Erro ao inserir nova configuraçaoo'+ data + err + opt)
-                        $.notify('Erro ao inserir nova configuraçao'+ data + err + opt, 'error')
+                        console.log('Erro ao inserir nova configuração'+ data + err + opt)
+                        $.notify('Erro ao inserir nova configuração'+ data + err + opt, 'error')
                     })
                 }
         })
@@ -1171,6 +1251,13 @@ function insereInfoJson(tabelaInfo){
             })
 
         }).fail(function(data, err, opt){
+            $("#formInfoAdicionar #local_id").append($('<option>', { "value" : "1" }).text("NENHUM LOCAL REGISTRADO"))
+            $("#formInfoAdicionar #modulo_id").append($('<option>', { "value" : "2" }).text("NENHUM MODULO REGISTRADO"))
+            $("#formInfoAdicionar #sensores_id").append($('<option>', { "value" : "3" }).text("NENHUM SENSOR REGISTRADO"))
+            $("#submit_action")
+
+            document.getElementById("submit_action").setAttribute('disabled', true)
+            
             console.log('Erro ao inserir informaçao' + data.responseText + err + opt)
             $.notify('Erro ao inserir informaçao' + data , 'error')
         })
@@ -1179,34 +1266,36 @@ function insereInfoJson(tabelaInfo){
     $("#submit_action").click(function(evento){
         evento.preventDefault()
 
-        var data = {
-            id: Number.parseInt($("#formInfoAdicionar #id").val()),
-            id_sensores: Number.parseInt($("#formInfoAdicionar #sensores_id").val()),
-            id_local: Number.parseInt($("#formInfoAdicionar #local_id").val()),
-            id_modulos: Number.parseInt($("#formInfoAdicionar #modulo_id").val())
+        if($("#submit_action").attr('disabled', false)){
+            var data = {
+                id: Number.parseInt($("#formInfoAdicionar #id").val()),
+                id_sensores: Number.parseInt($("#formInfoAdicionar #sensores_id").val()),
+                id_local: Number.parseInt($("#formInfoAdicionar #local_id").val()),
+                id_modulos: Number.parseInt($("#formInfoAdicionar #modulo_id").val())
+            }
+
+            console.log(data)
+            console.log(JSON.stringify(data))
+            var url = "/informacao/insereInfoJson"
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: JSON.stringify(data),
+                dataType: 'json',
+                encode: true,
+                contentType: "application/json, charset=UTF-8",
+                processData: false
+            }).done(function(response){
+                $("#mymodal").modal("hide") 
+                console.log(response)
+                $.notify('Sucesso ao inserir informaçao', 'success')
+                tabelaInfo.ajax.reload()
+            }).fail(function(data, err, opt){
+                console.log('Erro ao inserir informaçao' + data.responseText + err + opt)
+                $.notify('Erro ao inserir informaçao' + data.responseText + err + opt, 'error')
+            })
         }
-
-        console.log(data)
-        console.log(JSON.stringify(data))
-        var url = "/informacao/insereInfoJson"
-
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: JSON.stringify(data),
-            dataType: 'json',
-            encode: true,
-            contentType: "application/json, charset=UTF-8",
-            processData: false
-        }).done(function(response){
-            $("#mymodal").modal("hide") 
-            console.log(response)
-            $.notify('Sucesso ao inserir informaçao', 'success')
-            tabelaInfo.ajax.reload()
-        }).fail(function(data, err, opt){
-            console.log('Erro ao inserir informaçao' + data.responseText + err + opt)
-            $.notify('Erro ao inserir informaçao' + data.responseText + err + opt, 'error')
-        })
     })
     
     var csrf_token = $("#formInfoAdicionar #csrf_token").val()
@@ -1633,7 +1722,7 @@ function testeAlteraData(){
                         return `${data} PPM`;
                     }},
                     {"data": "SENSORT", render: function(data){
-                        return `${data} °C`;
+                        return `${parseFloat(data).toFixed(1)} °C`;
                     }},
                     {"data": "SENSORU", render: function(data){
                         return `${data} %`;
@@ -1895,6 +1984,10 @@ function testeAlteraData(){
                 var tabelaInfo = $("#myTable").DataTable({
                     ajax: {
                         url: "/informacao/listarInfoJson",
+                        error: function(data, err, opt){
+                            $.notify(`Error ao listar informação | Mensagem: ${data.responseText} Tipo Erro: ${err} ${opt}`, 'error')
+                            console.log(`Error ao listar informação | Mensagem: ${data.responseText} Tipo Erro: ${err} Código Erro: ${opt}`)
+                        },
                         type: "GET",
                         xhrFields: {
                             withCredentials: true
@@ -2129,6 +2222,44 @@ function testeAlteraData(){
 }
 
 
+// function notificaVazamentoDesktop(titulo, valor){
+//     Notification.requestPermission(permission => {
+//         if(permission === 'granted'){
+//             criaNotificaoDesktop(titulo, valor, "/static/bootstrap-4.5.0-dist/images/vazamento.png")
+//         }
+//     })    
+// }
+
+
+function criaNotificaoDesktop(titulo, texto) {
+    let temPermissao = window.Notification.permission()
+    if(temPermissao === "granted") {
+        let notificacao = new Notification("Ola teste Notificacao JS")
+    }else if (temPermissao !== 'denied') {
+        Notification.requestPermission(permission => {
+            if(permission === 'granted'){
+                let notificacao = new Notification("Ola teste Notificacao JS")
+            }
+        })    
+    }
+    
+    
+    // Notification.on('new', () => {
+    //     if(permission === 'granted'){
+    //         const notification = new Notification(titulo, {
+    //             body: texto
+    //             //icon: "/static/bootstrap-4.5.0-dist/images/vazamento.png"
+    //         })
+
+    //         notification.onclick = (e) => {
+    //             e.preventDefault()
+    //             window.focus()
+    //             notification.close()
+    //         }
+    //     }
+    // })
+}
+
 function mostraAlerta(obj){
     var html = 
                 '<div class="col-md-4 float-md-right fixed-top" id="alerta">' +
@@ -2200,7 +2331,7 @@ function notificaVazamento(){
                     //     // alert(valorGas)
                     // }
                 // }
-                if(response.data.tipoUsuario == 1){
+                if(response.data[0].tipoUsuario == 1){
                     for(let x of response.data){
                         // console.log(x)
                         console.log(x.usuario_id, typeof(x.usuario_id))
@@ -2245,9 +2376,59 @@ function notificaVazamento(){
                         // utterThis.voice = voz[indiceLinguagem]
                         // synth.speak(utterThis)
                     
+                        // $.notify.addStyle('imagemNotifica', {
+                        //     html:
+                        //     "<div>"
+                        //     + "<span> <img class='imagemNotifica'> <span data-notify-text/></span>"
+                        //     + "</div>",
+                        //     classes: {
+                        //         superblue: {
+                        //           "color": "white",
+                        //           "background-color": "red",
+                        //           "background-image": "url('/static/bootstrap-4.5.0-dist/images/vazamento.png')",
+                        //           "object-fit": "scale-down"
+                        //         }
+                        //       }
+                        // })
+
+                        // $.notify("Possivel vazamento de gas", {
+                        //     style: "imagemNotifica",
+                        //     className: 'superblue'
+                        //     // title:'<h4>Possivel vazamento de gas </h4>',
+                        //     // icon: '/static/bootstrap-4.5.0-dist/images/vazamento.png'
+                        // })
+
                         $.notify(`Possivel vazamento de gas ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"]} | ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]['NOME']}`, 'error')
+                       
+
+                        var indiceLinguagem = null;
+                        var synth = window.speechSynthesis;
+                        console.log(synth)
+                        var voz = synth.getVoices();
+                        console.log(voz)
+                        for(var i = 0; i < voz.length; i++){
+                            var option = document.createElement('option')
+                            option.textContent = voz[i].name + ' (' + voz[i].lang + ')'
+                            option.value = i
+                            if(option.text ==  "Spanish (Latin America)"){// "Portuguese (Brazil) (pt-BR)"){
+                                indiceLinguagem = option.value
+                                console.log("AQUI: "+indiceLinguagem, option.innerText)
+                            }
+                            
+                            if(option.text ===  "Google português do Brasil (pt-BR)"){// "Portuguese (Brazil) (pt-BR)"){
+                                indiceLinguagem = option.value
+                                console.log("AQUI: "+indiceLinguagem, option.innerText)
+                            }
+                            console.log(option)
+                            // console.log(option.text)
+                        }
+                        
+                        var utterThis = new SpeechSynthesisUtterance(`Possivel vazamento de gas ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"]} | ${ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]['NOME']}`)
+                        utterThis.voice = voz[indiceLinguagem]
+                        synth.speak(utterThis)
+                        // criaNotificaoDesktop("Vazamento", ultimoValor.data[0].usuarioTelemetria[ultimoValor.data[0].usuarioTelemetria.length - 1]["SENSORG"])
                     }
-                }else if(response.data[0].tipoUsuario == 1){
+                }else if(response.data[0].tipoUsuario == 2){
                     // let valorGasGeral = {valor_gas_aviso: null, sensor_gas: null, nome_usuario: null}
                     // let listaObj = []
                     for(let x of response.data){

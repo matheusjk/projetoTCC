@@ -3,7 +3,7 @@ from app import login_user, login_required, current_user, request, logout_user, 
 from flask import Blueprint, flash, make_response, render_template, redirect, url_for, Response
 # from flask_login import login_required
 from app.login.forms import LoginForm, Usuario, CadastroUsuario, Recuperar, EditarUsuario
-from app.models.tables import Usuarios, db
+from app.models.tables import TipoUsuario, Usuarios, db
 from app.pessoas.routes import pessoa
 import random
 import string
@@ -68,15 +68,14 @@ def recuperarAlterar():
 def register():
     formRegistroPessoa = CadastroUsuario()
     print(formRegistroPessoa.nome.data, formRegistroPessoa.tipoUsuario.data)
-    usuario = Usuarios.query.filter_by(tipoUsuario=formRegistroPessoa.tipoUsuario.data).all()
+    usuario = Usuarios.query.filter_by(tipoUsuario=formRegistroPessoa.tipoUsuario.data).first()
 
     # usuario = [user for user in usuario if user == 1 else user = 0]
     print(formRegistroPessoa.errors, usuario)
     if formRegistroPessoa.validate_on_submit():
         print(formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
-        if len(usuario) > 0 or usuario:
+        if usuario.tipoUsuario == 1:
             flash("Desculpe ja existe usuario administrador escolha tipo usuario COMUM", category='info')
-
         else:
             # if usuario == None or usuario == [] or usuario.tipoUsuario == 0:
             #     user = Usuarios(formRegistroPessoa.nome.data, formRegistroPessoa.email.data, formRegistroPessoa.senha.data, formRegistroPessoa.sexo.data, formRegistroPessoa.cpf.data, formRegistroPessoa.tel.data, formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
@@ -223,26 +222,22 @@ def listarUsuariosEsp(id):
     return jsonify({'mensagem': "Por favor se autentique-se"})
 
 
-@form.route('/editarUsuarioJson', methods=["POST"])
+@form.route('/editarUsuarioJson', methods=["PUT"])
 # @login_required
 def editarUsuarioJson():
-    print("Entrando no POST editar usuario {}".format(request.get_json()))
-    if request.method == "POST":
+    if request.method == "PUT":
         print("Entrando no POST editar usuario {}".format(request.get_json()))
-        usuarioObj = Usuarios.query.filter_by(tipoUsuario=request.get_json()['id']).first()
+        usuarioObj = Usuarios.query.filter_by(id=request.get_json()['id']).first()
         print(usuarioObj.tipoUsuario)
         if current_user.tipoUsuario == 1:
-            if usuarioObj.tipoUsuario == 0:
-                return jsonify({"mensagem": "Desculpe esse sistema permite somente um usuario ADMINISTRADOR"})
-            elif usuarioObj.tipoUsuario == 1:
                 usuarioObj = Usuarios.query.get(request.get_json()["id"])
                 # usuarioObj.get(formsEditar.id.data)
                 usuarioObj.nome = request.get_json()["nome"]
                 usuarioObj.senha = usuarioObj.senha  # request.get_json()["senha"]
                 usuarioObj.email = request.get_json()["email"]
                 usuarioObj.sexo = request.get_json()["sexo"]
-                usuarioObj.dataNasc = request.get_json()["dataNasc"]
-                usuarioObj.tel = request.get_json()["tel"]
+                usuarioObj.dataNasc = request.get_json()["dataNascimento"]
+                usuarioObj.tel = request.get_json()["telefone"]
                 usuarioObj.cpf = request.get_json()["cpf"]
                 usuarioObj.idade = request.get_json()["idade"]
                 usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
@@ -250,7 +245,7 @@ def editarUsuarioJson():
                
                 db.session.commit()
                 return jsonify({"mensagem": "Usuario alterado com sucesso!!!"})
-        elif current_user.tipoUsuario == 0:
+        elif current_user.tipoUsuario == 2:
                 usuarioObj = Usuarios.query.get(request.get_json()["id"])
                 # usuarioObj.get(formsEditar.id.data)
                 usuarioObj.nome = request.get_json()["nome"]
@@ -261,7 +256,7 @@ def editarUsuarioJson():
                 usuarioObj.tel = request.get_json()["tel"]
                 usuarioObj.cpf = request.get_json()["cpf"]
                 usuarioObj.idade = request.get_json()["idade"]
-                usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
+                # usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
                 print(usuarioObj.idade, usuarioObj.dataNasc)
                
                 db.session.commit()
@@ -276,8 +271,9 @@ def editarUsuarioJson():
 def editarPesquisarUsuarioJson(id):   
       
     if current_user.tipoUsuario == 1:
-        usuarioObj = Usuarios.query.filter_by(tipoUsuario=id).first()
-        
+        usuarioObj = Usuarios.query.filter_by(id=id).first()
+        print(usuarioObj)
+        tipoUsuariosObj = TipoUsuario.query.all()
         if usuarioObj is not None: 
             lista = {
                 "nome": usuarioObj.nome,
@@ -288,15 +284,16 @@ def editarPesquisarUsuarioJson(id):
                 "tel": usuarioObj.tel,
                 "cpf": usuarioObj.cpf,
                 "idade": usuarioObj.idade,
-                "tipoUsuario": usuarioObj.tipoUsuario 
+                "tipoUsuario": usuarioObj.tipoUsuario,
+                "tiposUsuariosGeral": [(linha.id, linha.tipoUsuario) for linha in tipoUsuariosObj]
             }
             
             print(usuarioObj.idade, usuarioObj.dataNasc)
             
             return jsonify({"data": lista if len(lista) != [] or lista is not None else "ID não existente"})
             
-    elif current_user.tipoUsuario == 0:
-        usuarioObj = Usuarios.query.filter_by(tipoUsuario=id).first()
+    elif current_user.tipoUsuario == 2:
+        usuarioObj = Usuarios.query.filter_by(id=id).first()
                 
         if usuarioObj is not None: 
             listaComum = {
@@ -314,6 +311,43 @@ def editarPesquisarUsuarioJson(id):
         print(usuarioObj.idade, usuarioObj.dataNasc)
             
         return jsonify({"data": listaComum if len(listaComum) != [] or listaComum is not None else "ID não existente"})
+
+
+
+# @form.route('/editarUsuarioJson', methods=['PUT'])
+# @login_required
+# def editarUsuarioJson():
+#     if current_user.tipoUsuario == 1:
+#         usuarioObj = Usuarios.query.get(request.get_json()["id"])
+#         usuarioObj.id = request.get_json()["id"]   
+#         usuarioObj.nome = request.get_json()["nome"]
+#         # usuarioObj.senha = usuarioObj.senha
+#         usuarioObj.email = request.get_json()["email"]
+#         usuarioObj.sexo = request.get_json()["sexo"]
+#         usuarioObj.dataNasc = request.get_json()["dataNasc"]
+#         usuarioObj.tel = request.get_json()["tel"]
+#         usuarioObj.cpf = request.get_json()["cpf"]
+#         usuarioObj.idade = request.get_json()["idade"]
+#         usuarioObj.tipoUsuario = request.get_json()["tipUsuario"]
+        
+#         db.session.commit()
+#         return jsonify({"data": 'ALTERADO COM SUCESSO!!!'})
+#     else:
+#         usuarioObj = Usuarios.query.get(request.get_json()["id"])
+#         usuarioObj.id = request.get_json()["id"]   
+#         usuarioObj.nome = request.get_json()["nome"]
+#         # usuarioObj.senha = usuarioObj.senha
+#         usuarioObj.email = request.get_json()["email"]
+#         usuarioObj.sexo = request.get_json()["sexo"]
+#         usuarioObj.dataNasc = request.get_json()["dataNasc"]
+#         usuarioObj.tel = request.get_json()["tel"]
+#         usuarioObj.cpf = request.get_json()["cpf"]
+#         usuarioObj.idade = request.get_json()["idade"]
+#         # usuarioObj.tipoUsuario = request.get_json()["tipUsuario"]
+        
+#         db.session.commit()
+#         return jsonify({"data": 'ALTERADO COM SUCESSO!!!'})
+
 
 
 @form.route('/editarUsuario', methods=["POST"])

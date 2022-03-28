@@ -3,22 +3,27 @@
 //#include <WiFiClient.h>
 #include <ArduinoJson.h>
 #include <base64.h>
+//#include <CTBot.h>
 
-//#include <ThingSpeak.h>
 
 #include <WiFiManager.h>
 #include <DHT.h>
 #include <ESP_Mail_Client.h>
 
 
-#define SMTP_HOST "smtp.live.com"
-#define SMTP_PORT 587
+#define SMTP_HOST "smtp.gmail.com"
+#define SMTP_PORT 465
+
+
+//#define SMTP_HOST "smtp.live.com"
+//#define SMTP_PORT 587
+
 
 /* CREDENCIAIS EMAIL */
-#define AUTOR_EMAIL "email"
-#define AUTOR_SENHA "senha"
+#define AUTOR_EMAIL "projetotccfinal2022@gmail.com"
+#define AUTOR_SENHA "hrlhnaxangjdgpat"
 
-#define RECIPIENT_EMAIL "matheusrodriguesh1@gmail.com"
+//#define RECIPIENT_EMAIL "matheusrodriguesh1@gmail.com"
 
 /* Sessao SMTP objeto usado para o envio do email */
 SMTPSession smtp;
@@ -30,11 +35,16 @@ SMTPSession smtp;
 #define DHTTYPE DHT11
 
 
+//CTBot meuBot;
+
 DHT dht(DHTPINO, DHTTYPE);
 
 
-#define ssid "netvirtua1567 ap 101"
-#define senha "1098550000"
+int valor_analog;
+int valor_dig;
+
+//#define ssid "netvirtua1567 ap 101"
+//#define senha "1098550000"
 
 
 String serverName = "http://192.168.0.14:59000/config/listarConfigJsonEsp/1";
@@ -46,7 +56,11 @@ unsigned long ultimoTempoTelemetria = 0, ultimoTempoThingSpeak = 0, ultimoTempoG
 
 unsigned long lastTime = 0;
 
-unsigned long timerDelay = 30000; // de 5 em 5 segundos
+unsigned long timerDelay = 30000; // de 5 em 5 segundos 30.000
+
+//unsigned long ultimoTempoBot = 0;
+//unsigned long timerDelayBot = 60000;
+//bool passouBot = false;
 
 
 WiFiManager wifiManager;
@@ -54,22 +68,18 @@ DynamicJsonDocument doc(1024);
 char json[] = "";
 
 
+
+void smtpCallback(SMTP_Status status);  // funçoã de callback para enviar status email
+
+
 void setup() {
   Serial.begin(115200);
-  
+  pinMode(MQ_analog, INPUT);
+  pinMode(MQ_dig, INPUT);
   dht.begin();
 
   wifiManager.autoConnect("ESP8266", "123@mudar");
 
-
-//   meuBot.wifiConnect("netvirtua1567 ap 101", "1098550000");
-//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
-//
-//   if(meuBot.testConnection()){
-//     Serial.println("\n Conexão OK!");
-//   }else {
-//     Serial.println("\n Falha na conexão!");
-//   }
 
 //   WiFi.begin(ssid, senha);
 // 
@@ -88,6 +98,22 @@ void setup() {
   
   Serial.println("Tempo configurado de 5 em 5 segundos");
   
+}
+
+
+int lerSensorMQ(){
+      valor_analog = analogRead(MQ_analog);
+      valor_dig = digitalRead(MQ_dig);
+      
+      Serial.print(valor_analog);
+      Serial.print(valor_dig);
+
+      if(valor_dig == 0){
+        Serial.println("GAS DETECTADO !!!");
+      }else {
+        Serial.println("GAS AUSENTE !!!");
+      }
+      return valor_analog;
 }
 
 
@@ -158,33 +184,8 @@ void enviaThingSpeak(String urlThingSpeak, String secretKeyThingSpeak, float tem
 
 
 
-void enviaThingSpeakVersao2(String urlThingSpeak, String secretKeyThingSpeak, float temp, float umidadeLocal, float gasLocal, float tempo_execucao_thingspeak){
-    WiFiClient cliente;
 
-    if((millis() - ultimoTempoThingSpeak) > (tempo_execucao_thingspeak * 60000)){
-      if(cliente.connect(urlThingSpeak, 80)){
-        String httpRequestData = "{\"api_key\":\"" + secretKeyThingSpeak + "\",\"field1\":\"" + temp + "\",\"field2\":\"" + umidadeLocal + "\", \"field3\":\"" + gasLocal + "\" }" ;
-       
-        cliente.print("POST /update HTTP/1.1\n");
-        cliente.print("Host: api.thingspeak.com\n");
-        cliente.print("Connection: close\n");
-        cliente.print("X-THINGSPEAKAPIKEY: "+secretKeyThingSpeak+"\n");
-        cliente.print("Content-Type: application/json\n");
-        cliente.print("Content-Length: ");
-        cliente.print(httpRequestData.length());
-        cliente.print("\n\n");
-  
-        Serial.println("- INformações enviadas ao ThingSpeak!");
-      }
-      
-      ultimoTempoThingSpeak = millis();
-    }
-    Serial.println("- ThingSpeak!");
-}
-
-
-
-void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_telemetria, const char* nome_usuario, int usuario_id){
+void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_telemetria, String nome_usuario, int usuario_id){
         Serial.print("TEMPO TELEMETRIA => ");
         Serial.print(tempo_execucao_telemetria);
         if((millis() - ultimoTempoTelemetria) > (tempo_execucao_telemetria * 60000)){
@@ -218,9 +219,9 @@ void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_tele
 //             Serial.println(json);
   
              DynamicJsonDocument objeto(2048);
-             objeto["SENSORG"] = rand() % 100;
-             objeto["SENSORT"] = (float)String(temperatura, 1).toFloat();  // converte String em Float .toFloat()
-             objeto["SENSORU"] = (float)String(umidade, 1).toFloat();
+             objeto["SENSORG"] = lerSensorMQ(); // rand() % 100;
+             objeto["SENSORT"] =  (float)String(temperatura).toDouble() ;  // converte String em Float .toFloat()
+             objeto["SENSORU"] =  String(umidade, 2).toFloat();
              objeto["NOME"] = nome_usuario;
              objeto["IDUSUARIO"] = usuario_id;
   
@@ -392,66 +393,67 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
 }
 
 
-void chamaBot(String token, float temperatura, float umidade, float gas){
-
-   
+//void chamaBot(String token, float temperatura, float umidade, float gas){
+//
+//   
 //   TBMessage msg;
 //   String aviso;
-
-//   meuBot.wifiConnect(ssid, senha);
-//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
 //
+//
+////   meuBot.wifiConnect(ssid, senha);
+//  if(passouBot == false){
+//   meuBot.setTelegramToken("636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY");
+//   passouBot = true;
+//  }
+//  
+////  if(meuBot.testConnection()){
+////     Serial.println("\n Conexão OK!");
+////   }else {
+////     Serial.println("\n Falha na conexão!");
+////   }
+//   
+//  
 //   Serial.println();
 //   Serial.println(token);
-   
-//   if(meuBot.testConnection()){
-//     Serial.println("\n Conexão OK!");
-//   }else {
-//     Serial.println("\n Falha na conexão!");
+//   
+////   if(meuBot.testConnection()){
+////     Serial.println("\n Conexão OK!");
+////   }else {
+////     Serial.println("\n Falha na conexão!");
+////   }
+//  
+//   if((millis() - ultimoTempoBot) > timerDelay){
+////    if(WiFi.status() == WL_CONNECTED){
+//      if(meuBot.getNewMessage(msg)){
+//        if(msg.text.equalsIgnoreCase("Temperatura")){
+//          aviso = "Temperatura: " + (String)temperatura + " ºC";
+//          meuBot.sendMessage(msg.sender.id, aviso);
+//        }
+//    
+//        if(msg.text.equalsIgnoreCase("Umidade")){
+//          aviso = "Umidade: " + (String)umidade + " %";
+//          meuBot.sendMessage(msg.sender.id, aviso);
+//        }
+//    
+//         if(msg.text.equalsIgnoreCase("Gas")){
+//          aviso = "Gas: " + (String)gas + " %";
+//          meuBot.sendMessage(msg.sender.id, aviso);
+//        }
+//      }
+////    }
+//    ultimoTempoBot = millis();
 //   }
-  
-
-//  if(meuBot.getNewMessage(msg)){
-//    if(msg.text.equalsIgnoreCase("Temperatura")){
-//      aviso = "Temperatura: " + (String)temperatura + " ºC";
-//      meuBot.sendMessage(msg.sender.id, aviso);
-//    }
-//
-//    if(msg.text.equalsIgnoreCase("Umidade")){
-//      aviso = "Umidade: " + (String)umidade + " %";
-//      meuBot.sendMessage(msg.sender.id, aviso);
-//    }
-//
-//     if(msg.text.equalsIgnoreCase("Gas")){
-//      aviso = "Gas: " + (String)gas + " %";
-//      meuBot.sendMessage(msg.sender.id, aviso);
-//    }
-//  }
-//  delay(500);
+////  delay(500);
+//  yield();
 //  ESP.wdtFeed();
-}
+//}
 
 
 void loop() {
-  
+ 
   if((millis() - lastTime) > timerDelay) {
 
       if(WiFi.status() == WL_CONNECTED){
-//        boolean alerta_email = NULL;
-//        const char* dataAtualizacao = NULL;
-//        const char* dataCriacao = NULL;
-//        int id = NULL;
-//        boolean resetar_configs_wifi = NULL;
-//        const char* secret_key_thingspeak = NULL;
-//        float tempo_execucao_geolocalizacao = NULL;
-//        float tempo_execucao_soneca = NULL;
-//        float tempo_execucao_telemetria = NULL;
-//        float tempo_execucao_thingspeak = NULL;
-//        const char* url_ip_api = NULL;
-//        const char* url_thingspeak = NULL;
-//        const char* nome_usuario = NULL;
-//        int usuario_id = NULL;
-//        float valor_gas_aviso = NULL; 
 
 
       HTTPClient http;
@@ -489,10 +491,10 @@ void loop() {
           const char* url_ip_api = doc["data"][0]["url_ip_api"];
           const char* url_thingspeak = doc["data"][0]["url_thingspeak"];
           String token_telegram = doc["data"][0]["token_telegram"];
-          const char* nome_usuario = doc["data"][0]["nome_usuario"];
+          String nome_usuario = doc["data"][0]["nome_usuario"];
           int usuario_id = doc["data"][0]["usuario_id"];
           float valor_gas_aviso = doc["data"][0]["valor_gas_aviso"]; 
-
+          String RECIPIENT_EMAIL = doc["data"][0]["email"];
   
           Serial.println(alerta_email);
           Serial.print("JSON TELEMETRIA TEMPO => ");
@@ -508,11 +510,11 @@ void loop() {
           temperatura = chamaFuncao[0];
           umidade = chamaFuncao[1];
 
-          enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
+          enviaThingSpeak(url_thingspeak, secret_key_thingspeak, temperatura, umidade, lerSensorMQ(), tempo_execucao_thingspeak);
           chamaTelemetria(temperatura, umidade, tempo_execucao_telemetria, nome_usuario, usuario_id);
           chamaGeo(url_ip_api, tempo_execucao_geolocalizacao, nome_usuario, usuario_id);
 //          chamaBot(token_telegram, temperatura, umidade, 22.2);
-         
+          
           
 //          enviaThingSpeakVersao2(url_thingspeak, secret_key_thingspeak, temperatura, umidade, rand() % 100, tempo_execucao_thingspeak);
 //          ESP.wdtDisable();
@@ -521,10 +523,66 @@ void loop() {
           Serial.print("JSON TELEMETRIA TEMPO DEPOIS DO HTTP.END => ");
           Serial.print(tempo_execucao_telemetria);
          
-//        if(resetar_configs_wifi){
-//          wifiManager.resetSettings();
-//          ESP.restart();
-//        }
+        if(resetar_configs_wifi){
+          wifiManager.resetSettings();
+          ESP.restart();
+        }
+        Serial.println("LENDO SENSOR MQ");
+        Serial.print(lerSensorMQ());
+        if(alerta_email and lerSensorMQ() > valor_gas_aviso){ // aqui será a função da MQSensor
+          Serial.println(nome_usuario);
+          Serial.println(RECIPIENT_EMAIL);
+          
+          smtp.debug(1); // none debug or 0 | basic debug or 1
+          
+          smtp.callback(smtpCallback);  // setando a funcao de callback para pegar o resultado do envio
+        
+          ESP_Mail_Session session; // declarando sessao configuração data
+        
+          /* Setando a configuração de sessão */
+          session.server.host_name = SMTP_HOST;
+          session.server.port = SMTP_PORT;
+          session.login.email = AUTOR_EMAIL;
+          session.login.password = AUTOR_SENHA;
+          session.login.user_domain = "meudominio.com";
+        
+          SMTP_Message message; // declarando a classe mensagem
+        
+          /* setando o cabecalho da mensagem */
+          message.sender.name = "ESP";
+          message.sender.email = AUTOR_EMAIL;
+          message.subject = "ESP TESTE EMAIL";
+          message.addRecipient(nome_usuario, RECIPIENT_EMAIL);
+        
+        
+          /* Enviando HTML mensagem */
+          String htmlMsg = "<div style=\"color:#2f4468;\"><h1>ATENÇÃO!!!</h1><p> Enviado da placa ESP8266: <br> Valor Gas Aviso atingido: "+ String(lerSensorMQ()) +" PPM favor abre as janelas e ventile o local antes de ligar qualquer equipamento eletrico</p></div>";
+          message.html.content = htmlMsg.c_str();
+          message.html.content = htmlMsg.c_str();
+          message.text.charSet = "UTF-8";
+          message.html.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
+        
+        
+        
+         /** The message priority
+           * esp_mail_smtp_priority_high or 1
+           * esp_mail_smtp_priority_normal or 3
+           * esp_mail_smtp_priority_low or 5
+           * The default value is esp_mail_smtp_priority_low
+          */
+          
+          message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_high;
+        
+          /* Conectando ao servidor com a configuração de sessão */
+          if(!smtp.connect(&session))
+            return;
+        
+          /* Iniciando o envio de email e fechamento da sessão */
+          if(!MailClient.sendMail(&smtp, &message))
+            Serial.println("Erro ao enviar email, " + smtp.errorReason());
+
+            
+        }
 
         Serial.println((tempo_execucao_thingspeak * 60000));    
          
@@ -549,4 +607,36 @@ void loop() {
     lastTime = millis();
   }
 
+}
+
+
+
+void smtpCallback(SMTP_Status status){
+  Serial.println(status.info()); // imprimindo o status atual
+
+  /* imprimindo o resultado enviado */
+  if(status.success()){
+    Serial.println("-----------------");
+    ESP_MAIL_PRINTF("Mensagem enviada com sucesso: %d\n", status.completedCount());
+    ESP_MAIL_PRINTF("Mensagem enviada falha: %d\n", status.failedCount());
+    Serial.println("-----------------");
+    struct tm dt;
+
+    for(size_t i = 0; i < smtp.sendingResult.size(); i++){
+      /* pegando o resultado do item */
+      SMTP_Result result = smtp.sendingResult.getItem(i);
+      time_t ts = (time_t)result.timestamp;
+      localtime_r(&ts, &dt);
+
+      ESP_MAIL_PRINTF("Mensagem No: %d \n", i + 1);
+      ESP_MAIL_PRINTF("Status: %s \n" , result.completed ? "success" : "failed");
+      ESP_MAIL_PRINTF("Date/Time: %d/%d/%d/ %d:%d:%d\n", dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec);
+      ESP_MAIL_PRINTF("Recipient: %s\n", result.recipients.c_str());
+      ESP_MAIL_PRINTF("Subject: %s\n", result.subject.c_str());
+    }
+    Serial.println("-----------------------\n");
+
+    // precisa limpar o resultado do envio da memoria usada
+    smtp.sendingResult.clear(); 
+  }
 }

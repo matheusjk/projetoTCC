@@ -21,8 +21,8 @@ class ProductionConfig(Config):
 
     MAIL_SERVER = "smtp-mail.outlook.com"
     MAIL_PORT = 587
-    MAIL_USERNAME = ''
-    MAIL_PASSWORD = ''
+    MAIL_USERNAME = 'projetotccfinal2022@gmail.com'
+    MAIL_PASSWORD = 'hrlhnaxangjdgpat'
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
@@ -49,9 +49,9 @@ class DevelopmentConfig(Config):
     SECRET_KEY = "123@python+iot"
 
     MAIL_SERVER = "smtp-mail.outlook.com"
-    MAIL_PORT = 587
-    MAIL_USERNAME = 'matheusrodriguesh@hotmail.com'
-    MAIL_PASSWORD = ''
+    MAIL_PORT = 465  # 587 TLS | 465 SSL
+    MAIL_USERNAME = 'projetotccfinal2022@gmail.com'
+    MAIL_PASSWORD = 'hrlhnaxangjdgpat'
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
