@@ -3,6 +3,10 @@ from app.telemetria.forms import TelemetriaForm
 from app.models.tables import Telemetria, db
 import json
 
+from sqlalchemy import JSON
+from sqlalchemy.sql.expression import cast
+
+
 
 telemetria = Blueprint("telemetria", __name__, template_folder="templates", url_prefix="/telemetria")
 
@@ -61,7 +65,7 @@ def pdf():
             # print(telemetriaObjComum)
             # renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObjComum)
             # pdf = pdfkit.from_url(renderiza, False)
-            
+        # print([f['SENSORT'].apply(lambda x: round(int(x), 2)) for f in telemetriaObj])
         renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObj, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         print(request.cookies.get('session'))
         options = {
@@ -79,7 +83,7 @@ def pdf():
                 ]
         }
         # print(renderiza)
-        pdf = pdfkit.from_url('http://192.168.0.14:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
+        pdf = pdfkit.from_url('http://192.168.0.20:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
             # for id, json, dataCriacao in telemetriaObj:
             #     '{} {} {} {} {} {}'.format(id, json["NOME"], json["SENSORG"], json["SENSORT"], json["SENSORU"]))
 
@@ -93,10 +97,10 @@ def pdf():
         #     flash('Erro ao gerar o PDF!!! {}'.format(error))
         #     return redirect(url_for('telemetria.listar'))
     else:
-        try:
-            telemetriaObjComum = Telemetria.query.filter(func.json_extract(Telemetria.json, "$.IDUSUARIO")).all()
+        # try:
+            telemetriaObjComum = Telemetria.query.filter(func.json_extract(Telemetria.json, "$.IDUSUARIO") == current_user.id).all()
             # telemetriaObjComum = Telemetria.query.all()    # .filter(func.json_extract(Telemetria.json, "$.IDUSUARIO")).paginate(pagina, por_pagina, error_out=False)
-            # print(telemetriaObjComum)
+            print(telemetriaObjComum)
             # renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObjComum)
             # pdf = pdfkit.from_url(renderiza, False)
             renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObjComum, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") )
@@ -114,7 +118,7 @@ def pdf():
                     ('session', request.cookies.get('session'))
                 ]
             }
-            pdf = pdfkit.from_url('http://192.168.0.14:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
+            pdf = pdfkit.from_url('http://192.168.0.20:59000/telemetria/renderizaPdf', False, options=options)  # , options=options
             # for id, json, dataCriacao in telemetriaObj:
             #     '{} {} {} {} {} {}'.format(id, json["NOME"], json["SENSORG"], json["SENSORT"], json["SENSORU"]))
 
@@ -124,9 +128,9 @@ def pdf():
 
             # flash("Sucesso ao gerar o PDF!!!", category='info')
             return response
-        except: 
-            flash('Erro ao gerar o PDF!!!')
-            return redirect(url_for('telemetria.listar'))
+        # except: 
+        #     flash('Erro ao gerar o PDF!!!')
+        #     return redirect(url_for('telemetria.listar'))
 
 
 
@@ -139,6 +143,15 @@ def renderizaPdf():
          
             
         renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObj, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        
+        # flash("Sucesso ao gerar o PDF!!!", category='info')
+        return renderiza
+    else:
+        telemetriaObjComum = Telemetria.query.filter(func.json_extract(Telemetria.json, "$.IDUSUARIO")  == current_user.id).all() #.paginate(pagina, por_pagina, error_out=False)
+        # print(telemetriaObjComum)
+         
+            
+        renderiza = render_template('telemetriaPdf.html', telemetria=telemetriaObjComum, hora=datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         
         # flash("Sucesso ao gerar o PDF!!!", category='info')
         return renderiza

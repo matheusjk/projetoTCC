@@ -19,10 +19,10 @@ class Usuarios(UserMixin, db.Model):
     idade = db.Column(db.Integer, nullable=False)
     dataNasc = db.Column(db.Date(), nullable=False)
     tipoUsuario = db.Column(db.Integer, db.ForeignKey("tipo_usuario.id", ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
-    local = db.relationship('Local', backref='usuarios', lazy=True)
+    local = db.relationship('Local', backref='usuarios', lazy=True, passive_deletes=False)
     
     # sensor = db.Column(db.Integer, db.ForeignKey('sensores.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
-    configuracao_id = db.relationship('ConfiguracaoJson', backref='usuarios', lazy=True)
+    configuracao_id = db.relationship('ConfiguracaoJson', backref='usuarios', lazy=True, passive_deletes=False)
     # pessoa = db.relationship('Pessoa', uselist=False, backref='user')
 
     def __init__(self, nome, email, senha, sexo, cpf, tel, dataNasc, tipoUsuario):
@@ -62,7 +62,7 @@ class TipoUsuario(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tipoUsuario = db.Column(db.String(50), nullable=False)
-    usuario_id = db.relationship('Usuarios', backref='tipo_usuario', lazy=True)
+    usuario_id = db.relationship('Usuarios', backref='tipo_usuario', lazy=True, passive_deletes=False)
     dataCriacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=True)
     dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=True)
 
@@ -78,7 +78,7 @@ class Sensores(UserMixin, db.Model):
     descritivo = db.Column(db.String(100), nullable=False)
     dataSensor = db.Column(db.DateTime(), default=func.localtimestamp(), nullable=False)
     # fotoSensor = db.Column(db.String(100), nullable=False)
-    informacao_id = db.relationship('Informacao', backref='sensores', uselist=False)
+    informacao_id = db.relationship('Informacao', backref='sensores', uselist=False, passive_deletes=False)
 
 
     def __init__(self, tipoSensor, descritivo):
@@ -117,7 +117,7 @@ class Informacao(UserMixin, db.Model):
     id_sensores = db.Column(db.Integer, db.ForeignKey('sensores.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     # id_telemetria = db.Column(db.Integer, db.ForeignKey('telemetria.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     id_modulos = db.Column(db.Integer, db.ForeignKey('modulos.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
-    id_local = db.Column(db.Integer, db.ForeignKey('local.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
+    # id_local = db.Column(db.Integer, db.ForeignKey('local.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     dataCriacao = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
 
     def __init__(self, id_sensores, id_modulos, id_local):
@@ -137,7 +137,7 @@ class Local(UserMixin, db.Model):
     estado = db.Column(db.String(100), nullable=False)
     obs = db.Column(db.Text)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
-    informacao_id = db.relationship('Informacao', backref='local', uselist=False)
+    # informacao_id = db.relationship('Informacao', backref='local', uselist=False, passive_deletes=False)
 
     def __init__(self, cep, endereco, cidade, bairro, estado, obs, usuario):
         self.cep = cep
@@ -189,8 +189,8 @@ class Modulos(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     json = db.Column(db.JSON, nullable=False)
     dataCriacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
-    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.current_timestamp(), nullable=False)
-    informacao_id = db.relationship('Informacao', backref='modulos', uselist=False)
+    dataAtualizacao = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    informacao_id = db.relationship('Informacao', backref='modulos', uselist=False, passive_deletes=False)
     # mac = db.Column(db.String(15), nullable=False)
     # ip_interno = db.Column(db.String(15), nullable=False)
     # id_geo = db.Column(db.Integer, nullable=False)

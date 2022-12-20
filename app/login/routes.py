@@ -5,6 +5,7 @@ from flask import Blueprint, flash, make_response, render_template, redirect, ur
 from app.login.forms import LoginForm, Usuario, CadastroUsuario, Recuperar, EditarUsuario
 from app.models.tables import TipoUsuario, Usuarios, db
 from app.pessoas.routes import pessoa
+from config import DevelopmentConfig
 import random
 import string
 
@@ -35,9 +36,9 @@ def recuperar():
         if email is not None:
             email.senha = "123@mudar"
             db.session.commit()
-            print("EMAIL VINDO DO BANCO {}".format(email))
-            msg = Message('Ola isso é um texte', sender='matheusrodriguesh@hotmail.com', recipients=[email.email])
-            msg.body = "Sua senha foi resetada para 123@mudar para mudar clique no link http://127.0.0.1:58000/form/alterarSenha"
+            print("EMAIL VINDO DO BANCO {} | {}".format(email, DevelopmentConfig.MAIL_USERNAME))
+            msg = Message('Ola isso é um texte', sender=DevelopmentConfig.MAIL_USERNAME, recipients=[email.email])
+            msg.body = "Sua senha foi resetada para 123@mudar para mudar clique no link http://192.168.0.20:59000/form/alterarSenha"
             mail.send(msg)
             flash('Email disparado com sucesso!!!', 'info')
             return redirect(url_for('form.index'))
@@ -50,9 +51,13 @@ def recuperar():
 @form.route('/alterarSenha', methods=["GET", "POST"])
 def recuperarAlterar():
     formsAlterar = LoginForm()
+    # print(formsAlterar.email, formsAlterar.validate_on_submit())
+    # email = Usuarios.query.filter_by(email=formsAlterar.email.data).first()
+    # print(email.email)
     if formsAlterar.validate_on_submit():
         email = Usuarios.query.filter_by(email=formsAlterar.email.data).first()
-        if email is not None:
+        print(email.email)
+        if len(email.email): #is not None:/
             email.senha = generate_password_hash(formsAlterar.senha.data)
             db.session.commit()
             # print(email.senha, email, email.email, forms.senha.data)
@@ -74,9 +79,9 @@ def register():
     print(formRegistroPessoa.errors, usuario)
     if formRegistroPessoa.validate_on_submit():
         print(formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
-        if usuario.tipoUsuario == 1:
-            flash("Desculpe ja existe usuario administrador escolha tipo usuario COMUM", category='info')
-        else:
+        # if usuario.tipoUsuario == 1:
+        #     flash("Desculpe ja existe usuario administrador escolha tipo usuario COMUM", category='info')
+        # else:
             # if usuario == None or usuario == [] or usuario.tipoUsuario == 0:
             #     user = Usuarios(formRegistroPessoa.nome.data, formRegistroPessoa.email.data, formRegistroPessoa.senha.data, formRegistroPessoa.sexo.data, formRegistroPessoa.cpf.data, formRegistroPessoa.tel.data, formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
             #     print(user.nome)
@@ -89,13 +94,13 @@ def register():
             #     flash("Desculpe mas ja temos um usuario ADMINISTRADOR cadastrado!!!", "info")
             #     return redirect(url_for('form.register'))
             # else:
-            user = Usuarios(formRegistroPessoa.nome.data, formRegistroPessoa.email.data, formRegistroPessoa.senha.data, formRegistroPessoa.sexo.data, formRegistroPessoa.cpf.data, formRegistroPessoa.tel.data, formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
-            print(user.nome)
-            print(formRegistroPessoa.nome.data)
-            db.session.add(user)
-            db.session.commit()
-            flash("Usuario cadastrado com sucesso!!!", "success")
-            return redirect(url_for('form.index'))
+        user = Usuarios(formRegistroPessoa.nome.data, formRegistroPessoa.email.data, formRegistroPessoa.senha.data, formRegistroPessoa.sexo.data, formRegistroPessoa.cpf.data, formRegistroPessoa.tel.data, formRegistroPessoa.dataNasc.data, formRegistroPessoa.tipoUsuario.data)
+        print(user.nome)
+        print(formRegistroPessoa.nome.data)
+        db.session.add(user)
+        db.session.commit()
+        flash("Usuario cadastrado com sucesso!!!", "success")
+        # return redirect(url_for('form.index'))
     return render_template('register.html', form=formRegistroPessoa)
 
 
@@ -110,7 +115,7 @@ def index():
         if user is None:
             flash("Verifique email ou senha!!!", 'danger')
             return redirect(url_for('form.index'))
-        elif user.nome == "admin" and user.tipoUsuario == 0:
+        elif user.nome == "admin" and user.tipoUsuario == 1:
             print(user.nome)
             login_user(user, remember=True)
             return redirect(url_for('form.listarBemVindo'))
@@ -249,11 +254,11 @@ def editarUsuarioJson():
                 usuarioObj = Usuarios.query.get(request.get_json()["id"])
                 # usuarioObj.get(formsEditar.id.data)
                 usuarioObj.nome = request.get_json()["nome"]
-                usuarioObj.senha = usuarioObj.senha # request.get_json()["senha"]
+                usuarioObj.senha = usuarioObj.senha  # request.get_json()["senha"]
                 usuarioObj.email = request.get_json()["email"]
                 usuarioObj.sexo = request.get_json()["sexo"]
-                usuarioObj.dataNasc = request.get_json()["dataNasc"]
-                usuarioObj.tel = request.get_json()["tel"]
+                usuarioObj.dataNasc = request.get_json()["dataNascimento"]
+                usuarioObj.tel = request.get_json()["telefone"]
                 usuarioObj.cpf = request.get_json()["cpf"]
                 usuarioObj.idade = request.get_json()["idade"]
                 # usuarioObj.tipoUsuario = request.get_json()["tipoUsuario"]
@@ -294,7 +299,7 @@ def editarPesquisarUsuarioJson(id):
             
     elif current_user.tipoUsuario == 2:
         usuarioObj = Usuarios.query.filter_by(id=id).first()
-                
+        tipoUsuariosObj = TipoUsuario.query.all()
         if usuarioObj is not None: 
             listaComum = {
                 "nome": usuarioObj.nome,
@@ -305,7 +310,8 @@ def editarPesquisarUsuarioJson(id):
                 "tel": usuarioObj.tel,
                 "cpf": usuarioObj.cpf,
                 "idade": usuarioObj.idade,
-                "tipoUsuario": usuarioObj.tipoUsuario 
+                "tipoUsuario": usuarioObj.tipoUsuario,
+                "tiposUsuariosGeral": [(linha.id, linha.tipoUsuario) for linha in tipoUsuariosObj] 
             }
             
         print(usuarioObj.idade, usuarioObj.dataNasc)
@@ -445,6 +451,17 @@ def formulario(id):
 @login_required
 def listarBemVindo():
     return render_template('bemvindo.html')
+
+
+@form.route("/excluirUsuarios/<int:id>", methods=['DELETE'])
+@login_required
+def excluir(id):
+    usuarioObj = Usuarios.query.get(id)
+    print(usuarioObj.nome)
+    db.session.delete(usuarioObj)
+    db.session.commit()
+
+    return jsonify({'data': 'Usuário deletado com sucesso!'})
 
 # @form.after_request
 # def cookies():

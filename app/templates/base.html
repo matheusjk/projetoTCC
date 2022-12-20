@@ -51,7 +51,7 @@
 {% macro validaLogin(current_user) %}
     {% if current_user.tipoUsuario == 1 %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-          <a class="navbar-brand" href="{{ url_for('form.listarBemVindo')}}">MONITORAMENTO DE CO2</a>
+          <a class="navbar-brand" href="{{ url_for('form.listarBemVindo')}}">SISTEMA DE MONITORAMENTO</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -71,7 +71,7 @@
                     </svg>
                     Usuarios<span class="sr-only">(current)</span></a>
 
-                  <a class="dropdown-item" href="{{ url_for('tipo_usuario.listarTipoUsuarioJson')}}"><i class="bi bi-file-diff"></i>
+                  <a class="dropdown-item" href="{{ url_for('tipo_usuario.listar')}}"><i class="bi bi-file-diff"></i>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-diff" viewBox="0 0 16 16">
                       <path d="M8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4zm-2.5 6.5A.5.5 0 0 1 6 10h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>
                       <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
@@ -141,7 +141,7 @@
 
             <ul class="navbar-nav col-auto">
                 <li class="nav-item">
-                  <a class="nav-link" href="#" id="{{ current_user.id }}">Bem vindo: {{ current_user.nome }}</a>
+                  <a class="nav-link" href="#" id="{{ current_user.id }}_{{ current_user.tipoUsuario }}">Bem vindo: {{ current_user.nome }}</a>
                   <!-- <h4 class="text-light" >Bem vindo: {{ current_user.nome }}</h4> -->
                 </li>
                 <li class="nav-item">
@@ -159,7 +159,7 @@
         </nav>
     {% elif current_user.tipoUsuario == 2 %}
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('form.listarBemVindo')}}">MONITORAMENTO DE CO2</a>
+        <a class="navbar-brand" href="{{ url_for('form.listarBemVindo')}}">SISTEMA DE MONITORAMENTO</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -226,7 +226,7 @@
 
           <ul class="navbar-nav col-auto">
               <li class="nav-item">
-                <a class="nav-link" href="#" id="{{ current_user.id }}">Bem vindo: {{ current_user.nome }}</a>
+                <a class="nav-link" href="#" id="{{ current_user.id }}_{{ current_user.tipoUsuario }}">Bem vindo: {{ current_user.nome }}</a>
                 <!-- <h4 class="text-light" >Bem vindo: {{ current_user.nome }}</h4> -->
               </li>
               <li class="nav-item">

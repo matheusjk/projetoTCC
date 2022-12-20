@@ -1,4 +1,4 @@
-from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf
+from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, flash, Blueprint, request, func, jsonify, csrf, datetime
 from app.models.tables import Modulos, Telemetria, Geolocalizacao, Configuracao, db
 
 
@@ -26,7 +26,7 @@ def listar(pagina):
 @modulo.route('/listarModuloJson', methods=['GET'])
 @login_required
 def listarModuloJson():
-    if current_user.tipoUsuario == 0:  # current_user.nome == "Admin" or
+    if current_user.tipoUsuario == 1:  # current_user.nome == "Admin" or
         moduloObj = Modulos.query.all()  #paginate(pagina, por_pagina, error_out=False)  #filter(func.json_extract(Modulos.json, '$.IDUSUARIO'))
         print(moduloObj)
         lista = []
@@ -40,7 +40,8 @@ def listarModuloJson():
                 "city": linha.json["city"],
                 "NOME": linha.json["NOME"],
                 "IDUSUARIO": linha.json["IDUSUARIO"],
-                "dataCriacao": linha.dataCriacao
+                "dataCriacao": linha.dataCriacao,
+                "dataAlteracao": linha.dataAtualizacao
             })
         return jsonify({'data': lista})
     else:
@@ -57,7 +58,8 @@ def listarModuloJson():
                 "city": linha.json["city"],
                 "NOME": linha.json["NOME"],
                 "IDUSUARIO": linha.json["IDUSUARIO"],
-                "dataCriacao": linha.dataCriacao
+                "dataCriacao": linha.dataCriacao,
+                "dataAlteracao": linha.dataAtualizacao
             })
         return jsonify({'data': lista})
 
@@ -69,9 +71,31 @@ def registrar():
     print(request.json)
     if request.method == "POST":
         
-        modulosObj = Modulos(request.json)
-        db.session.add(modulosObj)
-        db.session.commit()
-    return jsonify({"mensagem": "MODULOS INSERIDOS COM SUCESSO"})
+        moduloFiltroJson = Modulos.query.filter(func.json_extract(Modulos.json, "$.MAC") == request.json['MAC'] and func.json_extract(Modulos.json, "$.IDUSARIO") == request.json['IDUSUARIO']).first()
+
+        # print(moduloFiltroJson)
+
+        if moduloFiltroJson is None or moduloFiltroJson is []:
+            modulosObj = Modulos(request.json)
+            db.session.add(modulosObj)
+            db.session.commit()        
+            return jsonify({"mensagem": "MODULO INSERIDO COM SUCESSO"})
+        else:
+            novoJson = dict(moduloFiltroJson.json)
+        
+            novoJson["MAC"] = request.get_json()["MAC"]
+            novoJson["IP_INTERNO"] = request.get_json()["IP_INTERNO"]
+            novoJson["query"] = request.get_json()["query"]
+            novoJson["region"] = request.get_json()["region"]
+            novoJson["city"] = request.get_json()["city"]
+            novoJson["NOME"] = request.get_json()["NOME"]
+            novoJson["IDUSUARIO"] = request.get_json()["IDUSUARIO"]
+            moduloFiltroJson.dataAtualizacao = datetime.datetime.now()
+            moduloFiltroJson.json = novoJson
+            db.session.commit()
+            print(" TESTE MODULO =>>>>> ", moduloFiltroJson.json)  
+
+      
+    return jsonify({"mensagem": "OK"})
     # else:
     # return jsonify({"mensagem": "MODULOS INSERIDOS COM SUCESSO"})

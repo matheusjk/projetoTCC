@@ -5,6 +5,9 @@ from app.models.tables import Informacao, Sensores, Local, Modulos, db
 import json
 import pprint
 
+import pandas as pd
+
+
 informacao = Blueprint("informacao", __name__, template_folder="templates", url_prefix="/informacao")
 
 
@@ -131,8 +134,15 @@ def listar():
 def listarInfoJson():
     if current_user.tipoUsuario == 1:
         sensoresObj = [sensor for sensor in Sensores.query.all()]
-        modulosObj = [modulos for modulos in Modulos.query.all()]
-        localObj = [local for local in Local.query.all()]
+        modulosObj = [modulos for modulos in Modulos.query.filter(func.json_extract(Modulos.json, "$.IDUSUARIO")).distinct()]
+        # df = pd.DataFrame(modulosObj)
+        # df.drop('json', axis=1, inplace=True)
+        # deserializeJson = pd.json_normalize(modulosObj.json)
+        # deserializeJson = pd.concat([df, deserializeJson], axis=1)
+        # print(deserializeJson)
+        # deserializeJson.drop_duplicates('MAC', keep='last')
+        # modulosObj = [i for i in deserializeJson]
+        # localObj = [local for local in Local.query.all()]
         # informacaoObj = [i for i in Informacao.query.order_by(Informacao.id.asc()).all()] 
 
         # lista = [{
@@ -151,48 +161,58 @@ def listarInfoJson():
             # print(linha.local.endereco)
             lista.append({
                 'id': linha.id,
-                'nome_sensores': linha.sensores.tipoSensor,
-                'id_sensores': linha.sensores.id,
+                'nome_sensores': linha.sensores.tipoSensor if linha.sensores else "NULL",
+                'id_sensores': linha.sensores.id if linha.sensores is not None else "NULL",
                 'nome_modulos': linha.modulos.json['MAC'],
-                'id_modulos': linha.id_modulos,
-                'nome_local': linha.local.endereco if linha.local is not None else "NULL",
-                'nome_local_usuarios': linha.local.usuarios.nome if linha.local is not None else "NULL",
-                'id_local': linha.local.id if linha.local is not None else "NULL",
+                'id_modulos': linha.id_modulos if linha.id_modulos is not None else "NULL",
+                'nome_local': linha.modulos.json['city'] if linha.id_modulos is not None else "NULL",
+                'nome_local_usuarios': linha.modulos.json['NOME'] if linha.id_modulos is not None else "NULL",
+                'id_local': linha.id_modulos if linha.id_modulos is not None else "NULL",
                 'dataCriacao': linha.dataCriacao
             })
         
         listaA = [{
             'sensores': [(s.id, s.tipoSensor) for s in sensoresObj] ,
             'modulos': [(m.id, m.json['MAC']) for m in modulosObj] ,
-            'local': [(l.id, l.endereco, l.usuarios.nome) for l in localObj]
+            # 'local': [(l.id, l.endereco, l.usuarios.nome) for l in localObj]
         }]
         # pp = pprint.PrettyPrinter(deth=6)
         # pprint.pprint(lista)
         print(listaA[0].get('sensores'))
-        if lista is None and listaA[0].get('sensores') == [] or listaA[0].get('local') == [] or listaA[0].get('modulos') == []:
+        if lista is None and listaA[0].get('sensores') == [] or listaA[0].get('modulos') == []:
             return Response("NENHUM DADO ENCONTRADO", 404)
         else:
             return jsonify({'data': lista, 'dados': listaA})
     elif current_user.tipoUsuario == 2:
         sensoresObj = Sensores.query.all()
         modulosObj = Modulos.query.filter(func.json_extract(Modulos.json, "$.IDUSUARIO") == current_user.id).all()
-        localObj = Local.query.filter_by(usuario_id=current_user.id).all()
+        # localObj = Local.query.filter_by(usuario_id=current_user.id).all()
         infoUser = Informacao.query.all() 
         informacaoObj = []
-        for lin in infoUser:
-            print((lin.local.usuarios.id, lin.local.usuarios.nome))
-            if current_user.id == lin.local.usuarios.id:
-                informacaoObj.append({
-                    'id': lin.id,
-                    'nome_sensores': lin.sensores.tipoSensor,
-                    'id_sensores': lin.sensores.id,
-                    'nome_modulos': lin.modulos.json['MAC'],
-                    'id_modulos': lin.id_modulos,
-                    'nome_local': lin.local.endereco,
-                    'nome_local_usuarios': lin.local.usuarios.nome,
-                    'id_local': lin.local.id,
-                    'dataCriacao': lin.dataCriacao
-                })
+        for linha in infoUser:
+            # print((lin.local.usuarios.id, lin.local.usuarios.nome))
+            # if current_user.id == lin.local.usuarios.id:
+            informacaoObj.append({
+                    'id': linha.id,
+                    'nome_sensores': linha.sensores.tipoSensor if linha.sensores else "NULL",
+                    'id_sensores': linha.sensores.id if linha.sensores is not None else "NULL",
+                    'nome_modulos': linha.modulos.json['MAC'],
+                    'id_modulos': linha.id_modulos if linha.id_modulos is not None else "NULL",
+                    'nome_local': linha.modulos.json['city'] if linha.id_modulos is not None else "NULL",
+                    'nome_local_usuarios': linha.modulos.json['NOME'] if linha.id_modulos is not None else "NULL",
+                    'id_local': linha.id_modulos if linha.id_modulos is not None else "NULL",
+                    'dataCriacao': linha.dataCriacao
+
+                    # 'id': lin.id,
+                    # 'nome_sensores': lin.sensores.tipoSensor,
+                    # 'id_sensores': lin.sensores.id,
+                    # 'nome_modulos': lin.modulos.json['MAC'],
+                    # 'id_modulos': lin.id_modulos,
+                    # 'nome_local': lin.local.endereco,
+                    # 'nome_local_usuarios': lin.local.usuarios.nome,
+                    # 'id_local': lin.local.id,
+                    # 'dataCriacao': lin.dataCriacao
+            })
 
         # print(infoUser)
         # return infoUser
@@ -215,10 +235,10 @@ def listarInfoJson():
         listaA = [{
             'sensores': [(s.id, s.tipoSensor) for s in sensoresObj] ,
             'modulos': [(m.id, m.json['MAC']) for m in modulosObj] ,
-            'local': [(l.id, l.endereco) for l in localObj]
+            # 'local': [(l.id, l.endereco, l.usuarios.nome) for l in localObj]
         }]
 
-        if lista is None and listaA[0].get('sensores') == [] or listaA[0].get('local') == [] or listaA[0].get('modulos') == []:
+        if listaA is None and listaA[0].get('sensores') == [] or listaA[0].get('modulos') == []:
             return Response("NENHUM DADO ENCONTRADO", 404)
         else:
             return jsonify({'data': informacaoObj, 'dados': listaA})

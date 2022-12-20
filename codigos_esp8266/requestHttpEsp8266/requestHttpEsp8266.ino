@@ -47,19 +47,20 @@ int valor_dig;
 //#define senha "1098550000"
 
 
-String serverName = "http://192.168.0.14:59000/config/listarConfigJsonEsp/1";
+String serverName = "http://192.168.0.20:59000/config/listarConfigJsonEsp/5";
 
 bool enviou = false;
 int cont = 0;
 
-unsigned long ultimoTempoTelemetria = 0, ultimoTempoThingSpeak = 0, ultimoTempoGeo = 0;
+unsigned long ultimoTempoTelemetria = 0, ultimoTempoThingSpeak = 0, ultimoTempoGeo = 0, ultimoTempoBot = 0;
 
 unsigned long lastTime = 0;
 
 unsigned long timerDelay = 30000; // de 5 em 5 segundos 30.000
 
+
 //unsigned long ultimoTempoBot = 0;
-//unsigned long timerDelayBot = 60000;
+//unsigned long timerDelayBot = 20000;
 //bool passouBot = false;
 
 
@@ -80,7 +81,8 @@ void setup() {
 
   wifiManager.autoConnect("ESP8266", "123@mudar");
 
-
+//  meuBot.wifiConnect(ssid, senha);
+  
 //   WiFi.begin(ssid, senha);
 // 
 //
@@ -200,7 +202,7 @@ void chamaTelemetria(float temperatura, float umidade, float tempo_execucao_tele
            String payload = "{}";
            
            
-           String serverTelemetria = "http://192.168.0.14:59000/telemetria/registrarTelemetriaEsp";
+           String serverTelemetria = "http://192.168.0.20:59000/telemetria/registrarTelemetriaEsp";
 
                String usuarioHttp = "esp8266";
                String senhaHttp = "python";
@@ -260,7 +262,7 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
        HTTPClient httpGeo;
        WiFiClient clienteGeo;
 
-       String urlGeo = "http://192.168.0.14:59000/geo/registrarGeo";
+       String urlGeo = "http://192.168.0.20:59000/geo/registrarGeo";
        
         
        httpGeo.begin(clienteGeo, url_ip_api);
@@ -319,14 +321,14 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
               Serial.println(httpResponseCode);
           }
              
-          if(enviou == true and cont == 1){
+//          if(enviou == true and cont == 1){
             Serial.print(cont);
 //            enviou = false;
    
-              Serial.println("MAC JA GRAVADO");
+//              Serial.println("MAC JA GRAVADO");
 //              deserializeJson(doc, payload);
 
-               String urlModulos = "http://192.168.0.14:59000/modulo/registrarModulos";
+               String urlModulos = "http://192.168.0.20:59000/modulo/registrarModulos";
 
                httpGeo.setURL(urlModulos);
                httpGeo.addHeader("Content-Type", "application/json");
@@ -372,7 +374,7 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
 //              sprintf(query_insert_modulo, INSERT_SQL_MODULO, json);
 //              Serial.println(query_insert_modulo);
 //              cur_mem->execute(query_insert_modulo);
-          }
+//          }
               
 
           
@@ -393,6 +395,61 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
 }
 
 
+
+void chamaBotTelegram(String token, float temperatura, float umidade, float gas, String nome_usuario){
+    
+    if(WiFi.status() == WL_CONNECTED){
+       
+       HTTPClient httpBot;
+       WiFiClient clienteBot;
+
+       String urlBot = "http://192.168.0.20:59000/bot/mandaMensagem";
+
+        String usuarioHttpBot = "espBotAlerta";
+        String senhaHttpBot = "python123";
+        String auth_bot = base64::encode(usuarioHttpBot + ":" + senhaHttpBot);
+        httpBot.begin(clienteBot, urlBot);
+        httpBot.setTimeout(60000); // em ms - milesegundos
+        httpBot.addHeader("Authorization", "Basic " + auth_bot);
+                  
+
+        httpBot.addHeader("Content-Type", "application/json");
+              
+          DynamicJsonDocument objeto(1024);
+
+         
+//          objeto["regionName"] = doc["regionName"];
+//          objeto["city"] = doc["city"];
+//          objeto["zip"] = doc["zip"];
+          objeto["mensagem"] = "Temperatura em " + (String)temperatura + " ºC alerta de possível vazamento de gás: " + (String)gas + " PPM";
+          objeto["NOME"] = nome_usuario;
+            
+          String obj;
+          serializeJson(objeto, obj);
+
+          int httpResponseCode = httpBot.POST(obj);
+          Serial.println(obj);
+//          Serial.println(nome);
+
+          String carga = "{}";
+          
+          if(httpResponseCode > 0){
+              Serial.print("HTTP Response Code: ");
+              Serial.println(httpResponseCode);
+              carga = httpBot.getString();
+              Serial.println(carga);  
+          }else {
+              Serial.print("Error code: ");
+              Serial.println(httpResponseCode);
+          }
+       
+       httpBot.end(); // liberando os recursos        
+    }
+     ESP.wdtFeed();
+}
+  
+
+
 //void chamaBot(String token, float temperatura, float umidade, float gas){
 //
 //   
@@ -406,21 +463,24 @@ void chamaGeo(String url_ip_api, float tempo_execucao_geolocalizacao, String nom
 //   passouBot = true;
 //  }
 //  
-////  if(meuBot.testConnection()){
-////     Serial.println("\n Conexão OK!");
-////   }else {
-////     Serial.println("\n Falha na conexão!");
-////   }
+//  if(meuBot.testConnection()){
+//     Serial.println("\n Conexão OK!");
+//   }else {
+//     Serial.println("\n Falha na conexão!");
+//   }
 //   
 //  
 //   Serial.println();
 //   Serial.println(token);
+//
+//   aviso = "Temperatura: " + (String)temperatura + " ºC";
+//   meuBot.sendMessage(msg.sender.id, aviso);
 //   
-////   if(meuBot.testConnection()){
-////     Serial.println("\n Conexão OK!");
-////   }else {
-////     Serial.println("\n Falha na conexão!");
-////   }
+//   if(meuBot.testConnection()){
+//     Serial.println("\n Conexão OK!");
+//   }else {
+//     Serial.println("\n Falha na conexão!");
+//   }
 //  
 //   if((millis() - ultimoTempoBot) > timerDelay){
 ////    if(WiFi.status() == WL_CONNECTED){
@@ -459,6 +519,7 @@ void loop() {
       HTTPClient http;
       WiFiClient cliente;
 
+     
       String payload = "{}";
       String usuarioHttp = "esp8266";
       String senhaHttp = "python";
@@ -532,6 +593,7 @@ void loop() {
         if(alerta_email and lerSensorMQ() > valor_gas_aviso){ // aqui será a função da MQSensor
           Serial.println(nome_usuario);
           Serial.println(RECIPIENT_EMAIL);
+          chamaBotTelegram(token_telegram, temperatura, umidade, lerSensorMQ(), nome_usuario);
           
           smtp.debug(1); // none debug or 0 | basic debug or 1
           

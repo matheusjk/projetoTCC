@@ -51,7 +51,7 @@ def listaGeoJson():
 @geo.route("/listarGeoJson", methods=['GET'])
 @login_required
 def listarGeoJson():
-    if current_user.tipoUsuario == 0:
+    if current_user.tipoUsuario == 1:
         geoObj = Geolocalizacao.query.all()
         lista = []
         for linha in geoObj:

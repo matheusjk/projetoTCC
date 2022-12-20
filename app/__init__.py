@@ -39,7 +39,7 @@ def create_app():  # or def create_app(config_class=Config)
 
     login_manager.init_app(app)
     mail.init_app(app)
-
+    print(mail.send)
     
 
     with app.app_context():
@@ -58,6 +58,7 @@ def create_app():  # or def create_app(config_class=Config)
     from app.modulos.routes import modulo
     from app.informacao.routes import informacao
     from app.tipo_usuario.routes import tipo_usuario
+    from app.bot.routes import bot
 
 
     app.register_blueprint(sensor)
@@ -70,6 +71,7 @@ def create_app():  # or def create_app(config_class=Config)
     app.register_blueprint(modulo)
     app.register_blueprint(informacao)
     app.register_blueprint(tipo_usuario)
+    app.register_blueprint(bot)
    
     # from app.controllers import default
     
@@ -77,7 +79,8 @@ def create_app():  # or def create_app(config_class=Config)
     # def verify_password(usuario, senha):
     #     if usuario in 
     users = {
-        "esp8266": generate_password_hash("python")
+        "esp8266": generate_password_hash("python"),
+        "espBotAlerta": generate_password_hash("python123")
     }
 
     @auth.verify_password

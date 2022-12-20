@@ -1,3 +1,4 @@
+from crypt import methods
 from app import login_manager, login_user, login_required, current_user, logout_user, render_template, redirect, url_for, Blueprint, request, func, jsonify, csrf
 from app.models.tables import TipoUsuario, db
 
@@ -29,3 +30,10 @@ def registrar():
         db.session.add(tipo_usuario_obj)
         db.session.commit()
     return jsonify({"mensagem": "TIPO USUARIO CADASTRADO COM SUCESSO"})
+
+
+@tipo_usuario.route("/listarTipoUsuario", methods=['GET'])
+@login_required
+def listar():
+    if request.method == "GET":
+        return render_template('tipo_usuario.html')
