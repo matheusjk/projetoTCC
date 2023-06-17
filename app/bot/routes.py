@@ -18,7 +18,7 @@ def mandaMensagem():
     
     # msg = "TESTE PYTHON BOT"
     msg = request.get_json()['mensagem']
-    token = '636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY'
+    token = 'token_telegram'
     # url = "https://api.telegram.org/bot{}/getUpdates?offset=0".format(token)
     url_mensagem = "https://api.telegram.org/bot{}/sendMessage".format(token)
    
@@ -48,7 +48,7 @@ def mandaMensagem():
 #         print(error)
 
 # msg = "TESTE PYTHON BOT"
-# token = '636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY'
+# token = ''
 # url = "https://api.telegram.org/bot{}/getUpdates?offset=0".format(token)
 # url_mensagem = "https://api.telegram.org/bot{}/sendMessage".format(token)
 
