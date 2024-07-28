@@ -16,7 +16,7 @@
 
 /* CREDENCIAIS EMAIL */
 #define AUTOR_EMAIL "matheusrodriguesh@hotmail.com"
-#define AUTOR_SENHA "85122504jk*"
+#define AUTOR_SENHA "password_email"
 
 #define RECIPIENT_EMAIL "matheusrodriguesh1@gmail.com"
 
@@ -40,9 +40,9 @@ int cont = 0;
 
 // Na ausencia da WiFiManager usar isso aqui
 //const char* ssid = "netvirtua1567 ap 101";
-//const char* senha = "1098550000";
+//const char* senha = "wifi_password";
 
-//String apiKey = "I72SM7NOTEJ4OPKW";
+//String apiKey = "api_key";
 
 //String servidorThingSpeak = "http://api.thingspeak.com/update";
 
@@ -73,7 +73,7 @@ IPAddress dns1(8, 8, 8, 8);  //181, 213, 132, 2  8, 8, 8, 8
 
 IPAddress server_addr(192, 168, 0, 13); // IP DO SERVIDOR MYSQL
 char user[] = "tcc2";
-char password[] = "123@mudar*";
+char password[] = "password_banco_dados";
 
 WiFiManager wifiManager;
 WiFiClient client;
