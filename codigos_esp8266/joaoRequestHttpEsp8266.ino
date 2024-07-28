@@ -23,7 +23,7 @@
 
 /* CREDENCIAIS EMAIL */
 #define AUTOR_EMAIL "projetotccfinal2022@gmail.com"
-#define AUTOR_SENHA "hrlhnaxangjdgpat"
+#define AUTOR_SENHA "password_gmail_project"
 
 //#define RECIPIENT_EMAIL "matheusrodriguesh1@gmail.com"
 
@@ -45,18 +45,18 @@ DHT dht(DHTPINO, DHTTYPE);
 int valor_analog;
 int valor_dig;
 
-#define ssid "netvirtua1567 ap 101"
-#define senha "1098550000"
+#define ssid "ssid"
+#define senha "password"
 
 
 // Telegram BOT Token (Get from Botfather)
-#define BOT_TOKEN "636806365:AAGbBHi-1KJ6wXFKKY3J3JdZnOCeG3j-RFY"
+#define BOT_TOKEN "key"
 
 
 // Use @myidbot (IDBot) to find out the chat ID of an individual or a group
 // Also note that you need to click "start" on a bot before it can
 // message you
-#define CHAT_ID "619977655"
+#define CHAT_ID "cha_id_number"
 
 
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
