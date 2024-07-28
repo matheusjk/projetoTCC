@@ -21,7 +21,7 @@
 
 /* CREDENCIAIS EMAIL */
 #define AUTOR_EMAIL "projetotccfinal2022@gmail.com"
-#define AUTOR_SENHA "hrlhnaxangjdgpat"
+#define AUTOR_SENHA "password_gmail"
 
 //#define RECIPIENT_EMAIL "matheusrodriguesh1@gmail.com"
 
@@ -44,7 +44,7 @@ int valor_analog;
 int valor_dig;
 
 //#define ssid "netvirtua1567 ap 101"
-//#define senha "1098550000"
+//#define senha "password_wifi"
 
 
 String serverName = "http://192.168.0.20:59000/config/listarConfigJsonEsp/5";
