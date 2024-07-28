@@ -25,7 +25,7 @@ def mandaMensagem():
     # chatID = pegaChatId(url)
 
     try:
-        response = requests.post(url_mensagem, json={'chat_id': 619977655, 'text': msg})
+        response = requests.post(url_mensagem, json={'chat_id': 0198908123231, 'text': msg})
         print(response.text)
     except Exception as error:
         print(error)
