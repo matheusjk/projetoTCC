@@ -19,7 +19,7 @@ bool enviou;
 int cont = 0;
 
 const char* ssid = "netvirtua1567 ap 101";
-const char* senha = "1098550000";
+const char* senha = "password_wifi";
 
 String servidor= "http://ip-api.com/json/";
 
@@ -48,7 +48,7 @@ IPAddress dns1(8, 8, 8, 8);  //181, 213, 132, 2  8, 8, 8, 8
 
 IPAddress server_addr(192, 168, 0, 8); // IP DO SERVIDOR MYSQL
 char user[] = "tcc2";
-char password[] = "123@mudar";
+char password[] = "password_banco_dados";
 
 
 WiFiClient client;
